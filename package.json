@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "d": "vite",
-    "dev":"vite",
+    "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
+    "@tanstack/vue-table": "^8.21.3",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^13.3.0",
     "class-variance-authority": "^0.7.1",

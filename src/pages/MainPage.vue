@@ -3,9 +3,6 @@ import AppSideBar from '@/components/custom/AppSideBar.vue';
 import SidebarProvider from '@/components/ui/sidebar/SidebarProvider.vue';
 import SidebarTrigger from '@/components/ui/sidebar/SidebarTrigger.vue';
 
-
-
-
 </script>
 
 
