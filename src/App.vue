@@ -8,7 +8,7 @@ router.push('/login')
 </script>
 
 <template>
-  <div class="w-screen h-screen flex justify-center items-center">
+  <div class="w-screen h-screen overflow-hidden">
     <RouterView></RouterView>
   </div>
   
