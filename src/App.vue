@@ -5,14 +5,17 @@ import SidebarProvider from './components/ui/sidebar/SidebarProvider.vue';
 import AppSideBar from './components/custom/AppSideBar.vue';
 import SidebarTrigger from './components/ui/sidebar/SidebarTrigger.vue';
 import Button from './components/ui/button/Button.vue';
+import 'element-plus/dist/index.css'
+import CheckIn from './pages/ctm/CheckIn.vue';
 
 const router=useRouter()
-router.push('/login')
+router.push('/nursingLevel')
 
 </script>
 
 <template>
   <div class="w-screen h-screen overflow-hidden">
+    <!-- <CheckIn></Checkin> -->
     <RouterView></RouterView>
   </div>
 </template>
