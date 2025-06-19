@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity, AArrowDown } from "lucide-vue-next"
+import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from "lucide-vue-next"
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,10 @@ import SidebarMenuSubButton from "../ui/sidebar/SidebarMenuSubButton.vue";
 import Collapsible from "../ui/collapsible/Collapsible.vue";
 import CollapsibleTrigger from "../ui/collapsible/CollapsibleTrigger.vue";
 import CollapsibleContent from "../ui/collapsible/CollapsibleContent.vue";
+import Separator from "../ui/separator/Separator.vue";
+import { useAppState } from "@/lib/store";
+
+const emits=defineEmits(['memoryPlus'])
 
 type siderbarItem = {
   title: string,
@@ -97,12 +101,12 @@ const items: siderbarItem[] = [
 <template>
   <Sidebar variant="floating">
     <SidebarContent>
-      
       <SidebarGroup>
         <SidebarGroupLabel>{{ applictionName }}</SidebarGroupLabel>
+        <Separator></Separator>
         <SidebarGroupContent>
           <SidebarMenu>
-            <Collapsible default-open class="group/collapsible" v-for="item in items" :key="item.title" >
+            <Collapsible  class="group/collapsible" v-for="item in items" :key="item.title" >
             <SidebarMenuItem >
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton asChild>
@@ -115,7 +119,7 @@ const items: siderbarItem[] = [
               <CollapsibleContent>
                 <SidebarMenuSub v-for="subItem in item.children" :key="subItem.title">
                   <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
+                    <SidebarMenuSubButton asChild @click="$emit('memoryPlus',subItem.title)">
                       <div>
                         <span>{{ subItem.title }}</span>
                       </div>
