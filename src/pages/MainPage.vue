@@ -15,67 +15,94 @@ import DropdownMenuShortcut from '@/components/ui/dropdown-menu/DropdownMenuShor
 import DropdownMenuGroup from '@/components/ui/dropdown-menu/DropdownMenuGroup.vue';
 import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
+import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 
-const { addState, deleteState,appState } = useAppState()
 
-const handleStateCancel = (stateName: string) => {
+const { addState, deleteState, appState } = useAppState()
+let appStateCur:Key<typeof STATENAME_TAG>|''=''
+const router = useRouter()
+//To-do-List
+onBeforeRouteUpdate(async (to,from)=>{
+    if(from.fullPath==='/main'){
+        return true
+    }
+    if(from.fullPath.includes(STATENAME_TAG[appStateCur]??'12345')){
+        return true
+    }
+    else{
+        return false
+    }
+})
+const handleStateCancel = (stateName: Key<typeof STATENAME_TAG>) => {
     deleteState(stateName)
+    appStateCur=stateName
+    router.push('/main')
 }
-const handleStatePlus=(stateName:string)=>{
+const handleStatePlus = (stateName:Key<typeof STATENAME_TAG>) => {
     addState(stateName)
+    router.push(STATENAME_TAG[stateName]!==undefined?`main/${STATENAME_TAG[stateName]}`:'/main')
+}
+const STATENAME_TAG={
+    '':'',
+    入住登记:'checkIn',
+    退住登记:undefined
 }
 </script>
 
 
 <template>
-    <div class="flex grid  bg-img">
-        <div class="backBlur h-[4em] flex items-center justify-between">
-            <div class="translate-x-1/4 flex-1 space-x-4 flex">
-                <AvgTag v-for="frame in appState" :tag-name="frame"
-                    @memory-cancel="handleStateCancel(frame)" :id="frame" />
-            </div>
-            <div class="mr-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <Avatar>
-                            <AvatarFallback>
-                                头像
-                            </AvatarFallback>
-                            <AvatarImage src="">
-                            </AvatarImage>
-                        </Avatar>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>个人资料</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <span>档案</span>
-                                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <span>设置</span>
-                                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <span>退出</span>
-                                <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                    </DropdownMenuContent>
-
-                </DropdownMenu>
-
+    <div class="bg-img">
+        <div class="flex backBlur w-full z-1 right-0 justify-end">
+            <div class="z-0 flex w-2/3 justify-end">
+                <div class="flex justify-between mr-5 w-full">
+                    <div class=" h-[3em] flex items-center">
+                        <div class="translate-x-1/4 flex-1 space-x-4 flex">
+                            <AvgTag v-for="frame in appState" :tag-name="frame"
+                                @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame" />
+                        </div>
+                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <Avatar>
+                                <AvatarFallback>
+                                    头像
+                                </AvatarFallback>
+                                <AvatarImage src="">
+                                </AvatarImage>
+                            </Avatar>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuLabel>个人资料</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem>
+                                    <span>档案</span>
+                                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <span>设置</span>
+                                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <span>退出</span>
+                                    <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
         </div>
-
-        <div class="flow-root">
-            <SidebarProvider :default-open="false">
-                <AppSideBar @memory-plus="handleStatePlus"/>
-                <main class="-translate-y-1/12">
-                    <SidebarTrigger></SidebarTrigger>
-                </main>
-            </SidebarProvider>
+        <div class="flex z-10 ">
+            <div>
+                <SidebarProvider :default-open="false">
+                    <AppSideBar @memory-plus="handleStatePlus" />
+                    <main class="h-[30px]">
+                        <SidebarTrigger></SidebarTrigger>
+                    </main>
+                </SidebarProvider>
+            </div>
+            <RouterView></RouterView>
         </div>
     </div>
 </template>
@@ -85,7 +112,7 @@ const handleStatePlus=(stateName:string)=>{
 }
 
 .bg-img {
-    background-image: url('');
+    background-image: url('/src/assets/bg.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

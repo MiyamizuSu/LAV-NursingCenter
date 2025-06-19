@@ -16,7 +16,11 @@ const aniStr = computed(() => isLeft.value ? 'translateX(4%)' : 'translateX(104%
         <!-- 白色滑块（稍微缩小） -->
         <motion.div
             class="w-[48%] h-[90%] bg-white rounded-lg absolute top-1/2 left-0 z-0 -translate-y-1/2 transition-transform duration-300"
-            :animate="{ transform: aniStr }" />
+            :animate="{ transform: aniStr }" 
+            :transition="{
+                type:'spring'
+            }"
+            />
 
         <!-- 文字按钮 -->
         <div class="flex relative z-10 text-center text-sm font-medium text-gray-700 h-full">
