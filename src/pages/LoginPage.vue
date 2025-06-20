@@ -39,11 +39,11 @@ const jump=()=>{
 </script>
 
 <template>
-    <div class="flex justify-center items-center ">
-        <Card class="absolute h-[50vh] w-[30vw] -translate-x-1/2 z-1">
+    <div class="flex justify-center items-center h-screen w-screen ">
+        <Card class="absolute h-[50vh] w-[30vw] -translate-x-1/4 z-1">
             1
         </Card>
-        <Card class="z-10 h-[40vh] w-[30vw]">
+        <Card class="z-10 h-[40vh] w-[25vw]">
             <CardContent>
                 <form class="grid gap-4">
                     <FormField v-slot="{ componentField }" name="username">

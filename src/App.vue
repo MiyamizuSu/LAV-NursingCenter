@@ -15,17 +15,8 @@ router.push('/login')
 
 <template>
   <div class="w-screen h-screen overflow-hidden">
-    <SidebarProvider>
-      <AppSideBar>
-      </AppSideBar>
-      <SidebarTrigger>
-        <Button>
-        </Button>
-      </SidebarTrigger>
-      <CheckIn></CheckIn>
-    </SidebarProvider>
+    <RouterView></RouterView>
   </div>
-  
 </template>
 
 <style scoped>
