@@ -17,9 +17,8 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown, ChevronsUpDown, Import } from 'lucide-vue-next'
-
-import { h, ref } from 'vue'
+import { ArrowUpDown, ChevronDown, ChevronsUpDown, IdCard, Import } from 'lucide-vue-next'
+import { h, reactive, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -36,25 +35,20 @@ import { valueUpdater } from '@/components/ui/table/utils'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu'
 import { RippleButton } from '@/components/ui/ripple-button'
 import Switcher from '@/components/custom/Switcher.vue'
+import { ElButton, ElInput } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 
-export interface Payment {
-  id: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
-}
-
-export interface Customer{
+export interface Customer {
   id: number
   name: string
-  gender: string 
+  gender: string
   bloodType: string
   age: number
   idCard: string
   relative: string
   phoneNumber: string
   roomNumber: string
-  bedNumber: string 
+  bedNumber: string
   checkinDate: string
   expirationDate: string
 }
@@ -70,7 +64,7 @@ const data: Customer[] = [
     relative: '奇诺',
     phoneNumber: '13376548907',
     roomNumber: '2011',
-    bedNumber: '2011-3', 
+    bedNumber: '2011-3',
     checkinDate: '2024-12-20',
     expirationDate: '2025-06-20'
   },
@@ -108,7 +102,6 @@ const data: Customer[] = [
 //     email: 'carmella@hotmail.com',
 //   },
 // ]
-
 
 const columns: ColumnDef<Customer>[] = [
   {
@@ -160,81 +153,81 @@ const columns: ColumnDef<Customer>[] = [
 
   {
     accessorKey: 'id',
-    header: () => h('div', {} ,'序号'),
+    header: () => h('div', {}, '序号'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('id')),
   },
   {
     accessorKey: 'name',
-    header: () => h('div', {} ,'姓名'),
+    header: () => h('div', {}, '姓名'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('name')),
   },
   {
     accessorKey: 'gender',
-    header: () => h('div', {} ,'性别'),
+    header: () => h('div', {}, '性别'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('gender')),
   },
   {
     accessorKey: 'bloodType',
-    header: () => h('div', {} ,'血型'),
+    header: () => h('div', {}, '血型'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('bloodType')),
   },
   {
     accessorKey: 'age',
-    header: () => h('div', {} ,'年龄'),
+    header: () => h('div', {}, '年龄'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('age')),
   },
   {
     accessorKey: 'idCard',
-    header: () => h('div', {} ,'身份证号'),
+    header: () => h('div', {}, '身份证号'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('idCard')),
   },
   {
     accessorKey: 'relative',
-    header: () => h('div', {} ,'家属'),
+    header: () => h('div', {}, '家属'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('relative')),
   },
   {
     accessorKey: 'phoneNumber',
-    header: () => h('div', {} ,'电话号码'),
+    header: () => h('div', {}, '电话号码'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('phoneNumber')),
   },
   {
     accessorKey: 'roomNumber',
-    header: () => h('div', {} ,'房间号'),
+    header: () => h('div', {}, '房间号'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('roomNumber')),
   },
   {
     accessorKey: 'bedNumber',
-    header: () => h('div', {} ,'床位号'),
+    header: () => h('div', {}, '床位号'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('bedNumber')),
   },
   {
     accessorKey: 'checkinDate',
-    header: () => h('div', {} ,'入住时间'),
+    header: () => h('div', {}, '入住时间'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('checkinDate')),
   },
   {
     accessorKey: 'expirationDate',
-    header: () => h('div', {} ,'操作'),
+    header: () => h('div', {}, '操作'),
     cell: ({ row }) =>
-    h('div', { class: 'flex gap-2' }, [
-      h(
-        'button',
-        {
-          class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-          // onClick: () => handleEdit(row.original),
-        },
-        '修改'
-      ),
-      h(
-        'button',
-        {
-          class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
-          // onClick: () => handleDelete(row.original),
-        },
-        '删除'
-      ),
-    ]),
+      h('div', { class: 'flex gap-2' }, [
+        h(
+          'button',
+          {
+            class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
+            // onClick: () => handleEdit(row.original),
+          },
+          '修改'
+        ),
+        h(
+          'button',
+          {
+            class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
+            // onClick: () => handleDelete(row.original),
+          },
+          '删除'
+        ),
+      ]),
   },
 ]
 
@@ -266,6 +259,148 @@ const table = useVueTable({
   },
 })
 
+const showForm = ref(false)
+const form = reactive({
+  name: '',
+  age: '',
+  gender: '',
+  idCard: '',
+  bloodType: '',
+  relative: '',
+  phoneNumber: '',
+  building: '',
+  roomNumber: '',
+  bedNumber: '',
+  customerType: '',
+  checkinDate: '',
+  expirationDate: '',
+})
+const formTitle = ref()
+// 打开添加表单
+const openDialog = (title: string) => {
+  formTitle.value = title
+  showForm.value = true
+}
+// 提交客户信息
+const onSubmit = () => {
+  // 实现后端
+  // ...
+  addCustomerVisible.value = false
+  showForm.value = false
+  clearForm()
+}
+const cancelSubmit = () => {
+  console.log('取消提交：')
+  showForm.value = false
+  clearForm()
+}
+
+// 清空表单
+const clearForm = () => {
+  form.name = ''
+  form.age = ''
+  form.gender = ''
+  form.idCard = ''
+  form.bloodType = ''
+  form.relative = ''
+  form.phoneNumber = ''
+  form.building = ''
+  form.roomNumber = ''
+  form.bedNumber = ''
+  form.customerType = ''
+  form.checkinDate = ''
+  form.expirationDate = ''
+}
+
+const addCustomerVisible = ref(false)
+
+const formRef = ref<FormInstance>()
+// 配置表单校验规则
+const rules: FormRules = {
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' }
+  ],
+  age: [
+    {required: true, message: '请输入年龄', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const num = Number(value)
+        if (isNaN(num)) {
+          callback(new Error('年龄必须是数字'))
+        } else if (num < 0 || num > 120) {
+          callback(new Error('年龄必须在 0 到 120 之间'))
+        }else if (!Number.isInteger(num)) {
+          callback(new Error('年龄必须是整数')) 
+        }else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  gender: [
+    {required: true, message: '请选择性别', trigger: 'blur'}
+  ],
+  idCard: [
+    {required: true, message: '请输入身份证号', trigger: 'blur'}
+  ],
+  bloodType: [
+    {required: true, message: '请输入血型', trigger: 'blur'}
+  ],
+  relative: [
+    {required: true, message: '请输入家属姓名', trigger: 'blur'}
+  ],
+  phoneNumber: [
+    {required: true, message: '请输入联系电话', trigger: 'blur'},
+    {
+      validator: (rule, value, callback) => {
+        const reg = /^\d{11}$/
+        if (!reg.test(value)) {
+          callback(new Error('电话号码必须是11位数字'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  building: [
+    {required: true, message: '请输入楼栋', trigger: 'blur'}
+  ],
+  roomNumber: [
+    {required: true, message: '请输入房间号', trigger: 'blur'}
+  ],
+  bedNumber: [
+    {required: true, message: '请输入床位号', trigger: 'blur'}
+  ],
+  customerType: [
+    {required: true, message: '请选择客户类型', trigger: 'blur'}
+  ],
+  checkinDate: [
+    {required: true, message: '请选择入住时间', trigger: 'blur'}
+  ],
+  expirationDate: [
+    {required: true, message: '请选择合同到期时间', trigger: 'change'},
+    {
+      validator: (rule, value, callback) => {
+        if (!form.checkinDate || !value) {
+          callback()
+          return
+        }
+        const checkin = new Date(form.checkinDate)
+        const expiration = new Date(value)
+        if (checkin > expiration) {
+          callback(new Error('入住时间必须早于合同到期时间'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
+  ]
+
+}
+
 </script>
 
 <template>
@@ -273,12 +408,11 @@ const table = useVueTable({
 
   <div class="w-full">
     <div class="flex gap-2 items-center py-4">
-      <Input class="max-w-sm" placeholder="客户姓名"
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value=" table.getColumn('email')?.setFilterValue($event)" />
+      <Input class="max-w-sm" placeholder="客户姓名" :model-value="table.getColumn('name')?.getFilterValue() as string"
+        @update:model-value=" table.getColumn('name')?.setFilterValue($event)" />
 
       <div class="grid place-content-center p-8">
-        <RippleButton> 登记 </RippleButton>
+        <RippleButton @click="openDialog('入住登记')"> 登记 </RippleButton>
       </div>
     </div>
     <div>
@@ -305,9 +439,9 @@ const table = useVueTable({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  
-      
-    
+
+
+
     <div class="rounded-md border">
       <Table>
         <TableHeader>
@@ -344,7 +478,7 @@ const table = useVueTable({
 
           <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
+              无查询结果
             </TableCell>
           </TableRow>
         </TableBody>
@@ -353,8 +487,11 @@ const table = useVueTable({
 
     <div class="flex items-center justify-end space-x-2 py-4">
       <div class="flex-1 text-sm text-muted-foreground">
-        {{ table.getFilteredSelectedRowModel().rows.length }} of
-        {{ table.getFilteredRowModel().rows.length }} row(s) selected.
+        共
+        {{ table.getFilteredRowModel().rows.length }}
+        行，已选中
+        {{ table.getFilteredSelectedRowModel().rows.length }}
+        行
       </div>
       <div class="space-x-2">
         <Button variant="outline" size="sm" :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">
@@ -366,6 +503,123 @@ const table = useVueTable({
       </div>
     </div>
   </div>
+
+  <!-- 添加客户表单 -->
+  <div>
+    <el-dialog v-model="showForm" :title=formTitle width="35%" :append-to-body="true" label-position="left"
+      @close="cancelSubmit">
+      <el-form :model="form" :rules="rules" ref="formRef">
+        <!-- 分隔符 -->
+        <el-divider></el-divider>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="客户姓名：" prop="name">
+              <el-input v-model="form.name" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="年龄：" prop="age">
+              <el-input v-model="form.age" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="性别：" prop="gender">
+              <el-select v-model="form.gender" placeholder="请选择性别">
+                <el-option label="男" value="1" />
+                <el-option label="女" value="0" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="身份证号：" prop="idCard">
+              <el-input v-model="form.idCard" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="血型：" prop="bloodType">
+              <el-input v-model="form.bloodType" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="家属：" prop="relative">
+              <el-input v-model="form.relative" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="联系电话：" prop="phoneNumber">
+              <el-input v-model="form.phoneNumber" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="楼栋：" prop="building">
+              <el-input v-model="form.building" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="房间号：" prop="roomNumber">
+              <el-input v-model="form.roomNumber" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="床位号：" prop="bedNumber">
+              <el-input v-model="form.bedNumber" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="客户类型：" prop="customerType">
+          <el-radio-group v-model="form.customerType">
+            <el-radio value="自理老人">自理老人</el-radio>
+            <el-radio value="护理老人">护理老人</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="入住时间：" prop="checkinDate">
+          <el-col :span="11">
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="合同到期时间：" prop="expirationDate">
+          <el-col :span="11">
+            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+          </el-col>
+        </el-form-item>
+        <!-- 分隔符 -->
+        <el-divider></el-divider>
+        <el-form-item>
+          <div style="width: 100%; text-align: right">
+            <el-button type="primary" @click="addCustomerVisible = true">提交</el-button>
+            <el-button @click="cancelSubmit">取消</el-button>
+          </div>
+        </el-form-item>
+
+      </el-form>
+
+    </el-dialog>
+
+    <el-dialog v-model="addCustomerVisible" title="提示" width="500" top="40vh">
+      <span>确定登记该客户入住信息吗？</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addCustomerVisible = false">取消</el-button>
+          <el-button type="primary" @click="onSubmit">
+            提交
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
+
+
+
 
 
 </template>
