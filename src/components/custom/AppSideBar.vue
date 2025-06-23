@@ -20,7 +20,7 @@ import CollapsibleContent from "../ui/collapsible/CollapsibleContent.vue";
 import Separator from "../ui/separator/Separator.vue";
 import { useAppState } from "@/lib/store";
 
-const emits=defineEmits(['memoryPlus'])
+const emits = defineEmits(['memoryPlus'])
 
 type siderbarItem = {
   title: string,
@@ -106,29 +106,29 @@ const items: siderbarItem[] = [
         <Separator></Separator>
         <SidebarGroupContent>
           <SidebarMenu>
-            <Collapsible  class="group/collapsible" v-for="item in items" :key="item.title" >
-            <SidebarMenuItem >
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton asChild>
-                  <div>
-                    <component :is="item.icon" />
-                    <span>{{ item.title }}</span>
-                  </div>
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub v-for="subItem in item.children" :key="subItem.title">
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild @click="$emit('memoryPlus',subItem.title)">
-                      <div>
-                        <span>{{ subItem.title }}</span>
-                      </div>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
+            <Collapsible class="group/collapsible" v-for="item in items" :key="item.title">
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton asChild>
+                    <div>
+                      <component :is="item.icon" />
+                      <span>{{ item.title }}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub v-for="subItem in item.children" :key="subItem.title">
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild @click="$emit('memoryPlus', subItem.title)">
+                        <div>
+                          <span>{{ subItem.title }}</span>
+                        </div>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

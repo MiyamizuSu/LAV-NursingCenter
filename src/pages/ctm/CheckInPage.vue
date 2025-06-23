@@ -36,13 +36,7 @@ import { valueUpdater } from '@/components/ui/table/utils'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu'
 import { RippleButton } from '@/components/ui/ripple-button'
 import Switcher from '@/components/custom/Switcher.vue'
-
-export interface Payment {
-  id: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
-}
+import { motion } from 'motion-v'
 
 export interface Customer{
   id: number
@@ -76,40 +70,6 @@ const data: Customer[] = [
   },
 ]
 
-// const data: Payment[] = [
-//   {
-//     id: 'm5gr84i9',
-//     amount: 316,
-//     status: 'success',
-//     email: 'ken99@yahoo.com',
-//   },
-//   {
-//     id: '3u1reuv4',
-//     amount: 242,
-//     status: 'success',
-//     email: 'Abe45@gmail.com',
-//   },
-//   {
-//     id: 'derv1ws0',
-//     amount: 837,
-//     status: 'processing',
-//     email: 'Monserrat44@gmail.com',
-//   },
-//   {
-//     id: '5kma53ae',
-//     amount: 874,
-//     status: 'success',
-//     email: 'Silas22@gmail.com',
-//   },
-//   {
-//     id: 'bhqecj4p',
-//     amount: 721,
-//     status: 'failed',
-//     email: 'carmella@hotmail.com',
-//   },
-// ]
-
-
 const columns: ColumnDef<Customer>[] = [
   {
     id: 'select',
@@ -126,38 +86,6 @@ const columns: ColumnDef<Customer>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: 'status',
-  //   header: 'Status',
-  //   cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('status')),
-  // },
-  // {
-  //   accessorKey: 'email',
-  //   header: ({ column }) => {
-  //     return h(Button, {
-  //       variant: 'ghost',
-  //       onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  //     }, () => ['Email', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })])
-  //   },
-  //   cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('email')),
-  // },
-  // {
-  //   accessorKey: 'amount',
-  //   header: () => h('div', { class: 'text-right' }, 'Amount'),
-  //   cell: ({ row }) => {
-  //     const amount = Number.parseFloat(row.getValue('amount'))
-
-  //     // Format the amount as a dollar amount
-  //     const formatted = new Intl.NumberFormat('en-US', {
-  //       style: 'currency',
-  //       currency: 'USD',
-  //     }).format(amount)
-
-  //     return h('div', { class: 'text-right font-medium' }, formatted)
-  //   },
-  // },
-
-
   {
     accessorKey: 'id',
     header: () => h('div', {} ,'序号'),
@@ -222,7 +150,6 @@ const columns: ColumnDef<Customer>[] = [
         'button',
         {
           class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-          // onClick: () => handleEdit(row.original),
         },
         '修改'
       ),
@@ -230,7 +157,6 @@ const columns: ColumnDef<Customer>[] = [
         'button',
         {
           class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
-          // onClick: () => handleDelete(row.original),
         },
         '删除'
       ),
@@ -271,12 +197,11 @@ const table = useVueTable({
 <template>
 
 
-  <div class="w-full">
+  <motion.div class="w-full" :initial="{opacity:0}" :animate="{opacity:1}" :transition="{type:'spring'}">
     <div class="flex gap-2 items-center py-4">
       <Input class="max-w-sm" placeholder="客户姓名"
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value=" table.getColumn('email')?.setFilterValue($event)" />
-
+        :model-value="table.getColumn('name')?.getFilterValue() as string"
+        @update:model-value=" table.getColumn('name')?.setFilterValue($event)" />
       <div class="grid place-content-center p-8">
         <RippleButton> 登记 </RippleButton>
       </div>
@@ -365,7 +290,7 @@ const table = useVueTable({
         </Button>
       </div>
     </div>
-  </div>
+  </motion.div>
 
 
 </template>
