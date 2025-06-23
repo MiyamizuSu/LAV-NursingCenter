@@ -18,7 +18,8 @@ import {
   useVueTable,
 } from '@tanstack/vue-table'
 import { ArrowUpDown, ChevronDown, ChevronsUpDown, IdCard, Import } from 'lucide-vue-next'
-import { h, reactive, ref } from 'vue'
+import { h, reactive, ref, onMounted, watch } from 'vue'
+import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -37,9 +38,10 @@ import { RippleButton } from '@/components/ui/ripple-button'
 import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export interface Customer {
-  id: number
+  customerId: number
   name: string
   gender: string
   bloodType: string
@@ -47,61 +49,95 @@ export interface Customer {
   idCard: string
   relative: string
   phoneNumber: string
+  building: string
   roomNumber: string
   bedNumber: string
   checkinDate: string
   expirationDate: string
+  customerType: number
 }
 
 const data: Customer[] = [
-  {
-    id: 1,
-    name: '大师兄',
-    gender: '男',
-    bloodType: 'A',
-    age: 66,
-    idCard: '2378973045304',
-    relative: '奇诺',
-    phoneNumber: '13376548907',
-    roomNumber: '2011',
-    bedNumber: '2011-3',
-    checkinDate: '2024-12-20',
-    expirationDate: '2025-06-20'
-  },
-]
 
-// const data: Payment[] = [
-//   {
-//     id: 'm5gr84i9',
-//     amount: 316,
-//     status: 'success',
-//     email: 'ken99@yahoo.com',
-//   },
-//   {
-//     id: '3u1reuv4',
-//     amount: 242,
-//     status: 'success',
-//     email: 'Abe45@gmail.com',
-//   },
-//   {
-//     id: 'derv1ws0',
-//     amount: 837,
-//     status: 'processing',
-//     email: 'Monserrat44@gmail.com',
-//   },
-//   {
-//     id: '5kma53ae',
-//     amount: 874,
-//     status: 'success',
-//     email: 'Silas22@gmail.com',
-//   },
-//   {
-//     id: 'bhqecj4p',
-//     amount: 721,
-//     status: 'failed',
-//     email: 'carmella@hotmail.com',
-//   },
-// ]
+]
+// 分页参数
+// const currentPage = ref(1)
+// const pageSize = ref(10)
+const pages = ref({
+  currentPage: 1,
+  pageSize: 10
+})
+const total = ref(0)
+const customerList = ref([])
+const customerType = ref(0)
+
+// 获取分页客户数据
+const fetchCustomers = async () => {
+  //const customerType = selectedCustomerType.value === '自理老人'
+  if(selectedCustomerType.value === '护理老人'){
+    customerType.value = 1
+  }else{
+    customerType.value = 0
+  }
+  axios.post('http://localhost:9000/customer/page', {
+    current: pages.value.currentPage,
+    size: pages.value.pageSize,
+    customerType: customerType.value,
+    name: ""
+  }
+  ).then((res) => {
+    console.log(res.data)
+    if (res.data.status === 200) {
+      customerList.value = res.data.data
+      total.value = res.data.total
+      updateTableData(customerList.value)
+    } else {
+      customerList.value = []
+    }
+  })
+}
+
+const showUpdateForm = ref(false)  // 修改界面的可见性
+const updateCustomerVisible = ref(false) // 确认修改界面的可见性
+const openUpdateForm = (customer: Customer) => {  // 打开修改界面
+  // 
+  Object.assign(form, customer)
+  console.log("当前客户信息", form)
+  showUpdateForm.value = true
+}
+const checkUpdateForm = () => {
+  formRef.value?.validate((valid: boolean) => {
+    if (valid) {
+      console.log('表单数据:', form)
+      updateCustomerVisible.value = true
+    } else {
+      console.log('表单验证失败')
+    }
+  })
+}
+const cancelUpdate = () => {
+  console.log('取消修改：')
+  showUpdateForm.value = false
+  clearForm()
+}
+const updateForm = async () => {
+  // 后端
+  axios.post("http://localhost:9000/customer/update", form).then((res) => {
+    console.log(res.data)
+    if (res.data.status === 200) {
+      fetchCustomers()
+    } else {
+
+    }
+
+  })
+
+
+  updateCustomerVisible.value = false
+  showUpdateForm.value = false
+  clearForm()
+
+}
 
 const columns: ColumnDef<Customer>[] = [
   {
@@ -119,42 +155,14 @@ const columns: ColumnDef<Customer>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: 'status',
-  //   header: 'Status',
-  //   cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('status')),
-  // },
-  // {
-  //   accessorKey: 'email',
-  //   header: ({ column }) => {
-  //     return h(Button, {
-  //       variant: 'ghost',
-  //       onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-  //     }, () => ['Email', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })])
-  //   },
-  //   cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('email')),
-  // },
-  // {
-  //   accessorKey: 'amount',
-  //   header: () => h('div', { class: 'text-right' }, 'Amount'),
-  //   cell: ({ row }) => {
-  //     const amount = Number.parseFloat(row.getValue('amount'))
-
-  //     // Format the amount as a dollar amount
-  //     const formatted = new Intl.NumberFormat('en-US', {
-  //       style: 'currency',
-  //       currency: 'USD',
-  //     }).format(amount)
-
-  //     return h('div', { class: 'text-right font-medium' }, formatted)
-  //   },
-  // },
-
-
   {
-    accessorKey: 'id',
+    accessorKey: 'index',
     header: () => h('div', {}, '序号'),
-    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('id')),
+    cell: ({ row }) => {
+    const pageSize = pages.value.pageSize
+    const currentPage = pages.value.currentPage
+    return h('div', {}, row.index + 1 + (currentPage - 1) * pageSize)
+  }
   },
   {
     accessorKey: 'name',
@@ -164,7 +172,11 @@ const columns: ColumnDef<Customer>[] = [
   {
     accessorKey: 'gender',
     header: () => h('div', {}, '性别'),
-    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('gender')),
+    cell: ({ row }) => {
+      const genderValue = row.getValue('gender')
+      const displayGender = genderValue === 1 ? '男' : genderValue === 0 ? '女' : '未知'
+      return h('div', { class: 'capitalize' }, displayGender)
+    }
   },
   {
     accessorKey: 'bloodType',
@@ -192,6 +204,11 @@ const columns: ColumnDef<Customer>[] = [
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('phoneNumber')),
   },
   {
+    accessorKey: 'building',
+    header: () => h('div', {}, '楼栋'),
+    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('building')),
+  },
+  {
     accessorKey: 'roomNumber',
     header: () => h('div', {}, '房间号'),
     cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('roomNumber')),
@@ -208,6 +225,11 @@ const columns: ColumnDef<Customer>[] = [
   },
   {
     accessorKey: 'expirationDate',
+    header: () => h('div', {}, '合同到期时间'),
+    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('expirationDate')),
+  },
+  {
+    accessorKey: 'operation',
     header: () => h('div', {}, '操作'),
     cell: ({ row }) =>
       h('div', { class: 'flex gap-2' }, [
@@ -215,7 +237,7 @@ const columns: ColumnDef<Customer>[] = [
           'button',
           {
             class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-            // onClick: () => handleEdit(row.original),
+            onClick: () => openUpdateForm(row.original),
           },
           '修改'
         ),
@@ -223,7 +245,7 @@ const columns: ColumnDef<Customer>[] = [
           'button',
           {
             class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
-            // onClick: () => handleDelete(row.original),
+            onClick: () => openDeleteForm(row.original),
           },
           '删除'
         ),
@@ -238,7 +260,9 @@ const rowSelection = ref({})
 const expanded = ref<ExpandedState>({})
 // dd
 const table = useVueTable({
-  data,
+  get data() {
+    return customerList.value
+  },
   columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
@@ -285,6 +309,10 @@ const openDialog = (title: string) => {
 const onSubmit = () => {
   // 实现后端
   // ...
+  axios.post("http://localhost:9000/customer/add", form).then((res) => {
+
+  })
+
   addCustomerVisible.value = false
   showForm.value = false
   clearForm()
@@ -321,7 +349,7 @@ const rules: FormRules = {
     { required: true, message: '请输入姓名', trigger: 'blur' }
   ],
   age: [
-    {required: true, message: '请输入年龄', trigger: 'blur' },
+    { required: true, message: '请输入年龄', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const num = Number(value)
@@ -329,9 +357,9 @@ const rules: FormRules = {
           callback(new Error('年龄必须是数字'))
         } else if (num < 0 || num > 120) {
           callback(new Error('年龄必须在 0 到 120 之间'))
-        }else if (!Number.isInteger(num)) {
-          callback(new Error('年龄必须是整数')) 
-        }else {
+        } else if (!Number.isInteger(num)) {
+          callback(new Error('年龄必须是整数'))
+        } else {
           callback()
         }
       },
@@ -339,19 +367,19 @@ const rules: FormRules = {
     }
   ],
   gender: [
-    {required: true, message: '请选择性别', trigger: 'blur'}
+    { required: true, message: '请选择性别', trigger: 'blur' }
   ],
   idCard: [
-    {required: true, message: '请输入身份证号', trigger: 'blur'}
+    { required: true, message: '请输入身份证号', trigger: 'blur' }
   ],
   bloodType: [
-    {required: true, message: '请输入血型', trigger: 'blur'}
+    { required: true, message: '请输入血型', trigger: 'blur' }
   ],
   relative: [
-    {required: true, message: '请输入家属姓名', trigger: 'blur'}
+    { required: true, message: '请输入家属姓名', trigger: 'blur' }
   ],
   phoneNumber: [
-    {required: true, message: '请输入联系电话', trigger: 'blur'},
+    { required: true, message: '请输入联系电话', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const reg = /^\d{11}$/
@@ -365,22 +393,22 @@ const rules: FormRules = {
     }
   ],
   building: [
-    {required: true, message: '请输入楼栋', trigger: 'blur'}
+    { required: true, message: '请输入楼栋', trigger: 'blur' }
   ],
   roomNumber: [
-    {required: true, message: '请输入房间号', trigger: 'blur'}
+    { required: true, message: '请输入房间号', trigger: 'blur' }
   ],
   bedNumber: [
-    {required: true, message: '请输入床位号', trigger: 'blur'}
+    { required: true, message: '请输入床位号', trigger: 'blur' }
   ],
   customerType: [
-    {required: true, message: '请选择客户类型', trigger: 'blur'}
+    { required: true, message: '请选择客户类型', trigger: 'blur' }
   ],
   checkinDate: [
-    {required: true, message: '请选择入住时间', trigger: 'blur'}
+    { required: true, message: '请选择入住时间', trigger: 'blur' }
   ],
   expirationDate: [
-    {required: true, message: '请选择合同到期时间', trigger: 'change'},
+    { required: true, message: '请选择合同到期时间', trigger: 'change' },
     {
       validator: (rule, value, callback) => {
         if (!form.checkinDate || !value) {
@@ -398,14 +426,83 @@ const rules: FormRules = {
       trigger: 'change'
     }
   ]
-
 }
+// 检查用户输入
+const checkAddForm = () => {
+  formRef.value?.validate((valid: boolean) => {
+    if (valid) {
+      console.log('表单数据:', form)
+      addCustomerVisible.value = true
+    } else {
+      console.log('表单验证失败')
+    }
+  })
+}
+
+// 页码改变时
+const changePage = (page: number) => {
+  pages.value.currentPage = page
+  fetchCustomers()
+}
+
+// 将数据更新到表格（如果使用 useTable）
+const updateTableData = (rows: any[]) => {
+  table.setOptions(prev => ({
+    ...prev,
+    data: rows
+  }))
+}
+
+const deleteCustomerVisible = ref(false) // 确认删除提示框可见性
+// 删除提示框
+const openDeleteForm = (customer: Customer) => {
+  ElMessageBox.confirm(
+    '确定要删除客户' + customer.name + '的信息吗？',
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      axios.post("http://localhost:9000/customer/deleteById", customer.customerId).then((res) => {
+        if (res.data.status === 200) {
+          ElMessage({
+            type: 'success',
+            message: '删除成功',
+          })
+          fetchCustomers()
+        } else {
+          ElMessage({
+            type: 'error',
+            message: '删除失败',
+          })
+        }
+      })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '已取消删除',
+      })
+    })
+}
+
+const selectedCustomerType = ref('自理老人')
+watch(selectedCustomerType, (newType: any) =>{
+  fetchCustomers()
+})
+
+onMounted(() => {
+  fetchCustomers()
+})
 
 </script>
 
 <template>
 
-
+  <!-- 客户信息列表 -->
   <div class="w-full">
     <div class="flex gap-2 items-center py-4">
       <Input class="max-w-sm" placeholder="客户姓名" :model-value="table.getColumn('name')?.getFilterValue() as string"
@@ -416,8 +513,7 @@ const rules: FormRules = {
       </div>
     </div>
     <div>
-      <Switcher left-value="自理老人" right-value="护理老人">
-
+      <Switcher v-model="selectedCustomerType" left-value="自理老人" right-value="护理老人">
       </Switcher>
     </div>
 
@@ -439,9 +535,6 @@ const rules: FormRules = {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-
-
-
     <div class="rounded-md border">
       <Table>
         <TableHeader>
@@ -478,7 +571,7 @@ const rules: FormRules = {
 
           <TableRow v-else>
             <TableCell :colspan="columns.length" class="h-24 text-center">
-              无查询结果
+              查无此人
             </TableCell>
           </TableRow>
         </TableBody>
@@ -494,11 +587,12 @@ const rules: FormRules = {
         行
       </div>
       <div class="space-x-2">
-        <Button variant="outline" size="sm" :disabled="!table.getCanPreviousPage()" @click="table.previousPage()">
+        <Button variant="outline" size="sm" :disabled="pages.currentPage <= 1" @click="changePage(pages.currentPage - 1)">
           前一页
         </Button>
-        <Button variant="outline" size="sm" :disabled="!table.getCanNextPage()" @click="table.nextPage()">
-          下一页
+        <Button variant="outline" size="sm" :disabled="pages.currentPage * pages.pageSize >= total"
+          @click="changePage(pages.currentPage + 1)">
+          后一页
         </Button>
       </div>
     </div>
@@ -577,8 +671,8 @@ const rules: FormRules = {
 
         <el-form-item label="客户类型：" prop="customerType">
           <el-radio-group v-model="form.customerType">
-            <el-radio value="自理老人">自理老人</el-radio>
-            <el-radio value="护理老人">护理老人</el-radio>
+            <el-radio value=0>自理老人</el-radio>
+            <el-radio value=1>护理老人</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -596,7 +690,7 @@ const rules: FormRules = {
         <el-divider></el-divider>
         <el-form-item>
           <div style="width: 100%; text-align: right">
-            <el-button type="primary" @click="addCustomerVisible = true">提交</el-button>
+            <el-button type="primary" @click="checkAddForm">提交</el-button>
             <el-button @click="cancelSubmit">取消</el-button>
           </div>
         </el-form-item>
@@ -618,7 +712,134 @@ const rules: FormRules = {
     </el-dialog>
   </div>
 
+  <!-- 修改客户信息表单 -->
+  <div>
+    <el-dialog v-model="showUpdateForm" title="信息修改" width="35%" :append-to-body="true" label-position="left"
+      @close="cancelSubmit">
+      <el-form :model="form" :rules="rules" ref="formRef">
+        <!-- 分隔符 -->
+        <el-divider></el-divider>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="客户姓名：" prop="name">
+              <el-input v-model="form.name" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="年龄：" prop="age">
+              <el-input v-model="form.age" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="性别：" prop="gender">
+              <el-select v-model="form.gender" placeholder="请选择性别">
+                <el-option label="男" value="1" />
+                <el-option label="女" value="0" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="身份证号：" prop="idCard">
+              <el-input v-model="form.idCard" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="血型：" prop="bloodType">
+              <el-input v-model="form.bloodType" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="家属：" prop="relative">
+              <el-input v-model="form.relative" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="联系电话：" prop="phoneNumber">
+              <el-input v-model="form.phoneNumber" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="楼栋：" prop="building">
+              <el-input v-model="form.building" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="房间号：" prop="roomNumber">
+              <el-input v-model="form.roomNumber" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="床位号：" prop="bedNumber">
+              <el-input v-model="form.bedNumber" />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
+        <el-form-item label="客户类型：" prop="customerType">
+          <el-radio-group v-model="form.customerType" prop="customerType">
+            <el-radio value="0">自理老人</el-radio>
+            <el-radio value="1">护理老人</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="入住时间：" prop="checkinDate">
+          <el-col :span="11">
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="合同到期时间：" prop="expirationDate">
+          <el-col :span="11">
+            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+          </el-col>
+        </el-form-item>
+        <!-- 分隔符 -->
+        <el-divider></el-divider>
+        <el-form-item>
+          <div style="width: 100%; text-align: right">
+            <el-button type="primary" @click="checkUpdateForm">提交</el-button>
+            <el-button @click="cancelUpdate">取消</el-button>
+          </div>
+        </el-form-item>
+
+      </el-form>
+
+    </el-dialog>
+
+    <el-dialog v-model="updateCustomerVisible" title="提示" width="500" top="40vh">
+      <span>确定修改该客户入住信息吗？</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="updateCustomerVisible = false">取消</el-button>
+          <el-button type="primary" @click="updateForm">
+            提交
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
+
+  <!-- 删除客户信息确认框 -->
+  <div>
+    <el-dialog v-model="deleteCustomerVisible" title="警告" width="500" top="40vh">
+      <span>确定登记该客户入住信息吗？</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addCustomerVisible = false">取消</el-button>
+          <el-button type="warning" @click="onSubmit">
+            提交
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 
 
 
