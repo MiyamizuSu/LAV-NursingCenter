@@ -39,41 +39,25 @@ import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { Customer } from './type'
+import { usecustomerManagementStore } from '@/lib/store'
 
-export interface Customer {
-  customerId: number
-  name: string
-  gender: string
-  bloodType: string
-  age: number
-  idCard: string
-  relative: string
-  phoneNumber: string
-  building: string
-  roomNumber: string
-  bedNumber: string
-  checkinDate: string
-  expirationDate: string
-  customerType: number
-}
+
 
 const data: Customer[] = [
-
 ]
+const ctmStore = usecustomerManagementStore()
 // 分页参数
-// const currentPage = ref(1)
-// const pageSize = ref(10)
 const pages = ref({
   currentPage: 1,
   pageSize: 10
 })
 const total = ref(0)
-const customerList = ref([])
 const customerType = ref(0)
 
 // 获取分页客户数据
 const fetchCustomers = async () => {
-  //const customerType = selectedCustomerType.value === '自理老人'
+
   if(selectedCustomerType.value === '护理老人'){
     customerType.value = 1
   }else{
@@ -88,11 +72,11 @@ const fetchCustomers = async () => {
   ).then((res) => {
     console.log(res.data)
     if (res.data.status === 200) {
-      customerList.value = res.data.data
+      ctmStore.setNewList(res.data.data)
       total.value = res.data.total
-      updateTableData(customerList.value)
+      updateTableData(ctmStore.getCustomerList.value)
     } else {
-      customerList.value = []
+      ctmStore.getCustomerList.value = []
     }
   })
 }
@@ -100,7 +84,6 @@ const fetchCustomers = async () => {
 const showUpdateForm = ref(false)  // 修改界面的可见性
 const updateCustomerVisible = ref(false) // 确认修改界面的可见性
 const openUpdateForm = (customer: Customer) => {  // 打开修改界面
-  // 
   Object.assign(form, customer)
   console.log("当前客户信息", form)
   showUpdateForm.value = true
@@ -131,7 +114,6 @@ const updateForm = async () => {
     }
 
   })
-
 
   updateCustomerVisible.value = false
   showUpdateForm.value = false
@@ -261,7 +243,7 @@ const expanded = ref<ExpandedState>({})
 // dd
 const table = useVueTable({
   get data() {
-    return customerList.value
+    return ctmStore.getCustomerList.value
   },
   columns,
   getCoreRowModel: getCoreRowModel(),
@@ -309,7 +291,7 @@ const openDialog = (title: string) => {
 const onSubmit = () => {
   // 实现后端
   // ...
-  axios.post("http://localhost:9000/customer/add", form).then((res) => {
+  axios.post("http://localhost:9000/customer/add", form).then((res ) => {
 
   })
 
@@ -466,7 +448,7 @@ const openDeleteForm = (customer: Customer) => {
     }
   )
     .then(() => {
-      axios.post("http://localhost:9000/customer/deleteById", customer.customerId).then((res) => {
+      axios.post("http://localhost:9000/customer/deleteById", customer.customerId).then((res:any) => {
         if (res.data.status === 200) {
           ElMessage({
             type: 'success',
@@ -496,8 +478,11 @@ watch(selectedCustomerType, (newType: any) =>{
 
 onMounted(() => {
   fetchCustomers()
+  
 })
-
+function change(e: string){
+  selectedCustomerType.value=e
+}
 </script>
 
 <template>
@@ -513,10 +498,9 @@ onMounted(() => {
       </div>
     </div>
     <div>
-      <Switcher v-model="selectedCustomerType" left-value="自理老人" right-value="护理老人">
+      <Switcher left-value="自理老人" right-value="护理老人" @select-value-change="change">
       </Switcher>
     </div>
-
     <div class="flex justify-end pb-4">
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
@@ -535,7 +519,10 @@ onMounted(() => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <div class="rounded-md border">
+    <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
+      客户信息
+    </div>
+    <div class="rounded-b-md border">
       <Table>
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
@@ -587,7 +574,8 @@ onMounted(() => {
         行
       </div>
       <div class="space-x-2">
-        <Button variant="outline" size="sm" :disabled="pages.currentPage <= 1" @click="changePage(pages.currentPage - 1)">
+        <Button variant="outline" size="sm" :disabled="pages.currentPage <= 1"
+          @click="changePage(pages.currentPage - 1)">
           前一页
         </Button>
         <Button variant="outline" size="sm" :disabled="pages.currentPage * pages.pageSize >= total"
@@ -671,8 +659,8 @@ onMounted(() => {
 
         <el-form-item label="客户类型：" prop="customerType">
           <el-radio-group v-model="form.customerType">
-            <el-radio value=0>自理老人</el-radio>
-            <el-radio value=1>护理老人</el-radio>
+            <el-radio value='0'>自理老人</el-radio>
+            <el-radio value='1'>护理老人</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -766,19 +754,19 @@ onMounted(() => {
           </el-col>
           <el-col :span="12">
             <el-form-item label="楼栋：" prop="building">
-              <el-input v-model="form.building" />
+              <el-input v-model="form.building" disabled/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="房间号：" prop="roomNumber">
-              <el-input v-model="form.roomNumber" />
+              <el-input v-model="form.roomNumber" disabled/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="床位号：" prop="bedNumber">
-              <el-input v-model="form.bedNumber" />
+              <el-input v-model="form.bedNumber" disabled/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -792,7 +780,7 @@ onMounted(() => {
 
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" disabled/>
           </el-col>
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">

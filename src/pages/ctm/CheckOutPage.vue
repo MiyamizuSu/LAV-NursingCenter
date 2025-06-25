@@ -40,29 +40,11 @@ import {
 import { valueUpdater } from '@/components/ui/table/utils'
 import axios from 'axios'
 import type { FormInstance, FormRules } from 'element-plus'
+import type { CheckoutRegistration, Customer } from './type'
+import { usecustomerManagementStore } from '@/lib/store'
+import  dayjs  from 'dayjs'
 
-export interface Customer { // 客户信息类
-    customerId: number
-    name: string
-    age: number
-    gender: string
-    bedNumber: string
-    nursingLevelName: string
-    checkinDate: string
-}
 
-export interface CheckoutRegistration {  // 退住申请类
-    id: number
-    customerId: number
-    customerName: string
-    checkinDate: string
-    checkoutDate: string
-    checkoutReason: string
-    bedNumber: string
-    reviewStatus: number
-    reviewTime: string
-    checkoutType: number
-}
 const searchName = ref('')
 const customerPages = ref({
     currentPage: 1,
@@ -74,9 +56,10 @@ const checkoutPages = ref({
 })
 const totalCustomer = ref(0)
 const totalCheckout = ref(0)
-const customerList = ref<Customer[]>([])
-const checkoutList = ref<CheckoutRegistration[]>([])
 
+//const ctmStore.getCheckoutList = ctmStore
+const ctmStore = usecustomerManagementStore()
+//const ctmStore.getCustomerList 
 const customerColumns: ColumnDef<Customer>[] = [
     {
         accessorKey: 'index',
@@ -173,15 +156,19 @@ const checkoutColumns: ColumnDef<CheckoutRegistration>[] = [
         header: () => h('div', {}, '审批状态'),
         cell: ({ row }) => {
             const reviewStatusValue = row.getValue('reviewStatus')
-            var displayReviewStatus = ''
+            let displayReviewStatus = ''
+            let color = ''
             if (reviewStatusValue === 0) {
                 displayReviewStatus = '已提交'
+                color = '#409EFF'
             } else if (reviewStatusValue === 1) {
                 displayReviewStatus = '不通过'
+                color = 'red'
             } else if (reviewStatusValue === 2) {
-                displayReviewStatus = '通过'
+                displayReviewStatus = '已通过'
+                color = '#67C23A'
             }
-            return h('div', { class: 'capitalize' }, displayReviewStatus)
+            return h('div', {style: { color,class: 'capitalize' }}, displayReviewStatus)
         }
     },
     {
@@ -212,7 +199,6 @@ const checkoutColumns: ColumnDef<CheckoutRegistration>[] = [
 
     },
 ]
-
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
@@ -221,7 +207,7 @@ const expanded = ref<ExpandedState>({})
 
 const customerTable = useVueTable({  // 客户信息表
     get data() {
-        return customerList.value
+        return ctmStore.getCustomerList.value
     },
     columns: customerColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -244,7 +230,7 @@ const customerTable = useVueTable({  // 客户信息表
 })
 const checkoutTable = useVueTable({  // 退住信息表
     get data() {
-        return checkoutList.value
+        return ctmStore.getCheckoutList.value
     },
     columns: checkoutColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -283,11 +269,12 @@ const loadCustomers = async () => {
         size: customerPages.value.pageSize,
     }).then((res) => {
         if (res.data.status === 200) {
-            customerList.value = res.data.data
+            // ctmStore.getCustomerList.value = res.data.data
+            ctmStore.setNewList(res.data.data)
             totalCustomer.value = res.data.total
-            updateCustomerTable(customerList.value)
+            updateCustomerTable(ctmStore.getCustomerList.value)
         } else {
-            customerList.value = []
+            ctmStore.getCustomerList.value = []
         }
     })
     // searchName.value = ''
@@ -302,23 +289,23 @@ const loadCheckoutRegistrations = async () => {
         console.log(res.data)
         if (res.data.status === 200) {
             totalCheckout.value = res.data.total
-            checkoutList.value = res.data.data.map((item: any) => ({
+            ctmStore.getCheckoutList.value = res.data.data.map((item: any) => ({
                 ...item,
                 checkinDate: '',  // 补字段
                 bedNumber: ''
             }))
-            checkoutList.value.forEach(checkout => {
-                console.log("客户信息", customerList)
-                const customer = customerList.value.find(c => c.customerId === checkout.customerId)
+            ctmStore.getCheckoutList.value.forEach(checkout => {
+                console.log("客户信息", ctmStore.getCustomerList)
+                const customer = ctmStore.getCustomerList.value.find(c => c.customerId === checkout.customerId)
                 console.log("要找的客户信息", customer)
                 if (customer) {
                     checkout.checkinDate = customer.checkinDate
                     checkout.bedNumber = customer.bedNumber
                 }
             })
-            updateCheckoutTable(checkoutList.value)
+            updateCheckoutTable(ctmStore.getCheckoutList.value)
         } else {
-            checkoutList.value = []
+            ctmStore.getCheckoutList.value = []
         }
     })
     searchName.value = ''
@@ -336,6 +323,7 @@ const updateCustomerTable = (rows: any[]) => {
         data: rows
     }))
 }
+// 更新退住审批列表
 const updateCheckoutTable = (rows: any[]) => {
     checkoutTable.setOptions(prev => ({
         ...prev,
@@ -351,7 +339,8 @@ const approvalForm = reactive({ // 暂存审批信息
     checkoutDate: '',
     checkoutReason: '',
     reviewStatus: '',
-    rejectReason: ''
+    rejectReason: '',
+    reviewTime: ''
 })
 const openApprovalForm = (checkout: CheckoutRegistration) =>{  // 打开审批界面
     Object.assign(approvalForm, checkout)
@@ -366,6 +355,7 @@ const cancelApprove = () =>{   // 取消审批
     approvalForm.checkoutReason = ''
     approvalForm.reviewStatus = ''
     approvalForm.rejectReason = ''
+    approvalForm.reviewTime = ''
 }
 // 配置表单校验规则
 const formRef = ref<FormInstance>()
@@ -375,9 +365,30 @@ const rules: FormRules = {
     { required: true, message: '请选择审批结果', trigger: 'blur' }
   ],
   rejectReason: [
-    { required: true, message: '请填写拒绝原因', trigger: 'blur' }
-  ],
+    {
+      validator: (rule, value, callback) => {
+        if (approvalForm.reviewStatus === '1' && !value) {
+          callback(new Error('请填写拒绝原因'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
 }
+// 检查用户输入
+const checkUpdateForm = () => {
+    formRef.value?.validate((valid: boolean) => {
+    if (valid) {
+      console.log('校验通过，提交数据', approvalForm)
+      submitApprovalVisible.value = true
+    } else {
+      console.warn('校验失败')
+    }
+  })
+}
+
 const checkoutTypeLabel = computed(() => {
   switch (Number(approvalForm.checkoutType)) {
     case 0:
@@ -392,9 +403,19 @@ const checkoutTypeLabel = computed(() => {
 })
 
 const submitApprovalVisible = ref(false)  // 确认提交审批结果表单的可见性
-const updateApproval = () => {
-
-
+const updateApproval = () => {  // 提交审批
+    const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss')  // 获取当前审批时间
+    approvalForm.reviewTime = currentTime
+    axios.post('http://localhost:9000/checkoutRegistration/update', approvalForm).then((res) => {
+        if (res.data.status === 200) {
+            console.log('提交审批成功')
+            loadCheckoutRegistrations()
+        } else {
+           console.log('提交审批失败')
+        }
+    })
+    submitApprovalVisible.value = false
+    cancelApprove()
 }
 
 watch(() => approvalForm.reviewStatus, (newVal) =>{
@@ -408,9 +429,7 @@ watch(() => approvalForm.reviewStatus, (newVal) =>{
 onMounted(async() => {
     await loadCustomers() // 加载客户数据
     await loadCheckoutRegistrations() // 加载退住申请数据
-    //enrichCheckoutList()
 })
-
 </script>
 
 <template>
@@ -423,7 +442,11 @@ onMounted(async() => {
                     checkoutTable.getColumn('customerName')?.setFilterValue(val)
                 }" />
             </div>
-            <div class="rounded-md border">
+
+            <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
+                客户信息
+            </div>
+            <div class="rounded-b-md border">
                 <Table>
                     <TableHeader>
                         <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
@@ -481,10 +504,13 @@ onMounted(async() => {
             <!-- 占位搜索框（invisible 保持布局但不显示） -->
             <div class="flex items-center py-4 invisible">
                 <Input class="max-w-sm" placeholder="占位"
-                    :model-value="checkoutTable.getColumn('name')?.getFilterValue() as string"
-                    @update:model-value=" checkoutTable.getColumn('name')?.setFilterValue($event)" />
+                    :model-value="checkoutTable.getColumn('customerName')?.getFilterValue() as string"
+                    @update:model-value=" checkoutTable.getColumn('customerName')?.setFilterValue($event)" />
             </div>
-            <div class="rounded-md border">
+            <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
+                退住申请审批
+            </div>
+            <div class="rounded-b-md border">
                 <Table>
                     <TableHeader>
                         <TableRow v-for="headerGroup in checkoutTable.getHeaderGroups()" :key="headerGroup.id">
@@ -541,41 +567,43 @@ onMounted(async() => {
 
     <!-- 审批退住申请表单 -->
     <div>
-        <el-dialog v-model="checkOutApprovalVisible" title="申请退住申请" width="30%" :append-to-body="true"
+        <el-dialog v-model="checkOutApprovalVisible" title="审批退住申请" width="30%" :append-to-body="true"
             label-position="left" @close="cancelApprove">
-            <el-form :model="approvalForm" ref="formRef">
+            <el-form :model="approvalForm" :rules="rules" ref="formRef">
                 <!-- 分隔符 -->
                 <el-divider></el-divider>
 
                 <el-form-item label="客户姓名：" prop="customerName">
-                    <el-input v-model="approvalForm.customerName" disabled/>
+                    <el-input v-model="approvalForm.customerName" disabled />
                 </el-form-item>
                 <el-form-item label="退住类型：" prop="checkoutType">
-                    <el-input v-model="checkoutTypeLabel" disabled/>
+                    <el-input v-model="checkoutTypeLabel" disabled />
                 </el-form-item>
                 <el-form-item label="退住时间：" prop="checkoutDate">
                     <el-col :span="11">
                         <el-date-picker v-model="approvalForm.checkoutDate" type="date" placeholder=""
-                            style="width: 100%" disabled/>
+                            style="width: 100%" disabled />
                     </el-col>
                 </el-form-item>
-                <el-form-item label="退住原因：" prop="checkoutReson">
-                    <el-input v-model="approvalForm.checkoutReason" type="textarea" disabled/>
+                <el-form-item label="退住原因：" prop="checkoutReason">
+                    <el-input v-model="approvalForm.checkoutReason" type="textarea" disabled />
                 </el-form-item>
+
                 <el-form-item label="是否通过该申请：" prop="reviewStatus">
-                    <el-radio-group v-model="approvalForm.reviewStatus" prop="reviewStatus">
-                        <el-radio value="2">通过</el-radio>
-                        <el-radio value="1">不通过</el-radio>
+                    <el-radio-group v-model="approvalForm.reviewStatus">
+                        <el-radio value='2'>通过</el-radio>
+                        <el-radio value='1'>不通过</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="不予通过的原因：" prop="rejectReson">
-                    <el-input v-model="approvalForm.rejectReason" type="textarea" :disabled="isPassed"/>
+
+                <el-form-item label="不予通过的原因：" prop="rejectReason">
+                    <el-input v-model="approvalForm.rejectReason" type="textarea" :disabled="isPassed" />
                 </el-form-item>
                 <!-- 分隔符 -->
                 <el-divider></el-divider>
                 <el-form-item>
                     <div style="width: 100%; text-align: right">
-                        <el-button type="primary" @click="submitApprovalVisible = true">提交审批</el-button>
+                        <el-button type="primary" @click="checkUpdateForm">提交审批</el-button>
                         <el-button @click="cancelApprove">取消</el-button>
                     </div>
                 </el-form-item>

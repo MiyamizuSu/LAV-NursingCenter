@@ -1,5 +1,6 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
+import type { CheckoutRegistration, Customer, OutingRegistration } from "@/pages/ctm/type";
 const appState = ref<Set<string>>(new Set<string>());
 export function useAppState() {
   return {
@@ -15,6 +16,35 @@ export function useAppState() {
     appState: appState,
   };
 }
-export const useBedLayoutStore = defineStore("bedStore", ()=>{
-    
+export const useBedLayoutStore = defineStore("bedStore", () => {
+
 });
+export const usecustomerManagementStore = defineStore('customManagentStore', () => {
+  const customerList = ref<Customer[]>([])
+  const checkoutList = ref<CheckoutRegistration[]>([])
+  const outingList = ref<OutingRegistration[]>([])
+  const getCustomerList = computed(() => customerList)
+  const getCheckoutList = computed(() => checkoutList)
+  const getOutingList = computed(() => outingList)
+  const addNewCutomer = (newCutomer: Customer) => {
+    customerList.value.push(newCutomer)
+  }
+  const setNewList = (newList: Customer[]) => {
+    customerList.value = newList
+  }
+  const setCheckoutList = (newList: CheckoutRegistration[]) => {
+    checkoutList.value = newList
+  }
+  // const setReviewTime = (id: number, newTime: string) => {
+  //   const target = checkoutList.value.find(item => item.id === id)
+  //   if(target){
+  //     target.reviewTime = newTime
+  //   }
+  // }
+  const setOutingList = (newList: OutingRegistration[]) => {
+    outingList.value = newList
+  }
+  return {
+    getCustomerList, getCheckoutList, getOutingList, addNewCutomer, setNewList, setOutingList
+  }
+})
