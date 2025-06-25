@@ -48,3 +48,26 @@ export const usecustomerManagementStore = defineStore('customManagentStore', () 
     getCustomerList, getCheckoutList, getOutingList, addNewCutomer, setNewList, setOutingList
   }
 })
+export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
+  const customerList = ref<Customer[]>([])
+  const allCustomerList = ref<Customer[]>([])
+  const checkoutList = ref<CheckoutRegistration[]>([])
+  const outingList = ref<OutingRegistration[]>([])
+  const getCustomerList = computed(() => customerList)
+  const getAllCustomerList = computed(() => allCustomerList)
+  const getCheckoutList = computed(() => checkoutList)
+  const getOutingList = computed(() => outingList)
+  const setCustomerList = (newList: Customer[]) => {
+    customerList.value = newList
+  }
+  const setOutingList = (newList: OutingRegistration[]) => {
+    outingList.value = newList
+  }
+  const setAllCustomerList = (newList: Customer[]) => {
+    allCustomerList.value = newList
+  }
+
+  return {
+    getCustomerList, getCheckoutList, getOutingList, getAllCustomerList,setCustomerList, setOutingList, setAllCustomerList
+  }
+})

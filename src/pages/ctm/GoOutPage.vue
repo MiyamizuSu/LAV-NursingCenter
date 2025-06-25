@@ -111,11 +111,6 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
         cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('customerName')),
     },
     {
-        accessorKey: 'customerName',
-        header: () => h('div', {}, '姓名'),
-        cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('customerName')),
-    },
-    {
         accessorKey: 'outingReason',
         header: () => h('div', {}, '外出事由'),
         cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('outingReason')),
