@@ -1,27 +1,36 @@
 <!-- 系统管理员端 护理管理 护理级别 -->
 <style lang="css" scoped>
     .add-button {
-        background-color: deepskyblue;
+        background-color: #007bff;
         font-size: 16px;
     }
 </style>
 
 <template>
-    <el-main style="align-content: center;">
-        <p style="margin-top: 0; text-align: center; font-size: 30px; font-weight: bolder;">护理级别管理</p>
-
+    <el-container style="align-content: center; overflow-y: auto;">
+        <!-- <label style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理级别管理</label> -->
+        <!-- <br> -->
         <!-- 表格区域 -->
-        <el-col :span="8" 
-        style="margin-top: 3vh; margin-left: 25%; align-items: center;">
-            <Button @click="start_addLevel" class="add-button"
-            style="margin-top: 2vh; margin-bottom: 2vh;">添加护理级别</Button>
+        <el-col :span="16" style="margin-left: 20%;">
+            <p style="margin-top: 2vh; margin-bottom: 2vh;">
+                <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
 
-            <Button @click="goto_nursingPrograms" 
-            style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 1vh;">护理项目管理</Button>
+                <Button @click="goto_nursingPrograms" 
+                style="margin-left: 1vh;">护理项目管理</Button>
 
-            <Button @click="goto_customerNursingSet" 
-            style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 1vh;">客户护理设置</Button>
-            
+                <Button @click="goto_customerNursingSet" 
+                style="margin-left: 1vh;">客户护理设置</Button>
+                
+                <Button @click="goto_nursingRecords" 
+                style="margin-left: 1vh;">护理记录</Button>
+                
+                <Button @click="goto_serviceObjectSetting" 
+                style="margin-left: 1vh;">设置服务对象</Button>
+
+                <Button @click="goto_serviceFocus" 
+                style="margin-left: 1vh;">服务关注</Button>
+            </p>
+
             <Switcher left-value="启用" right-value="停用" >
             </Switcher>
             <br>
@@ -31,9 +40,13 @@
                 :active-value="1" :inactive-value="0" @change="handleChange"
             />
 
+            <br>
+            <div style="background-color: #007bff; margin-top: 2vh; width: 700px; height: 3vh; align-content: center;">
+                <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
+            </div>
             <div v-if="queryEntity.status == 1">
-                <el-table :data="tableData" :border="true" :stripe="true" style="margin-top: 2vh; width: 100%;">
-                    <el-table-column type="index" label="序号" width="100"
+                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
+                    <el-table-column type="index" label="序号" width="80"
                         style="text-align: center;"
                         >
                     </el-table-column>
@@ -41,13 +54,13 @@
                         style="text-align: center;"
                         >
                     </el-table-column>
-                    <el-table-column  label="状态" width="120">
+                    <el-table-column  label="状态" width="150">
                         <template #default="scope">
                             <span v-if="scope.row.status==1">启用</span>
                             <span v-else>停用</span>
                         </template>
                     </el-table-column>
-                    <el-table-column  label="操作" width="270" style="text-align: center;">
+                    <el-table-column  label="操作" width="350" style="text-align: center;">
                         <template #default="scope">
                             <label @click="start_updateLevel(scope.row)"
                             style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
@@ -59,8 +72,8 @@
             </div>
             
             <div v-else>
-                <el-table :data="tableData" :border="true" :stripe="true" style="margin-top: 2vh; width: 100%;">
-                    <el-table-column type="index" label="序号" width="100"
+                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
+                    <el-table-column type="index" label="序号" width="80"
                         style="text-align: center;"
                         >
                     </el-table-column>
@@ -68,16 +81,16 @@
                         style="text-align: center;"
                         >
                     </el-table-column>
-                    <el-table-column  label="状态" width="120">
+                    <el-table-column  label="状态" width="150">
                         <template #default="scope">
                             <span v-if="scope.row.status==1">启用</span>
                             <span v-else>停用</span>
                         </template>
                     </el-table-column>
-                    <el-table-column  label="操作" width="270" style="text-align: center;">
+                    <el-table-column  label="操作" width="350" style="text-align: center;">
                         <template #default="scope">
                             <label @click="start_updateLevel(scope.row)"
-                            style="font-size: 16px; color: #007bff; margin-left: 2vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                            style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -118,12 +131,12 @@
             />
         </el-col>
     
-    </el-main>
+    </el-container>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { type NursingLevel } from '@/lib/entity';
+import { type NursingLevel } from '@/lib/type.d';
 import axios from 'axios'
 import Switcher from '@/components/custom/Switcher.vue';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules } from 'element-plus' 
@@ -148,18 +161,24 @@ let queryEntity = ref({
 })
 
 const goto_nursingPrograms = () => {
-    router.push("/nursingPrograms")
+    router.push("/main/nursingPrograms")
 }
 
 const goto_customerNursingSet = () => {
-    router.push("/customerNursingSet")
+    router.push("/main/customerNursingSet")
 }
 
-// 监听
-// watch(queryEntity, (oldVal, newVal) => {
-//     console.log(newVal)
-//     loadData()
-// })
+const goto_nursingRecords = () => {
+    router.push("/main/nursingRecord")
+}
+
+const goto_serviceObjectSetting = () => {
+    router.push("/main/serviceObjectSetting")
+}
+
+const goto_serviceFocus = () => {
+    router.push("/main/serviceFocus")
+}
 
 const isActive = ref(true) // status是否等于1（启用状态）
 
@@ -293,7 +312,7 @@ const cancel_commit = () => {
 */ 
 const start_managePrograms = (selectedLevel: NursingLevel) => {
     router.push({
-        path: '/levelManagePrograms',
+        path: '/main/levelManagePrograms',
         query: {
             currentLevel: JSON.stringify(selectedLevel)
         }

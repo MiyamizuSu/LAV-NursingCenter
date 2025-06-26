@@ -9,18 +9,18 @@ import 'element-plus/dist/index.css'
 
 const router=useRouter()
 // router.push('/login')
-router.push('/nursingLevel')
+router.push('/main/nursingLevel')
 
 </script>
 
 <template>
   <div class="w-screen h-screen overflow-hidden">
-    <!-- <CheckIn></Checkin> -->
     <RouterView></RouterView>
-    <SidebarProvider>
+    <!-- <CheckIn></Checkin> -->
+    <!-- <SidebarProvider>
       <AppSideBar></AppSideBar>
       <SidebarTrigger></SidebarTrigger>
-    </SidebarProvider>
+    </SidebarProvider> -->
   </div>
 </template>
 

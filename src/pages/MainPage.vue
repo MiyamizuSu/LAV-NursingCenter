@@ -51,7 +51,8 @@ const STATENAME_TAG={
 
 
 <template>
-    <div class="bg-img">
+    <img class="bg-img">
+    <div >
         <div class="flex backBlur w-full z-1 right-0 justify-end">
             <div class="z-0 flex w-2/3 justify-end">
                 <div class="flex justify-between mr-5 w-full">
@@ -116,5 +117,10 @@ const STATENAME_TAG={
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    position: fixed;  /*将图片固定，不随页面滚动*/
+    opacity: 0.3;  /*修改透明度*/
+    height: 100%;
+    width: 100%;
+    z-index: -1;  /*将图片放在最底层*/
 }
 </style>

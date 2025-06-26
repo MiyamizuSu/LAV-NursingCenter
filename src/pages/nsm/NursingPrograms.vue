@@ -1,18 +1,18 @@
 <!-- 系统管理员端 护理管理 护理项目 -->
 <style lang="css" scoped>
     .add-button {
-        background-color: deepskyblue;
+        background-color: #007bff;
         font-size: 16px;
     }
 </style>
 
 <template>
-    <el-main style="align-content: center;">
-        <p style="margin-top: 0; text-align: center; font-size: 30px; font-weight: bolder;">护理项目管理</p>
-
+    <!-- <p style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理项目管理</p> -->
+    
+    <el-container style="align-content: center; overflow-y: auto;">
         <!-- 表格区域 -->
         <el-col :span="16" 
-        style="margin-top: 3vh; margin-left: 25%; align-items: center;">
+        style=" align-items: center; margin-left: 20%;">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="queryEntity.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
@@ -36,8 +36,11 @@
                 <el-button type="danger" style="font-size: 15px; margin-left: 2vh;" @click="start_deleteBatch">批量删除</el-button>
             </p>
             
-            
-            <el-table :data="allPrograms" :border="true" :stripe="true" style="margin-top: 2vh;"
+            <br>
+            <div style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+                <label style="text-align: center; color: white; font-size: 15px; ">护理项目列表</label>
+            </div>
+            <el-table :data="allPrograms" :border="true" :stripe="true" 
                 @selection-change="handleSelectionChange">
                 <el-table-column 
                     type="selection"
@@ -47,7 +50,7 @@
                 <el-table-column 
                     type="index"
                     label="序号" 
-                    width="80"
+                    width="60"
                     style="text-align: center;"
                 >
                 </el-table-column>
@@ -72,24 +75,24 @@
                 <el-table-column 
                     property="executionPeriod" 
                     label="执行周期" 
-                    width="100"
+                    width="90"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="executionTimes" 
                     label="执行次数"
-                    width="90"
+                    width="80"
                     style="text-align: center;"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="description" 
                     label="描述"
-                    width="240"
+                    width="220"
                     show-overflow-tooltip
                 >
                 </el-table-column>
-                <el-table-column  label="状态" width="100">
+                <el-table-column  label="状态" width="90">
                     <template #default="scope">
                         <span v-if="scope.row.status==1">启用</span>
                         <span v-else>停用</span>
@@ -173,12 +176,12 @@
             />
         </el-col>
     
-    </el-main>
+    </el-container>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
-import { type NursingProgram } from '@/lib/entity';
+import { type NursingProgram } from '@/lib/type.d';
 import axios from 'axios'
 import Switcher from '@/components/custom/Switcher.vue';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules, ElMessageBox } from 'element-plus' 
@@ -354,7 +357,7 @@ const start_deleteProgram = (nursingProgram: NursingProgram) => {
 // 批量删除
 const start_deleteBatch = () => {
     if (multipleSelection.value.length == 0) {
-        ElMessage({message: "请先选中至少一条数据！", type: "warning"})
+        ElMessage({message: "请先勾选至少一条数据！", type: "warning"})
         return;
     }
     ElMessageBox.confirm('确定删除所有选中的护理项目吗？', '删除确认', {
@@ -381,7 +384,7 @@ const start_deleteBatch = () => {
           type: 'info',
           message: '已取消删除'
         });
-      });
+    });
 }
 
 /** 
