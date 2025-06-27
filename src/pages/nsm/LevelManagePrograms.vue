@@ -7,7 +7,7 @@
 <el-main style="overflow-y: auto;">
 
     <!-- <p style="text-align: center; font-size: 20px; font-weight: bolder;">护理级别下项目管理：{{ currentLevel.name }}</p> -->
-    <p style="margin-left: 10%;">
+    <p style="margin-left: 3%;">
         <!-- 搜索框 -->
         <el-input v-model="queryEntity0.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
         <Button @click="loadData" style="margin-left: 2vh;">查询</Button>
@@ -16,8 +16,8 @@
     <br>
 
     <!-- 表格区域 -->
-    <el-container  style="align-items: center; margin-top: 3vh; margin-left: 10%; width: 90%; overflow-y: auto;">
-        <el-card style="width: 45%; height: 70vh; overflow-y: auto;">
+    <el-container  style="align-items: center; margin-top: 3vh; margin-left: 3%; width: 97%; overflow-y: auto;">
+        <el-card style="width: 48%; height: 70vh; overflow-y: auto;">
             <div style="background-color: #007bff; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">所有护理项目</label>
             </div>
@@ -25,14 +25,14 @@
                 <el-table-column 
                     type="index"
                     label="序号" 
-                    width="60"
+                    width="70"
                     style="text-align: center;"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="programCode" 
                     label="编号" 
-                    width="100"
+                    width="120"
                 >
                 </el-table-column>
                 <el-table-column 
@@ -50,17 +50,17 @@
                 <el-table-column 
                     property="executionPeriod" 
                     label="执行周期" 
-                    width="80"
+                    width="100"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="executionTimes" 
                     label="执行次数"
-                    width="70"
+                    width="100"
                     style="text-align: center;"
                 >
                 </el-table-column>
-                <el-table-column  label="操作" width="100" style="text-align: center;">
+                <el-table-column  label="操作" width="110" style="text-align: center;">
                     <template #default="scope">
                         <div v-if="judgeContains(scope.row.id)">
                             <label style="font-size: 15px; color: #007bff; margin-left: 1vh; " >已添加</label>
@@ -83,9 +83,8 @@
                 style="margin-top: 10vh;"
             />
         </el-card>    
-
         
-        <el-card style="width: 45%; height: 70vh; margin-left: 5%; overflow-y: auto;">
+        <el-card style="width: 48%; height: 70vh; margin-left: 5%; overflow-y: auto;">
             <div style="background-color: #007bff; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; font-size: 16px; font-weight: bold; color: white; ">{{ currentLevel.name }}下的护理项目</label>
             </div>
@@ -93,14 +92,14 @@
                 <el-table-column 
                     type="index"
                     label="序号" 
-                    width="60"
+                    width="70"
                     style="text-align: center;"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="programCode" 
                     label="编号" 
-                    width="100"
+                    width="120"
                 >
                 </el-table-column>
                 <el-table-column 
@@ -118,17 +117,17 @@
                 <el-table-column 
                     property="executionPeriod" 
                     label="执行周期" 
-                    width="80"
+                    width="100"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="executionTimes" 
                     label="执行次数"
-                    width="70"
+                    width="100"
                     style="text-align: center;"
                 >
                 </el-table-column>
-                <el-table-column  label="操作" width="100" style="text-align: center;">
+                <el-table-column  label="操作" width="110" style="text-align: center;">
                     <template #default="scope">
                         <el-button type="danger" @click="start_deleteFromLevel(scope.row)">移除</el-button>
                     </template>

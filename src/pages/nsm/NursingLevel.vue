@@ -8,10 +8,7 @@
 
 <template>
     <el-container style="align-content: center; overflow-y: auto;">
-        <!-- <label style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理级别管理</label> -->
-        <!-- <br> -->
-        <!-- 表格区域 -->
-        <el-col :span="16" style="margin-left: 20%;">
+        <el-col  style="margin-left: 5%; width: 95%;">
             <p style="margin-top: 2vh; margin-bottom: 2vh;">
                 <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
 
@@ -41,60 +38,40 @@
             />
 
             <br>
-            <div style="background-color: #007bff; margin-top: 2vh; width: 700px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 1200px; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
             </div>
-            <div v-if="queryEntity.status == 1">
-                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
-                    <el-table-column type="index" label="序号" width="80"
-                        style="text-align: center;"
-                        >
-                    </el-table-column>
-                    <el-table-column property="name" label="级别名称" width="120"
-                        style="text-align: center;"
-                        >
-                    </el-table-column>
-                    <el-table-column  label="状态" width="150">
-                        <template #default="scope">
-                            <span v-if="scope.row.status==1">启用</span>
-                            <span v-else>停用</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column  label="操作" width="350" style="text-align: center;">
-                        <template #default="scope">
-                            <label @click="start_updateLevel(scope.row)"
-                            style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
-                            <label @click="start_managePrograms(scope.row)"
-                            style="font-size: 15px; color: green; margin-left: 3vh;"><el-icon><Setting /></el-icon> 护理项目配置</label>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
             
-            <div v-else>
-                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
-                    <el-table-column type="index" label="序号" width="80"
+            <el-table :data="tableData" :border="true" :stripe="true" style="width: 1200px;">
+                <el-table-column type="index" label="序号" width="200"
+                    style="text-align: center;"
+                    >
+                </el-table-column>
+                <el-table-column property="name" label="级别名称" width="250"
                         style="text-align: center;"
                         >
-                    </el-table-column>
-                    <el-table-column property="name" label="级别名称" width="120"
-                        style="text-align: center;"
-                        >
-                    </el-table-column>
-                    <el-table-column  label="状态" width="150">
-                        <template #default="scope">
-                            <span v-if="scope.row.status==1">启用</span>
-                            <span v-else>停用</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column  label="操作" width="350" style="text-align: center;">
-                        <template #default="scope">
+                </el-table-column>
+                <el-table-column  label="状态" width="250">
+                    <template #default="scope">
+                        <span v-if="scope.row.status==1">启用</span>
+                        <span v-else>停用</span>
+                    </template>
+                </el-table-column>
+                <el-table-column  label="操作" width="550" style="text-align: center;">
+                    <template #default="scope">
+                        <div v-if="queryEntity.status == 1">
                             <label @click="start_updateLevel(scope.row)"
-                            style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </div>
+                                style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                            <label @click="start_managePrograms(scope.row)"
+                                style="font-size: 15px; color: green; margin-left: 9vh;"><el-icon><Setting /></el-icon> 护理项目配置</label>
+                        </div>
+                        <div v-else>
+                            <label @click="start_updateLevel(scope.row)"
+                                style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                        </div>
+                    </template>
+                </el-table-column>
+            </el-table>
 
             <el-dialog v-model="dialogFormControl.isVisible" :title="dialogFormControl.title" 
             style="width: 500px; height: 400px; overflow-y: auto;" draggable overflow>
@@ -274,7 +251,7 @@ const confirm_commit = () => {
     }
 
     if (dialogFormControl.value.isUpdate) {
-        axios.post("http://localhost:9000/nursingLevel/update", editForm.value)
+        axios.post("nursingLevel/update", editForm.value)
         .then(res => {
             if (res.data.status == 200) {
                 loadData()
@@ -289,7 +266,7 @@ const confirm_commit = () => {
             }
         })
     } else {
-        axios.post("http://localhost:9000/nursingLevel/add", editForm.value)
+        axios.post("nursingLevel/add", editForm.value)
         .then(res => {
             if (res.data.status == 200) {
                 loadData()
@@ -324,14 +301,14 @@ const start_managePrograms = (selectedLevel: NursingLevel) => {
 }
 
 const loadData = () => {
-    axios.post("http://localhost:9000/user/load", {}).then(res => {
+    axios.post("user/load", {}).then(res => {
         if (res.data.status == 200) {
             currentUser.value = res.data.data
             console.log("currentUser: ", currentUser.value)
         }
     })
 
-    axios.post("http://localhost:9000/nursingLevel/pageByStatus", queryEntity.value)
+    axios.post("nursingLevel/pageByStatus", queryEntity.value)
     .then(res => {
         if (res.data.status == 200) {
             tableData.value = res.data.data
@@ -343,11 +320,11 @@ const loadData = () => {
             tableData.value = res.data.data
             total.value = res.data.total
             console.log(tableData.value)
-            ElNotification({
-                title: 'Error',
-                message: res.data.msg,
-                type: 'error',
-            })
+            // ElNotification({
+            //     title: 'Error',
+            //     message: res.data.msg,
+            //     type: 'error',
+            // })
         }
     })
 }

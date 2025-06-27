@@ -13,9 +13,11 @@ const router=useRouter()
 // router.push('/login')
 router.push('/main/nursingLevel')
 
-  // 请求拦截器和响应拦截器全局设置
- //请求拦截器
- axios.interceptors.request.use(function(config) {
+
+axios.defaults.baseURL='http://localhost:9000/'
+// 请求拦截器和响应拦截器全局设置
+//请求拦截器
+axios.interceptors.request.use(function(config) {
     console.log('在发送请求之前做些什么');
 		// 利用前端Session获得令牌信息
 		let token=sessionStorage.getItem('token');
@@ -34,10 +36,10 @@ router.push('/main/nursingLevel')
   function(error) {
     console.log('对请求错误做些什么');
     return Promise.reject(error);
-  });
+});
 
-  //响应拦截器
-  axios.interceptors.response.use(function(response) {
+//响应拦截器
+axios.interceptors.response.use(function(response) {
     console.log('在响应之前做些什么');
 		console.log(response.data);
 		if(response.data==='invalid token'){
@@ -48,8 +50,7 @@ router.push('/main/nursingLevel')
   function(error) {
     console.log('对响应错误做点什么');
     return Promise.reject(error);
-  });
-
+});
 
 // 实现axios对象全局注入
 provide('axios',axios);

@@ -46,8 +46,6 @@ const login = () => {
 		if (rb.status == 200) {
 			// 取得登录成功的用户的令牌
 			let token = rb.data;
-			// 把用户对象变成JSON字符串
-			// let userJson=JSON.stringify(user);
 			// 把用户令牌存入前端Session中
 			sessionStorage.setItem('token', token);
 			// 登录成功

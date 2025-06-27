@@ -16,7 +16,7 @@ const toLogin = () => {
 
 <template>
   <div class="w-screen h-screen overflow-hidden">
-    <div style="align-content: center; text-align: center;">
+    <div style="align-content: center; text-align: center; margin-top: 5vh;">
         <p style="font-size: 18px; font-weight: bold;">您尚未登录或登录已失效！</p>
         <br>
         <p style="margin-top: 1vh;">
