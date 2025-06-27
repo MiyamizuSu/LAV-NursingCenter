@@ -375,7 +375,6 @@ const checkUpdateForm = () =>{
       console.log("表单验证未通过");
     }
   })
-  console.log("表单验证");
 }
 
 watch(() => approvalForm.reviewStatus, (newVal) =>{

@@ -16,21 +16,10 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown } from 'lucide-vue-next'
-import { computed, h, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import {  h, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { cn, debounce } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
     Table,
@@ -42,44 +31,24 @@ import {
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
 import axios from 'axios'
-import type { FormInstance, FormRules } from 'element-plus'
-import { usecustomerManagementStore, useCustomerNurseStore } from '@/lib/store'
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { useCustomerNurseStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
-
-import { Copy } from 'lucide-vue-next'
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import type { Customer, OutingRegistration } from './type'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 
-
+const ctsStore = useCustomerNurseStore()
 const position = ref('bottom')  // 下拉框显示位置
 const outingPages = ref({
     currentPage: 1,
-    pageSize: 10,
+    pageSize: 8,
     totalOuting: 0
 })
 const customerPages = ref({
     currentPage: 1,
-    pageSize: 10,
+    pageSize: 8,
     totalCustomer: 0
 })
-const ctsStore = useCustomerNurseStore()
+
 const customerColumns: ColumnDef<Customer>[] = [
     {
         accessorKey: 'index',
@@ -148,12 +117,12 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
     {
         accessorKey: 'expectedReturnDate',
         header: () => h('div', {}, '预计回院时间'),
-        cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('expectedReturnDate')),
+        cell: ({ row }) => h('div', { class: 'capitalize break-words whitespace-normal max-w-[120px]' }, row.getValue('expectedReturnDate')),
     },
     {
         accessorKey: 'actualReturnDate',
         header: () => h('div', {}, '实际回院时间'),
-        cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('actualReturnDate')),
+        cell: ({ row }) => h('div', { class: 'capitalize break-words whitespace-normal max-w-[120px]' }, row.getValue('actualReturnDate')),
     },
     {
         accessorKey: 'escortName',
@@ -200,17 +169,20 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
         header: () => h('div', {}, '操作'),
         cell: ({ row }) => {
             const reviewStatus = row.getValue('reviewStatus')
+            ''
             if (reviewStatus === 0) {
-                return h('div', { class: 'flex gap-2' }, [
-                    h(
-
-                        'button',
-                        {
-                            class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-                            // onClick: () => openApprovalForm(row.original),
-                        },
-                        '审批'
-                    ),
+                return h('div', { class: 'flex flex-wrap gap-2 basis-1/6 shrink-0 grow text-right justify-end' }, [
+                    h('button', {
+                        class: 'px-2 py-1 text-xs text-white rounded transition whitespace-nowrap bg-[#E6A23C]',
+                        onClick: () => deleteOutingRegistration(row.original)
+                    }, '撤销申请')
+                ])
+            } else if (reviewStatus === 2) {
+                return h('div', { class: 'flex flex-wrap gap-2 basis-1/6 shrink-0 grow text-right justify-end' }, [
+                    h('button', {
+                        class: 'px-2 py-1 text-xs text-white rounded transition whitespace-nowrap bg-[#67C23A]',
+                        onClick: () => openUpdateReturnedDateForm(row.original)
+                    }, '登记回院时间')
                 ])
             }
             return null
@@ -286,55 +258,55 @@ const tableKey = Date.now()
 const resetCustomers = () => {
     searchName.value = ''
     loadCustomers()
+    loadOutingRegistrations()
 }
 const onInput = async (event: Event) => {
     const deLoad = debounce(loadCustomers)
-    deLoad();
+    const deLoad1 = debounce(loadOutingRegistrations)
+    deLoad()
+    deLoad1()
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('http://localhost:9000/customer/page', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
         name: searchName.value
-    }).then((res) => {
-        if (res.data.status === 200) {
-            ctsStore.setCustomerList(res.data.data)
-            customerPages.value.totalCustomer = res.data.total
-        } else {
-            ctsStore.getCustomerList.value = []
-        }
     })
+    if (res.data.status === 200) {
+        ctsStore.setCustomerList(res.data.data)
+        customerPages.value.totalCustomer = res.data.total
+    } else {
+        ctsStore.getCustomerList.value = []
+    }
     // searchName.value = ''
 }
 // 获取所有客户数据
 const loadAllCustomers = async () => {
-    axios.post('http://localhost:9000/customer/listAll').then((res) => {
-        if (res.data.status === 200) {
-            console.log('所有客户数据', res.data.data)
-            ctsStore.setAllCustomerList(res.data.data)
-        } else {
-            console.log('查询失败')
-        }
-    })
+    const res = await axios.post('http://localhost:9000/customer/listAll')
+    if (res.data.status === 200) {
+        console.log('所有客户数据', res.data.data)
+        ctsStore.setAllCustomerList(res.data.data)
+    } else {
+        console.log('查询失败')
+    }
 }
 
 // 获取分页外出审批数据
 const loadOutingRegistrations = async () => {
-    axios.post('http://localhost:9000/outingRegistration/page', {
+    const res = await axios.post('http://localhost:9000/outingRegistration/page', {
         current: outingPages.value.currentPage,
         size: outingPages.value.pageSize,
-        name: ""
-    }).then((res) => {
-        console.log("外出审批数据：", res.data)
-        if (res.data.status === 200) {
-            ctsStore.setOutingList(res.data.data)
-            outingPages.value.totalOuting = res.data.total
-            updateOutingTable(ctsStore.getOutingList.value)
-        } else {
-            ctsStore.getOutingList.value = []
-        }
+        name: searchName.value
     })
+    console.log("外出审批数据：", res.data)
+    if (res.data.status === 200) {
+        ctsStore.setOutingList(res.data.data)
+        outingPages.value.totalOuting = res.data.total
+        updateOutingTable(ctsStore.getOutingList.value)
+    } else {
+        ctsStore.getOutingList.value = []
+    }
     //searchName.value = ''
 }
 const updateOutingTable = (rows: any[]) => {
@@ -343,11 +315,93 @@ const updateOutingTable = (rows: any[]) => {
         data: rows
     }))
 }
-
-
+// 配置表单规则
+const ruleFormRef = ref<FormInstance>()
+const rules = reactive<FormRules<OutingRegistration>>({
+    customerId: [
+        {
+            required: true,
+            message: '请选择客户姓名',
+            trigger: 'change',
+        },
+    ],
+    customerName: [
+        {
+            required: true,
+            message: '请选择客户姓名',
+            trigger: 'blur',
+        },
+    ],
+    outingReason: [
+        {
+            required: true,
+            message: '请填写外出事由',
+            trigger: 'blur',
+        }
+    ],
+    outingDate: [
+        {
+            required: true,
+            message: '请选择外出时间',
+            trigger: 'blur',
+        }
+    ],
+    expectedReturnDate: [
+        {
+            required: true,
+            message: '请选择预计返回时间',
+            trigger: 'blur',
+        },
+        {
+            validator: (rule, value, callback) => {
+                if (!addOutingForm.outingDate || !value) {
+                    callback()
+                    return
+                }
+                const outing = new Date(addOutingForm.outingDate)
+                const expectedReturnDate = new Date(value)
+                if (outing > expectedReturnDate) {
+                    callback(new Error('外出时间必须早于预计返回时间'))
+                } else {
+                    callback()
+                }
+            },
+            trigger: 'change'
+        }
+    ],
+    escortName: [
+        {
+            required: true,
+            message: '请填写陪同人姓名',
+            trigger: 'blur',
+        }
+    ],
+    escortRelation: [
+        {
+            required: true,
+            message: '请填写陪同人关系',
+            trigger: 'blur',
+        }
+    ],
+    escortPhone: [
+        {
+            required: true,
+            message: '请填写陪同人联系电话',
+            trigger: 'blur',
+        }
+    ],
+})
+const updateReturnDateRules = reactive<FormRules<OutingRegistration>>({
+    actualReturnDate: [
+        {
+            required: true,
+            message: '请填写实际返回时间',
+            trigger: 'blur',
+        }
+    ]
+})
 const addOutingFormVisible = ref(false)   // 添加外出申请表单可见性
-const addOutingForm = reactive<OutingRegistration>({ // 暂存审批信息
-    id: -1,
+const addOutingForm = reactive({ // 暂存审批信息
     customerId: -1,
     customerName: '',
     outingReason: '',
@@ -358,21 +412,170 @@ const addOutingForm = reactive<OutingRegistration>({ // 暂存审批信息
     escortPhone: '',
     reviewStatus: -1,
     rejectReason: '',
-    reviewTime: ''
+    reviewTime: '',
+    actualReturnDate: ''
 })
+const selectedCustomer = ref(null);
+const onCustomerChange = (id: number) => {
+    const customer = ctsStore.getAllCustomerList.value.find(c => c.customerId === id);
+    if (customer) {
+        addOutingForm.customerName = customer.name;
+        addOutingForm.customerId = customer.customerId
+        console.log('客户信息：', customer)
+    } else {
+        addOutingForm.customerName = '';
+        console.log('未找到客户信息')
+    }
+}
+const submitOutingFormVisible = ref(false)  // 确认提交表单可见性
+const checkAddOutingForm = () => {   // 检查表单
+    ruleFormRef.value?.validate((valid) => {
+        if (valid) {
+            console.log("表单验证通过");
+            submitOutingFormVisible.value = true;
+        } else {
+            console.log("表单验证未通过");
+        }
+    })
+}
 
-watch(() => addOutingForm.customerName, (val) => {
-    console.log("当前选择的客户名：", val)
+const cancelAddOutingForm = () => {  // 关闭添加外出申请表单
+    addOutingFormVisible.value = false
+    selectedCustomer.value = null
+    clearOutingForm()
+}
+const clearOutingForm = () => {
+    addOutingForm.customerId = -1
+    addOutingForm.outingReason = ''
+    addOutingForm.outingDate = ''
+    addOutingForm.expectedReturnDate = ''
+    addOutingForm.escortName = ''
+    addOutingForm.escortRelation = ''
+    addOutingForm.escortPhone = ''
+    addOutingForm.reviewStatus = -1
+    addOutingForm.rejectReason = ''
+    addOutingForm.reviewTime = ''
+
+}
+const addOutingRegistration = async () => {
+    console.log('提交外出申请', addOutingForm)
+    const res = await axios.post('http://localhost:9000/outingRegistration/add', addOutingForm)
+    if (res.data.status === 200) {
+        ElMessage.success('添加成功')
+        submitOutingFormVisible.value = false
+        addOutingFormVisible.value = false
+        clearOutingForm()
+        await loadOutingRegistrations()
+    } else {
+        ElMessage.error('添加失败')
+    }
+}
+
+// 撤销外出申请
+const deleteOutingRegistration = async (outing: OutingRegistration) => {
+    ElMessageBox.confirm(
+        '确定要撤销客户' + outing.customerName + '的外出申请吗？',
+        '警告',
+        {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    ).then(() => {
+        axios.post("http://localhost:9000/outingRegistration/delete", { id: outing.id }).then((res: any) => {
+            if (res.data.status === 200) {
+                ElMessage({
+                    type: 'success',
+                    message: '撤销成功',
+                })
+                loadOutingRegistrations()
+            } else {
+                ElMessage({
+                    type: 'error',
+                    message: '撤销失败',
+                })
+            }
+        })
+    })
+        .catch(() => {
+            ElMessage({
+                type: 'info',
+                message: '已取消撤销',
+            })
+        })
+}
+
+const updateReturnedDateVisible = ref(false)  // 登记回院时间表单可见性
+const openUpdateReturnedDateForm = (outing: OutingRegistration) => {
+    updateReturnDateForm.id = outing.id
+    updateReturnDateForm.customerId = outing.customerId
+    updateReturnDateForm.customerName = outing.customerName
+    updateReturnDateForm.outingReason = outing.outingReason
+    updateReturnDateForm.outingDate = outing.outingDate
+    updateReturnDateForm.expectedReturnDate = outing.expectedReturnDate
+    updateReturnDateForm.reviewStatus = outing.reviewStatus
+    updateReturnedDateVisible.value = true
+}
+const cancelUpdateReturnedDate = () => {  // 取消登记回院时间
+    updateReturnedDateVisible.value = false
+    clearUpdateReturnedDateForm()
+    ElMessage({
+        type: 'info',
+        message: '已取消登记',
+    })
+}
+const updateReturnDateForm = reactive({
+    id: -1,
+    customerId: -1,
+    customerName: '',
+    outingReason: '',
+    outingDate: '',
+    expectedReturnDate: '',
+    actualReturnDate: '',
+    reviewStatus: -1,
 })
+const clearUpdateReturnedDateForm = () => {  // 清空实际返回表单
+    updateReturnDateForm.id = -1
+    updateReturnDateForm.customerId = -1
+    updateReturnDateForm.customerName = ''
+    updateReturnDateForm.outingReason = ''
+    updateReturnDateForm.outingDate = ''
+    updateReturnDateForm.expectedReturnDate = ''
+    updateReturnDateForm.actualReturnDate = ''
+    updateReturnDateForm.reviewStatus = -1
+}
+const updateReturnDateConfirmVisible = ref(false)
+const checkUpdateActualReturnDate = () => {
+    ruleFormRef.value?.validate((valid) => {
+        if (valid) {
+            console.log("表单验证通过");
+            updateReturnDateConfirmVisible.value = true
+        } else {
+            console.log("表单验证未通过");
+        }
+    })
+}
+const updateActualReturnDate = async () => {
+    console.log('提交回院时间', updateReturnDateForm)
+    const res = await axios.post('http://localhost:9000/outingRegistration/update', updateReturnDateForm)
+    if (res.data.status === 200) {
+        ElMessage.success('登记成功')
+        updateReturnDateConfirmVisible.value = false
+        updateReturnedDateVisible.value = false
+        clearUpdateReturnedDateForm()
+        await loadOutingRegistrations()
+    } else {
+        ElMessage.error('登记失败')
+    }
+}
 
 
 
 
-
-onMounted(() => {
-    loadCustomers()
-    loadAllCustomers()
-    loadOutingRegistrations()
+onMounted(async () => {
+    await loadCustomers()
+    await loadAllCustomers()
+    await loadOutingRegistrations()
 })
 </script>
 
@@ -397,68 +600,17 @@ onMounted(() => {
                     </InteractiveHoverButton>
                 </div>
                 <div>
-                    <Dialog>
-                        <DialogTrigger as-child>
-                            <InteractiveHoverButton @click="addOutingFormVisible = true" text="添加外出申请">
-                                <template #svgIcon>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="lucide lucide-circle-plus-icon lucide-circle-plus">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path d="M8 12h8" />
-                                        <path d="M12 8v8" />
-                                    </svg>
-                                </template>
-                            </InteractiveHoverButton>
-                        </DialogTrigger>
-                        <DialogContent v-model="addOutingFormVisible" class="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>添加外出申请</DialogTitle>
-                                <el-divider></el-divider>
-                            </DialogHeader>
-                            <div class="grid gap-4 py-4">
-                                <div class="grid grid-cols-4 items-center gap-4">
-
-                                    <Label class="text-right">
-                                        选择客户：
-                                    </Label>
-                                    
-            <Select>
-              <SelectTrigger id="framework">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                <SelectItem value="nuxt">
-                  Nuxt
-                </SelectItem>
-                <SelectItem value="next">
-                  Next.js
-                </SelectItem>
-                <SelectItem value="sveltekit">
-                  SvelteKit
-                </SelectItem>
-                <SelectItem value="astro">
-                  Astro
-                </SelectItem>
-              </SelectContent>
-            </Select>
-                                </div>
-                                <div class="grid grid-cols-4 items-center gap-4">
-                                    <Label for="username" class="text-right">
-                                        Username
-                                    </Label>
-                                    <Input id="username" value="@peduarte" class="col-span-3" />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="submit">
-                                    Save changes
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
+                    <InteractiveHoverButton @click="addOutingFormVisible = true" text="添加外出申请">
+                        <template #svgIcon>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 12h8" />
+                                <path d="M12 8v8" />
+                            </svg>
+                        </template>
+                    </InteractiveHoverButton>
                 </div>
             </div>
             <div>
@@ -592,47 +744,111 @@ onMounted(() => {
 
 
         <!-- 添加外出申请表单 -->
-        <Dialog>
-            <DialogTrigger as-child>
-                <Button variant="outline">
-                    Edit Profile
-                </Button>
-            </DialogTrigger>
-            <DialogContent v-model="addOutingFormVisible" class="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
-                    <DialogDescription>
-                        Make changes to your profile here. Click save when you're done.
-                    </DialogDescription>
-                </DialogHeader>
-                <div class="grid gap-4 py-4">
-                    <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="name" class="text-right">
-                            Name
-                        </Label>
-                        <Input id="name" value="Pedro Duarte" class="col-span-3" />
+        <div>
+            <el-dialog v-model="addOutingFormVisible" title="添加外出申请" width="35%" :append-to-body="true"
+                label-position="left" @close="cancelAddOutingForm">
+                <el-form :model="addOutingForm" :rules="rules" ref="ruleFormRef">
+                    <el-divider></el-divider>
+                    <el-form-item label="选择客户：" prop="customerName">
+                        <el-select v-model="selectedCustomer" placeholder="请选择客户" filterable style="width: 100%"
+                            @change="onCustomerChange">
+                            <el-option v-for="customer in ctsStore.getAllCustomerList.value" :key="customer.customerId"
+                                :label="customer.name" :value="customer.customerId" />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="外出事由：" prop="outingReason">
+                        <el-input v-model="addOutingForm.outingReason" type="textarea" />
+                    </el-form-item>
+                    <el-form-item label="外出时间：" prop="outingDate">
+                        <el-date-picker v-model="addOutingForm.outingDate" type="datetime" placeholder="选择日期和时间"
+                            format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" />
+                    </el-form-item>
+                    <el-form-item label="预计回院时间：" prop="expectedReturnDate">
+                        <el-date-picker v-model="addOutingForm.expectedReturnDate" type="datetime" placeholder="选择日期和时间"
+                            format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" />
+                    </el-form-item>
+                    <el-form-item label="陪同人：" prop="escortName">
+                        <el-input v-model="addOutingForm.escortName" />
+                    </el-form-item>
+                    <el-form-item label="与老人关系：" prop="escortRelation">
+                        <el-input v-model="addOutingForm.escortRelation" />
+                    </el-form-item>
+                    <el-form-item label="陪同人电话：" prop="escortPhone">
+                        <el-input v-model="addOutingForm.escortPhone" />
+                    </el-form-item>
+                    <el-divider></el-divider>
+                    <el-form-item>
+                        <div style="width: 100%; text-align: right">
+                            <el-button color="black" @click="checkAddOutingForm">提交</el-button>
+                            <el-button color="#e8e8e8" @click="cancelAddOutingForm">取消</el-button>
+                        </div>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
+
+            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh">
+                <span>确定提交该外出申请吗？</span>
+                <template #footer>
+                    <div class="dialog-footer">
+                        <el-button @click="submitOutingFormVisible = false">取消</el-button>
+                        <el-button color="black" @click="addOutingRegistration">
+                            提交
+                        </el-button>
                     </div>
-                    <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="username" class="text-right">
-                            Username
-                        </Label>
-                        <Input id="username" value="@peduarte" class="col-span-3" />
+                </template>
+            </el-dialog>
+        </div>
+    </div>
+    <!-- 登记回院时间表单 -->
+    <div>
+        <el-dialog v-model="updateReturnedDateVisible" title="登记回院时间" width="35%" :append-to-body="true"
+            label-position="left">
+            <el-form :model="updateReturnDateForm" :rules="updateReturnDateRules" ref="ruleFormRef">
+                <el-divider></el-divider>
+                <el-form-item label="选择客户：" prop="customerName">
+                    <el-select v-model="updateReturnDateForm.customerName" placeholder="请选择客户" filterable
+                        style="width: 100%" @change="onCustomerChange" disabled>
+                        <el-option v-for="customer in ctsStore.getAllCustomerList.value" :key="customer.customerId"
+                            :label="customer.name" :value="customer.customerId" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="外出事由：" prop="outingReason">
+                    <el-input v-model="updateReturnDateForm.outingReason" type="textarea" disabled />
+                </el-form-item>
+                <el-form-item label="外出时间：" prop="outingDate">
+                    <el-date-picker v-model="updateReturnDateForm.outingDate" type="datetime" placeholder="选择日期和时间"
+                        format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" disabled />
+                </el-form-item>
+                <el-form-item label="预计回院时间：" prop="expectedReturnDate">
+                    <el-date-picker v-model="updateReturnDateForm.expectedReturnDate" type="datetime"
+                        placeholder="选择日期和时间" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss"
+                        disabled />
+                </el-form-item>
+                <el-form-item label="实际回院时间：" prop="actualReturnDate">
+                    <el-date-picker v-model="updateReturnDateForm.actualReturnDate" type="datetime"
+                        placeholder="选择日期和时间" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" />
+                </el-form-item>
+                <el-divider></el-divider>
+                <el-form-item>
+                    <div style="width: 100%; text-align: right">
+                        <el-button color="black" @click="checkUpdateActualReturnDate">提交</el-button>
+                        <el-button color="#e8e8e8" @click="cancelUpdateReturnedDate">取消</el-button>
                     </div>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh">
+            <span>确定登记实际回院时间吗？</span>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="updateReturnDateConfirmVisible = false">取消</el-button>
+                    <el-button color="black" @click="updateActualReturnDate">
+                        提交
+                    </el-button>
                 </div>
-                <DialogFooter>
-                    <Button type="submit">
-                        Save changes
-                    </Button>
-                    <DialogClose as-child>
-                        <Button type="button" variant="secondary">
-                            Close
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-
-
+            </template>
+        </el-dialog>
     </div>
 
 </template>
