@@ -7,7 +7,7 @@ router.push('/login')
 
 </script>
 
-<template> 
+<template>
   <div class="w-screen h-screen ">
     <RouterView></RouterView>
   </div>

@@ -1,47 +1,52 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import type { BedUser } from "./type";
-// const appState = ref<Set<string>>(new Set<string>());
-// export function useAppState() {
-//   return {
-//     get: function () {
-//       return appState.value;
-//     },
-//     addState: function (memoryName: string) {
-//       appState.value.add(memoryName);
-//     },
-//     deleteState: function (memoryName: string) {
-//       appState.value.delete(memoryName);
-//     },
-//     appState: appState,
-//   };
-// }
+import type { CheckoutRegistration, Customer, OutingRegistration } from "@/pages/ctm/type";
+export const usecustomerManagementStore = defineStore('customManagentStore', () => {
+  const customerList = ref<Customer[]>([])
+  const checkoutList = ref<CheckoutRegistration[]>([])
+  const outingList = ref<OutingRegistration[]>([])
+  const getCustomerList = computed(() => customerList)
+  const getCheckoutList = computed(() => checkoutList)
+  const getOutingList = computed(() => outingList)
+  const addNewCutomer = (newCutomer: Customer) => {
+    customerList.value.push(newCutomer)
+  }
+  const setNewList = (newList: Customer[]) => {
+    customerList.value = newList
+  }
+  const setCheckoutList = (newList: CheckoutRegistration[]) => {
+    checkoutList.value = newList
+  }
+  const setOutingList = (newList: OutingRegistration[]) => {
+    outingList.value = newList
+  }
+  return {
+    getCustomerList, getCheckoutList, getOutingList, addNewCutomer, setNewList, setOutingList
+  }
+})
+export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
+  const customerList = ref<Customer[]>([])
+  const allCustomerList = ref<Customer[]>([])
+  const checkoutList = ref<CheckoutRegistration[]>([])
+  const outingList = ref<OutingRegistration[]>([])
+  const getCustomerList = computed(() => customerList)
+  const getAllCustomerList = computed(() => allCustomerList)
+  const getCheckoutList = computed(() => checkoutList)
+  const getOutingList = computed(() => outingList)
+  const setCustomerList = (newList: Customer[]) => {
+    customerList.value = newList
+  }
+  const setOutingList = (newList: OutingRegistration[]) => {
+    outingList.value = newList
+  }
+  const setAllCustomerList = (newList: Customer[]) => {
+    allCustomerList.value = newList
+  }
 
-// export const useBedLayoutStore = defineStore("bedStore", ()=>{
-//   const lNodes:Set<LNodepos>=new Set();
-//   const canvasNode=ref<posistion>();
-//   const getLNodes=computed(()=>[...lNodes]);
-//   const getCanvasNode=computed(()=>canvasNode);
-
-//   const addNewNodes=(newLNode:LNodepos)=>{
-//     lNodes.add(newLNode);
-//   }
-//   const setCansvasNode=(pos:posistion)=>{
-//     canvasNode.value=pos
-//   }
-//   const setLNodeFromCode=(nodeCode:string,newPos:posistion)=>{
-//     for(let lNode of lNodes){
-//       if(lNode.nodeMes.nodeCode===nodeCode){
-//         lNode.nodePosition=newPos;
-//         break;
-//       }
-//     }
-//   }
-//   return{
-//     getLNodes,addNewNodes,getCanvasNode,setCansvasNode,setLNodeFromCode
-//   }
-// });
-
+  return {
+    getCustomerList, getCheckoutList, getOutingList, getAllCustomerList,setCustomerList, setOutingList, setAllCustomerList
+  }
+})
 export const useBedManagementStore=defineStore("bedUseStore",()=>{
   const usingBeds=ref<BedUser[]>([]);
   const usedBeds=ref<BedUser[]>([]);
