@@ -15,6 +15,18 @@ declare module 'vue' {
     AvgTag: typeof import('./src/components/custom/AvgTag.vue')['default']
     Badge: typeof import('./src/components/ui/badge/Badge.vue')['default']
     Button: typeof import('./src/components/ui/button/Button.vue')['default']
+    Calendar: typeof import('./src/components/ui/calendar/Calendar.vue')['default']
+    CalendarCell: typeof import('./src/components/ui/calendar/CalendarCell.vue')['default']
+    CalendarCellTrigger: typeof import('./src/components/ui/calendar/CalendarCellTrigger.vue')['default']
+    CalendarGrid: typeof import('./src/components/ui/calendar/CalendarGrid.vue')['default']
+    CalendarGridBody: typeof import('./src/components/ui/calendar/CalendarGridBody.vue')['default']
+    CalendarGridHead: typeof import('./src/components/ui/calendar/CalendarGridHead.vue')['default']
+    CalendarGridRow: typeof import('./src/components/ui/calendar/CalendarGridRow.vue')['default']
+    CalendarHeadCell: typeof import('./src/components/ui/calendar/CalendarHeadCell.vue')['default']
+    CalendarHeader: typeof import('./src/components/ui/calendar/CalendarHeader.vue')['default']
+    CalendarHeading: typeof import('./src/components/ui/calendar/CalendarHeading.vue')['default']
+    CalendarNextButton: typeof import('./src/components/ui/calendar/CalendarNextButton.vue')['default']
+    CalendarPrevButton: typeof import('./src/components/ui/calendar/CalendarPrevButton.vue')['default']
     Card: typeof import('./src/components/ui/card/Card.vue')['default']
     CardAction: typeof import('./src/components/ui/card/CardAction.vue')['default']
     CardContent: typeof import('./src/components/ui/card/CardContent.vue')['default']
@@ -26,6 +38,19 @@ declare module 'vue' {
     Collapsible: typeof import('./src/components/ui/collapsible/Collapsible.vue')['default']
     CollapsibleContent: typeof import('./src/components/ui/collapsible/CollapsibleContent.vue')['default']
     CollapsibleTrigger: typeof import('./src/components/ui/collapsible/CollapsibleTrigger.vue')['default']
+<<<<<<< HEAD
+=======
+    Dialog: typeof import('./src/components/ui/dialog/Dialog.vue')['default']
+    DialogClose: typeof import('./src/components/ui/dialog/DialogClose.vue')['default']
+    DialogContent: typeof import('./src/components/ui/dialog/DialogContent.vue')['default']
+    DialogDescription: typeof import('./src/components/ui/dialog/DialogDescription.vue')['default']
+    DialogFooter: typeof import('./src/components/ui/dialog/DialogFooter.vue')['default']
+    DialogHeader: typeof import('./src/components/ui/dialog/DialogHeader.vue')['default']
+    DialogOverlay: typeof import('./src/components/ui/dialog/DialogOverlay.vue')['default']
+    DialogScrollContent: typeof import('./src/components/ui/dialog/DialogScrollContent.vue')['default']
+    DialogTitle: typeof import('./src/components/ui/dialog/DialogTitle.vue')['default']
+    DialogTrigger: typeof import('./src/components/ui/dialog/DialogTrigger.vue')['default']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     DropdownMenu: typeof import('./src/components/ui/dropdown-menu/DropdownMenu.vue')['default']
     DropdownMenuCheckboxItem: typeof import('./src/components/ui/dropdown-menu/DropdownMenuCheckboxItem.vue')['default']
     DropdownMenuContent: typeof import('./src/components/ui/dropdown-menu/DropdownMenuContent.vue')['default']
@@ -40,6 +65,7 @@ declare module 'vue' {
     DropdownMenuSubContent: typeof import('./src/components/ui/dropdown-menu/DropdownMenuSubContent.vue')['default']
     DropdownMenuSubTrigger: typeof import('./src/components/ui/dropdown-menu/DropdownMenuSubTrigger.vue')['default']
     DropdownMenuTrigger: typeof import('./src/components/ui/dropdown-menu/DropdownMenuTrigger.vue')['default']
+<<<<<<< HEAD
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
     ElCol: typeof import('element-plus/es')['ElCol']
@@ -55,16 +81,37 @@ declare module 'vue' {
     ElInput: typeof import('element-plus/es')['ElInput']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElLink: typeof import('element-plus/es')['ElLink']
+=======
+    DynamicButton: typeof import('./src/components/custom/DynamicButton.vue')['default']
+    ElButton: typeof import('element-plus/es')['ElButton']
+    ElCard: typeof import('element-plus/es')['ElCard']
+    ElCol: typeof import('element-plus/es')['ElCol']
+    ElContainer: typeof import('element-plus/es')['ElContainer']
+    ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
+    ElDivider: typeof import('element-plus/es')['ElDivider']
+    ElForm: typeof import('element-plus/es')['ElForm']
+    ElFormItem: typeof import('element-plus/es')['ElFormItem']
+    ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElInput: typeof import('element-plus/es')['ElInput']
+    ElLabel: typeof import('element-plus/es')['ElLabel']
+    ElMain: typeof import('element-plus/es')['ElMain']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElRadio: typeof import('element-plus/es')['ElRadio']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+<<<<<<< HEAD
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
+=======
+    ElSwitch: typeof import('element-plus/es')['ElSwitch']
+    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     FormControl: typeof import('./src/components/ui/form/FormControl.vue')['default']
     FormDescription: typeof import('./src/components/ui/form/FormDescription.vue')['default']
     FormItem: typeof import('./src/components/ui/form/FormItem.vue')['default']
@@ -75,6 +122,10 @@ declare module 'vue' {
     HoverCardTrigger: typeof import('./src/components/ui/hover-card/HoverCardTrigger.vue')['default']
     IInput: typeof import('./src/components/ui/insput/IInput.vue')['default']
     Input: typeof import('./src/components/ui/input/Input.vue')['default']
+<<<<<<< HEAD
+=======
+    InteractiveHoverButton: typeof import('./src/components/ui/interactive-hover-button/InteractiveHoverButton.vue')['default']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     Label: typeof import('./src/components/ui/label/Label.vue')['default']
     NavigationMenu: typeof import('./src/components/ui/navigation-menu/NavigationMenu.vue')['default']
     NavigationMenuContent: typeof import('./src/components/ui/navigation-menu/NavigationMenuContent.vue')['default']
@@ -84,9 +135,30 @@ declare module 'vue' {
     NavigationMenuList: typeof import('./src/components/ui/navigation-menu/NavigationMenuList.vue')['default']
     NavigationMenuTrigger: typeof import('./src/components/ui/navigation-menu/NavigationMenuTrigger.vue')['default']
     NavigationMenuViewport: typeof import('./src/components/ui/navigation-menu/NavigationMenuViewport.vue')['default']
+<<<<<<< HEAD
     RippleButton: typeof import('./src/components/ui/ripple-button/RippleButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+=======
+    Popover: typeof import('./src/components/ui/popover/Popover.vue')['default']
+    PopoverAnchor: typeof import('./src/components/ui/popover/PopoverAnchor.vue')['default']
+    PopoverContent: typeof import('./src/components/ui/popover/PopoverContent.vue')['default']
+    PopoverTrigger: typeof import('./src/components/ui/popover/PopoverTrigger.vue')['default']
+    RippleButton: typeof import('./src/components/ui/ripple-button/RippleButton.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
+    Select: typeof import('./src/components/ui/select/Select.vue')['default']
+    SelectContent: typeof import('./src/components/ui/select/SelectContent.vue')['default']
+    SelectGroup: typeof import('./src/components/ui/select/SelectGroup.vue')['default']
+    SelectItem: typeof import('./src/components/ui/select/SelectItem.vue')['default']
+    SelectItemText: typeof import('./src/components/ui/select/SelectItemText.vue')['default']
+    SelectLabel: typeof import('./src/components/ui/select/SelectLabel.vue')['default']
+    SelectScrollDownButton: typeof import('./src/components/ui/select/SelectScrollDownButton.vue')['default']
+    SelectScrollUpButton: typeof import('./src/components/ui/select/SelectScrollUpButton.vue')['default']
+    SelectSeparator: typeof import('./src/components/ui/select/SelectSeparator.vue')['default']
+    SelectTrigger: typeof import('./src/components/ui/select/SelectTrigger.vue')['default']
+    SelectValue: typeof import('./src/components/ui/select/SelectValue.vue')['default']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     Separator: typeof import('./src/components/ui/separator/Separator.vue')['default']
     Sheet: typeof import('./src/components/ui/sheet/Sheet.vue')['default']
     SheetClose: typeof import('./src/components/ui/sheet/SheetClose.vue')['default']
@@ -133,12 +205,19 @@ declare module 'vue' {
     TableHead: typeof import('./src/components/ui/table/TableHead.vue')['default']
     TableHeader: typeof import('./src/components/ui/table/TableHeader.vue')['default']
     TableRow: typeof import('./src/components/ui/table/TableRow.vue')['default']
+<<<<<<< HEAD
+=======
+    Textarea: typeof import('./src/components/ui/textarea/Textarea.vue')['default']
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
     Tooltip: typeof import('./src/components/ui/tooltip/Tooltip.vue')['default']
     TooltipContent: typeof import('./src/components/ui/tooltip/TooltipContent.vue')['default']
     TooltipProvider: typeof import('./src/components/ui/tooltip/TooltipProvider.vue')['default']
     TooltipTrigger: typeof import('./src/components/ui/tooltip/TooltipTrigger.vue')['default']
   }
+<<<<<<< HEAD
   export interface GlobalDirectives {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
+=======
+>>>>>>> 45ef3e46b0a8f64509a6bd18c3f8fd90e0301b13
 }

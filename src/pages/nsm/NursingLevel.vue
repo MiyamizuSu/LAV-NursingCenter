@@ -1,12 +1,346 @@
 <!-- 系统管理员端 护理管理 护理级别 -->
+<style lang="css" scoped>
+    .add-button {
+        background-color: #007bff;
+        font-size: 16px;
+    }
+</style>
+
+<template>
+    <el-container style="align-content: center; overflow-y: auto;">
+        <!-- <label style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理级别管理</label> -->
+        <!-- <br> -->
+        <!-- 表格区域 -->
+        <el-col :span="16" style="margin-left: 20%;">
+            <p style="margin-top: 2vh; margin-bottom: 2vh;">
+                <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
+
+                <Button @click="goto_nursingPrograms" 
+                style="margin-left: 1vh;">护理项目管理</Button>
+
+                <Button @click="goto_customerNursingSet" 
+                style="margin-left: 1vh;">客户护理设置</Button>
+                
+                <Button @click="goto_nursingRecords" 
+                style="margin-left: 1vh;">护理记录</Button>
+                
+                <Button @click="goto_serviceObjectSetting" 
+                style="margin-left: 1vh;">设置服务对象</Button>
+
+                <Button @click="goto_serviceFocus" 
+                style="margin-left: 1vh;">服务关注</Button>
+            </p>
+
+            <Switcher left-value="启用" right-value="停用" >
+            </Switcher>
+            <br>
+
+            <el-switch v-model="isActive" :checked="true" size="large"
+                active-text="启用" inactive-text="停用"
+                :active-value="1" :inactive-value="0" @change="handleChange"
+            />
+
+            <br>
+            <div style="background-color: #007bff; margin-top: 2vh; width: 700px; height: 3vh; align-content: center;">
+                <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
+            </div>
+            <div v-if="queryEntity.status == 1">
+                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
+                    <el-table-column type="index" label="序号" width="80"
+                        style="text-align: center;"
+                        >
+                    </el-table-column>
+                    <el-table-column property="name" label="级别名称" width="120"
+                        style="text-align: center;"
+                        >
+                    </el-table-column>
+                    <el-table-column  label="状态" width="150">
+                        <template #default="scope">
+                            <span v-if="scope.row.status==1">启用</span>
+                            <span v-else>停用</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column  label="操作" width="350" style="text-align: center;">
+                        <template #default="scope">
+                            <label @click="start_updateLevel(scope.row)"
+                            style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                            <label @click="start_managePrograms(scope.row)"
+                            style="font-size: 15px; color: green; margin-left: 3vh;"><el-icon><Setting /></el-icon> 护理项目配置</label>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            
+            <div v-else>
+                <el-table :data="tableData" :border="true" :stripe="true" style="width: 700px;">
+                    <el-table-column type="index" label="序号" width="80"
+                        style="text-align: center;"
+                        >
+                    </el-table-column>
+                    <el-table-column property="name" label="级别名称" width="120"
+                        style="text-align: center;"
+                        >
+                    </el-table-column>
+                    <el-table-column  label="状态" width="150">
+                        <template #default="scope">
+                            <span v-if="scope.row.status==1">启用</span>
+                            <span v-else>停用</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column  label="操作" width="350" style="text-align: center;">
+                        <template #default="scope">
+                            <label @click="start_updateLevel(scope.row)"
+                            style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+
+            <el-dialog v-model="dialogFormControl.isVisible" :title="dialogFormControl.title" 
+            style="width: 500px; height: 400px; overflow-y: auto;" draggable overflow>
+                <el-form :model="editForm" :rules="editLevelRules">
+                    <el-form-item label="名称" prop="name" label-width="100px" style="margin-top: 50px;">
+                        <el-input type="text" v-model="editForm.name"  :disabled="dialogFormControl.isUpdate"
+                            placeholder="请输入护理级别名称" style="width: 300px;"></el-input>
+                    </el-form-item>
+                    <el-form-item label="状态" prop="status" label-width="100px" style="margin-top: 50px;">
+                        <el-select v-model="editForm.status" placeholder="请选择护理级别状态"
+                            size="large" style="width: 300px"
+                        >
+                            <el-option label="已启用" :value="1"></el-option>
+                            <el-option label="已停用" :value="0"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <div style="margin-top: 30px;">
+                        <el-button type="primary" @click="confirm_commit" style="margin-left: 30%; margin-right: 20px;">提交</el-button>
+                        <el-button @click="cancel_commit">取消</el-button>
+                    </div>
+                </el-form>
+            </el-dialog>
+
+            <el-pagination
+                :current-page="queryEntity.current"
+                :page-sizes="[1, 5, 10, 50]"
+                :default-page-size="queryEntity.size"
+                @update:page-size="handleSizeChange"
+                @update:current-page="handleCurrentChange"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                style="margin-top: 10vh;"
+            />
+        </el-col>
+    
+    </el-container>
+</template>
+
 <script setup lang="ts">
+import { onMounted, reactive, ref, watch } from 'vue';
+import { type NursingLevel } from '@/lib/type.d';
+import { axiosInstance as axios } from '@/lib/core';
+import Switcher from '@/components/custom/Switcher.vue';
+import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules } from 'element-plus' 
+import {Edit, Setting } from '@element-plus/icons-vue'
+import Button from '@/components/ui/button/Button.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
+
+onMounted(() => {
+    loadData()
+})
+
+// 分页数据
+let tableData = ref([] as NursingLevel[])
+
+let total = ref(0)
+let queryEntity = ref({
+    status: 1,
+    current: 1,
+    size: 5
+})
+
+const goto_nursingPrograms = () => {
+    router.push("/main/nursingPrograms")
+}
+
+const goto_customerNursingSet = () => {
+    router.push("/main/customerNursingSet")
+}
+
+const goto_nursingRecords = () => {
+    router.push("/main/nursingRecord")
+}
+
+const goto_serviceObjectSetting = () => {
+    router.push("/main/serviceObjectSetting")
+}
+
+const goto_serviceFocus = () => {
+    router.push("/main/serviceFocus")
+}
+
+const isActive = ref(true) // status是否等于1（启用状态）
+
+const handleChange = (val: number) => {
+    console.log("Switch的值改变了：", val)
+    queryEntity.value.status = val
+    console.log(queryEntity.value.status)
+    loadData()
+}
+
+// 分页改变触发函数
+const handleSizeChange = (val: number) => {
+    queryEntity.value.size = val
+    loadData()
+}
+
+const handleCurrentChange = (val: number) => {
+    queryEntity.value.current = val
+    loadData()
+}
+
+
+// 控制表单对话框
+let dialogFormControl = ref({
+    isVisible: false,
+    isUpdate: true, //是修改还是添加
+    title: "修改护理级别"
+})
+
+// 添加/修改的表单
+let editForm = ref({} as NursingLevel)
+
+// 通用校验：输入不能为空
+const validateInput = (rule: any, value: any, callback: any) => {
+    if (value === '') {
+        callback(new Error('输入不能为空！'))
+    }
+}
+
+const editLevelRules = reactive<FormRules>({
+    name: [
+        {required: true, validator: validateInput, message: "请输入护理级别的名称", trigger: "blur"}
+
+    ],
+    status: [
+        {required: true, validator: validateInput, message: "请选择护理级别的状态", trigger: "blur"}
+    ]
+})
+
+// 给表单赋值（用于修改）
+const alignFormValue = (nursingLevel: NursingLevel) => {
+    editForm.value = JSON.parse(JSON.stringify(nursingLevel)) //深拷贝
+}
+// 清空表单内容
+const cleanFormValue = () => {
+    editForm.value.id = 0
+    editForm.value.name = ""
+    editForm.value.status = 1
+}
+
+/** 
+ * 修改护理级别
+*/ 
+const start_updateLevel = (nursingLevel: NursingLevel) => {
+    alignFormValue(nursingLevel)
+    dialogFormControl.value.isUpdate = true
+    dialogFormControl.value.title = "修改护理级别"
+    dialogFormControl.value.isVisible = true
+}
+
+/** 
+ * 添加护理级别
+*/ 
+const start_addLevel = () => {
+    cleanFormValue()
+    dialogFormControl.value.isUpdate = false
+    dialogFormControl.value.title = "添加护理级别"
+    dialogFormControl.value.isVisible = true
+}
+
+/** 
+ * 提交并发送请求
+*/ 
+const confirm_commit = () => {
+    // 先校验表单
+    if (editForm.value.name === '') {
+        ElMessage({message: "护理级别名称不能为空！", type: "warning"})
+        return;
+    }
+
+    if (dialogFormControl.value.isUpdate) {
+        axios.post("/nursingLevel/update", editForm.value)
+        .then(res => {
+            if (res.data.status == 200) {
+                loadData()
+                dialogFormControl.value.isVisible = false
+                ElMessage({message: "修改成功！", type: "success"})
+            } else {
+                ElNotification({
+                    title: 'Error',
+                    message: res.data.msg,
+                    type: 'error',
+                })
+            }
+        })
+    } else {
+        axios.post("/nursingLevel/add", editForm.value)
+        .then(res => {
+            if (res.data.status == 200) {
+                loadData()
+                dialogFormControl.value.isVisible = false
+                ElMessage({message: "添加成功！", type: "success"})
+            } else {
+                ElNotification({
+                    title: 'Error',
+                    message: res.data.msg,
+                    type: 'error',
+                })
+            }
+        })
+    }
+}
+
+const cancel_commit = () => {
+    dialogFormControl.value.isVisible = false
+}
+
+
+/** 
+ * 去配置级别下的护理项目
+*/ 
+const start_managePrograms = (selectedLevel: NursingLevel) => {
+    router.push({
+        path: '/main/levelManagePrograms',
+        query: {
+            currentLevel: JSON.stringify(selectedLevel)
+        }
+    })
+}
+
+const loadData = () => {
+    axios.post("/nursingLevel/pageByStatus", queryEntity.value)
+    .then(res => {
+        if (res.data.status == 200) {
+            tableData.value = res.data.data
+            total.value = res.data.total
+            console.log(tableData.value)
+
+            // ElMessage({message: "数据加载成功！", type: "success"})
+        } else {
+            tableData.value = res.data.data
+            total.value = res.data.total
+            console.log(tableData.value)
+            ElNotification({
+                title: '没有符合条件的数据',
+                message: res.data.msg,
+                type: 'warning',
+            })
+        }
+    })
+}
+
 
 
 </script>
-
-<template>
-
-</template>
-<style lang="css" scoped>
-
-</style>

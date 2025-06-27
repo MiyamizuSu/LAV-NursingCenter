@@ -6,11 +6,10 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import postCssPxToRem from 'postcss-pxtorem'
-// https://vite.dev/config/
+
+import ElementPlus from 'unplugin-element-plus/vite'
 export default defineConfig({
-  plugins: [
-    vue(),tailwindcss(),vueDevTools(),
+  plugins: [vue(),tailwindcss(),vueDevTools(),ElementPlus({}),
     AutoImport({
       resolvers: [ElementPlusResolver()],
     }),
@@ -23,16 +22,17 @@ export default defineConfig({
       '@':path.resolve(__dirname,'./src')
     }
   },
-  css: {
-    postcss: {
-      plugins: [
-        postCssPxToRem({
-          rootValue: 16, // 基准值
-          propList: ['*'], // 需要转换的属性，这里选择全部
-          selectorBlackList: [], // 过滤掉不需要转换的类名
-        }),
-      ],
-    },
+  build:{
+    rollupOptions:{
+      output:{
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            const parts = id.toString().split('node_modules/')[1].split('/');
+            const name = parts[0].startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0];
+            return `npm.${name}`;
+          }
+        }
+      }
+    }
   },
 })
-
