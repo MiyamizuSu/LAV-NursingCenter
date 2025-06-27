@@ -77,7 +77,7 @@ const judgeContains = (programId: number) => {
 }
 
 const start_deleteFromLevel = (program: NursingLevel) => {
-    axios.post("http://localhost:9000/levelWithProgram/deleteByLevelAndProgram", {
+    axios.post("/levelWithProgram/deleteByLevelAndProgram", {
         levelId: currentLevel.value.id,
         programId: program.id,
     }).then(res => {
@@ -96,7 +96,7 @@ const start_deleteFromLevel = (program: NursingLevel) => {
 }
 
 const addToLevel = (program: NursingLevel) => {
-    axios.post("http://localhost:9000/levelWithProgram/add", {
+    axios.post("/levelWithProgram/add", {
         levelId: currentLevel.value.id,
         programId: program.id,
     }).then(res => {
@@ -120,7 +120,7 @@ const loadData = () => {
     console.log(currentLevel.value)
     queryEntity1.value.levelId = currentLevel.value.id
 
-    axios.post("http://localhost:9000/nursingProgram/page", queryEntity0.value)
+    axios.post("/nursingProgram/page", queryEntity0.value)
         .then(res => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
@@ -137,7 +137,7 @@ const loadData = () => {
             }
         })
 
-    axios.post("http://localhost:9000/levelWithProgram/pageProgramsByLevelId", queryEntity1.value)
+    axios.post("/levelWithProgram/pageProgramsByLevelId", queryEntity1.value)
         .then(res => {
             if (res.data.status == 200) {
                 currentPrograms.value = res.data.data

@@ -147,7 +147,7 @@ const start_deleteProgram = (nursingProgram: NursingProgram) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingProgram/delete", { id: nursingProgram.id })
+        axios.post("/nursingProgram/delete", { id: nursingProgram.id })
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -181,7 +181,7 @@ const start_deleteBatch = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingProgram/deleteBatch", multipleSelection.value)
+        axios.post("/nursingProgram/deleteBatch", multipleSelection.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -222,7 +222,7 @@ const confirm_commit = () => {
     }
 
     if (dialogFormControl.value.isUpdate) {
-        axios.post("http://localhost:9000/nursingProgram/update", editForm.value)
+        axios.post("/nursingProgram/update", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -237,7 +237,7 @@ const confirm_commit = () => {
                 }
             })
     } else {
-        axios.post("http://localhost:9000/nursingProgram/add", editForm.value)
+        axios.post("/nursingProgram/add", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -260,7 +260,7 @@ const cancel_commit = () => {
 
 
 const loadData = () => {
-    axios.post("http://localhost:9000/nursingProgram/page", queryEntity.value)
+    axios.post("/nursingProgram/page", queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data

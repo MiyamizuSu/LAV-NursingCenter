@@ -116,7 +116,7 @@ const confirm_commit = () => {
     }
 
     if (dialogFormControl.value.isUpdate) {
-        axios.post("nursingLevel/update", editForm.value)
+        axios.post("/nursingLevel/update", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -131,7 +131,7 @@ const confirm_commit = () => {
                 }
             })
     } else {
-        axios.post("nursingLevel/add", editForm.value)
+        axios.post("/nursingLevel/add", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -166,14 +166,14 @@ const start_managePrograms = (selectedLevel: NursingLevel) => {
 }
 
 const loadData = () => {
-    axios.post("http://localhost:9000/user/load", {}).then(res => {
+    axios.post("/user/load", {}).then(res => {
         if (res.data.status == 200) {
             currentUser.value = res.data.data
-            console.log("currentUser: ", currentUser.value)
+            // console.log("currentUser: ", currentUser.value)
         }
     })
 
-    axios.post("nursingLevel/pageByStatus", queryEntity.value)
+    axios.post("/nursingLevel/pageByStatus", queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 tableData.value = res.data.data

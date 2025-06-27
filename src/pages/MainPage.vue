@@ -60,7 +60,7 @@ const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
     frameController.curFrameIndex=index
 }
 const logout = () => {
-    axios.post("user/logout", {}).then(res => {
+    axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
             sessionStorage.removeItem("token")
             ElMessage({message: "已退出登录", type: "info"})

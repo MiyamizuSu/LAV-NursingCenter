@@ -77,7 +77,7 @@ const currentCustomer_handleCurrentChange = (val: number) => {
 }
 
 const assignNurse = (customer: Customer) => {
-    axios.post("http://localhost:9000/customer/assignNurse", {
+    axios.post("/customer/assignNurse", {
         customerId: customer.customerId,
         nurseId: currentNurse.value.userId
     }).then(res => {
@@ -102,7 +102,7 @@ const start_resetNurse = (customer: Customer) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customer/resetNurse", { customerId: customer.customerId })
+        axios.post("/customer/resetNurse", { customerId: customer.customerId })
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -134,7 +134,7 @@ const start_resetNurseBatch = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customer/resetNurseBatch", multipleSelection.value)
+        axios.post("/customer/resetNurseBatch", multipleSelection.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -157,7 +157,7 @@ const start_resetNurseBatch = () => {
 }
 
 const loadAvailableCustomers = () => {
-    axios.post("http://localhost:9000/customer/pageByNurseId", availableCustomer_queryEntity.value)
+    axios.post("/customer/pageByNurseId", availableCustomer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 availableCustomers.value = res.data.data
@@ -165,18 +165,14 @@ const loadAvailableCustomers = () => {
             } else {
                 availableCustomers.value = res.data.data
                 availableCustomer_total.value = res.data.total
-                // ElNotification({
-                //     title: 'Error',
-                //     message: res.data.msg,
-                //     type: 'error',
-                // })
+                
             }
         })
 }
 
 const loadCurrentCustomers = () => {
     currentCustomer_queryEntity.value.nurseId = currentNurse.value.userId
-    axios.post("http://localhost:9000/customer/pageByNurseId", currentCustomer_queryEntity.value)
+    axios.post("/customer/pageByNurseId", currentCustomer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 currentCustomers.value = res.data.data
@@ -184,11 +180,7 @@ const loadCurrentCustomers = () => {
             } else {
                 currentCustomers.value = res.data.data
                 currentCustomer_total.value = res.data.total
-                // ElNotification({
-                //     title: 'Error',
-                //     message: res.data.msg,
-                //     type: 'error',
-                // })
+                
             }
         })
 }

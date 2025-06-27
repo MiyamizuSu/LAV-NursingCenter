@@ -88,7 +88,7 @@ const start_resetLevel = (customer: Customer) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customerNursingService/deleteByCustomer", customer).then(res => {
+        axios.post("/customerNursingService/deleteByCustomer", customer).then(res => {
             if (res.data.status == 200) {
                 loadData()
                 ElMessage({ message: "移除成功！", type: "success" })
@@ -153,9 +153,9 @@ const confirm_commit = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customerNursingService/addBatch", multipleSelection.value).then(res => {
+        axios.post("/customerNursingService/addBatch", multipleSelection.value).then(res => {
             if (res.data.status == 200) {
-                axios.post("http://localhost:9000/customer/setNursingLevel", {
+                axios.post("/customer/setNursingLevel", {
                     customerId: selectedCustomer.value.customerId,
                     levelId: selectedLevel.value.id
                 }).then(res2 => {
@@ -194,7 +194,7 @@ const cancel_commit = () => {
 }
 
 const loadUsers = () => {
-    axios.post("http://localhost:9000/customer/page", customer_queryEntity.value)
+    axios.post("/customer/page", customer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 nursingCustomers.value = res.data.data
@@ -211,7 +211,7 @@ const loadUsers = () => {
 }
 
 const loadAllLevels = () => {
-    axios.post("http://localhost:9000/nursingLevel/listByStatus", { status: 1 })
+    axios.post("/nursingLevel/listByStatus", { status: 1 })
         .then(res => {
             if (res.data.status == 200) {
                 allLevels.value = res.data.data
@@ -247,7 +247,7 @@ const addDays = (timer: Date, days: number) => {
 }
 
 const loadProgramsUnderLevel = () => {
-    axios.post("http://localhost:9000/levelWithProgram/pageProgramsByLevelId", {
+    axios.post("/levelWithProgram/pageProgramsByLevelId", {
         levelId: selectedLevel.value.id,
         programName: program_queryEntity.value.programName,
         current: program_queryEntity.value.current,

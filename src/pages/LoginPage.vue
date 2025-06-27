@@ -46,7 +46,7 @@ const simpleLogin= async()=>{
 }
 
 const login = () => {
-    axios.post("http://localhost:9000/user/login", user1.value).then(response => {
+    axios.post("/user/login", user1.value).then(response => {
 		let rb = response.data;
 		if (rb.status == 200) {
 			// 取得登录成功的用户的令牌

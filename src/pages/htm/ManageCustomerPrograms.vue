@@ -122,7 +122,7 @@ const start_deleteService = (service: CustomerNursingService) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customerNursingService/delete", { id: service.id }).then(res => {
+        axios.post("/customerNursingService/delete", { id: service.id }).then(res => {
             if (res.data.status == 200) {
                 loadData()
                 ElMessage({ message: "移除成功！", type: "success" })
@@ -153,7 +153,7 @@ const start_deleteBatch = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customerNursingService/deleteBatch", multipleSelection.value)
+        axios.post("/customerNursingService/deleteBatch", multipleSelection.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -275,7 +275,7 @@ const confirm_renew_commit = () => {
     }
 
     editForm.value.totalCount += addCount.value
-    axios.post("http://localhost:9000/customerNursingService/update", editForm.value).then(res => {
+    axios.post("/customerNursingService/update", editForm.value).then(res => {
         if (res.data.status == 200) {
             loadData()
             ElMessage({ message: "续费成功！", type: "success" })
@@ -305,7 +305,7 @@ const confirm_add_commit = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/customerNursingService/addBatch", selectedServices.value).then(res => {
+        axios.post("/customerNursingService/addBatch", selectedServices.value).then(res => {
             if (res.data.status == 200) {
                 loadData()
                 ElMessage({ message: `客户护理项目设置成功！` + res.data.data, type: "success" })
@@ -337,7 +337,7 @@ const cancel_add_commit = () => {
 
 const loadCurrentServices = () => {
     currentService_queryEntity.value.customerId = currentCustomer.value.customerId
-    axios.post("http://localhost:9000/customerNursingService/page", currentService_queryEntity.value)
+    axios.post("/customerNursingService/page", currentService_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 currentServices.value = res.data.data
@@ -354,7 +354,7 @@ const loadCurrentServices = () => {
 const loadAvailablePrograms = () => {
     availableProgram_queryEntity.value.customerId = currentCustomer.value.customerId
 
-    axios.post("http://localhost:9000/customerNursingService/pageAvailableProgramsByCustomer", availableProgram_queryEntity.value)
+    axios.post("/customerNursingService/pageAvailableProgramsByCustomer", availableProgram_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 availablePrograms.value = res.data.data
@@ -373,7 +373,7 @@ const loadAvailablePrograms = () => {
 }
 
 const loadNursingLevel = () => {
-    axios.post("http://localhost:9000/nursingLevel/getByName", { name: currentCustomer.value.nursingLevelName }).then(res => {
+    axios.post("/nursingLevel/getByName", { name: currentCustomer.value.nursingLevelName }).then(res => {
         if (res.data.status == 200) {
             currentLevel.value = res.data.data
         } else {

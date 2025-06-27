@@ -52,7 +52,7 @@ const manageCustomerPrograms = (customer: Customer) => {
 }
 
 const loadCustomers = () => {
-    axios.post("http://localhost:9000/customer/page", customer_queryEntity.value)
+    axios.post("/customer/page", customer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 allCustomers.value = res.data.data

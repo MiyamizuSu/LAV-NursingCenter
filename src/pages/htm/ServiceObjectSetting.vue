@@ -47,7 +47,7 @@ const manageNursingCustomers = (nurse: User) => {
 }
 
 const loadNurses = () => {
-    axios.post("http://localhost:9000/user/page", nurse_queryEntity.value)
+    axios.post("/user/page", nurse_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 allNurses.value = res.data.data
