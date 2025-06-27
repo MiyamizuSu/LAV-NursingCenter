@@ -38,7 +38,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { CheckoutRegistration, Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
@@ -264,7 +264,7 @@ const changeCheckoutPage = (page: number) => {
 
 // 获取分页客户数据
 const loadCustomers = async () => {
-    axios.post('http://localhost:9000/customer/pageAll', {
+    axios.post('/customer/pageAll', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
     }).then((res) => {
@@ -281,7 +281,7 @@ const loadCustomers = async () => {
 }
 // 获取分页退住审批数据
 const loadCheckoutRegistrations = async () => {
-    axios.post('http://localhost:9000/checkoutRegistration/page', {
+    axios.post('/checkoutRegistration/page', {
         current: checkoutPages.value.currentPage,
         size: checkoutPages.value.pageSize,
         name: ""
@@ -406,7 +406,7 @@ const submitApprovalVisible = ref(false)  // 确认提交审批结果表单的�
 const updateApproval = () => {  // 提交审批
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss')  // 获取当前审批时间
     approvalForm.reviewTime = currentTime
-    axios.post('http://localhost:9000/checkoutRegistration/update', approvalForm).then((res) => {
+    axios.post('/checkoutRegistration/update', approvalForm).then((res) => {
         if (res.data.status === 200) {
             console.log('提交审批成功')
             loadCheckoutRegistrations()

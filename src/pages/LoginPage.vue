@@ -12,11 +12,12 @@ import Button from '@/components/ui/button/Button.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
+import { axiosInstance as axios } from '@/lib/core'
 const router = useRouter()
 
 type UserMes = {
-    username: string;
-    userPassword: string;
+    account: string,
+    password: string
 }
 const formSchema = toTypedSchema(z.object({
     username: z.string(),
@@ -28,12 +29,19 @@ const { handleSubmit } = useForm({
 })
 
 const user1 = ref<UserMes>({
-    username: '',
-    userPassword: ''
+    account: '',
+    password: ''
 })
 
 const jump = () => {
     router.push('/main')
+}
+
+const simpleLogin= async()=>{
+     const res= await axios.post("/user/login",user1.value)
+     console.log(res)
+     jump()
+
 }
 
 </script>
@@ -72,18 +80,18 @@ const jump = () => {
                         <FormField v-slot="{ componentField }" name="username">
                             <FormLabel>账号</FormLabel>
                             <FormControl>
-                                <IInput v-bind:componentField v-model="user1.username"></IInput>
+                                <IInput v-bind:componentField v-model="user1.account"></IInput>
                             </FormControl>
                         </FormField>
                         <FormField v-slot="{ componentField }" name="userPassword">
                             <FormLabel>密码</FormLabel>
                             <FormControl>
-                                <IInput type="password" v-bind:componentField v-model="user1.userPassword"></IInput>
+                                <IInput type="password" v-bind:componentField v-model="user1.password"></IInput>
                             </FormControl>
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="jump">提交</Button>
+                        <Button class=" mt-4" @Click="simpleLogin">提交</Button>
                     </div>
 
                 </CardContent>

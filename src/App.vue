@@ -9,7 +9,7 @@ import 'element-plus/dist/index.css'
 
 const router=useRouter()
 // router.push('/login')
-router.push('/main/nursingLevel')
+router.push('/login')
 
 </script>
 
