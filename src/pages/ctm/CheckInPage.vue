@@ -19,7 +19,7 @@ import {
 } from '@tanstack/vue-table'
 import { ArrowUpDown, ChevronDown, ChevronsUpDown, IdCard, Import } from 'lucide-vue-next'
 import { h, reactive, ref, onMounted, watch } from 'vue'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -41,9 +41,6 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
-
-
-
 const data: Customer[] = [
 ]
 const ctmStore = usecustomerManagementStore()
@@ -57,28 +54,29 @@ const customerType = ref(0)
 
 // 获取分页客户数据
 const fetchCustomers = async () => {
-
-  if(selectedCustomerType.value === '护理老人'){
-    customerType.value = 1
-  }else{
-    customerType.value = 0
-  }
-  axios.post('http://localhost:9000/customer/page', {
-    current: pages.value.currentPage,
-    size: pages.value.pageSize,
-    customerType: customerType.value,
-    name: ""
-  }
-  ).then((res) => {
-    console.log(res.data)
-    if (res.data.status === 200) {
-      ctmStore.setNewList(res.data.data)
-      total.value = res.data.total
-      updateTableData(ctmStore.getCustomerList.value)
+  if (import.meta.env.VITE_DEV_ENV === 'sameSite') {
+    if (selectedCustomerType.value === '护理老人') {
+      customerType.value = 1
     } else {
-      ctmStore.getCustomerList.value = []
+      customerType.value = 0
     }
-  })
+    axios.post('http://10.25.41.129:9000/customer/page', {
+      current: pages.value.currentPage,
+      size: pages.value.pageSize,
+      customerType: customerType.value,
+      name: ""
+    }
+    ).then((res) => {
+      console.log(res.data)
+      if (res.data.status === 200) {
+        ctmStore.setNewList(res.data.data)
+        total.value = res.data.total
+        updateTableData(ctmStore.getCustomerList.value)
+      } else {
+        ctmStore.getCustomerList.value = []
+      }
+    })
+  }
 }
 
 const showUpdateForm = ref(false)  // 修改界面的可见性
@@ -105,7 +103,7 @@ const cancelUpdate = () => {
 }
 const updateForm = async () => {
   // 后端
-  axios.post("http://localhost:9000/customer/update", form).then((res) => {
+  axios.post("/customer/update", form).then((res) => {
     console.log(res.data)
     if (res.data.status === 200) {
       fetchCustomers()
@@ -141,10 +139,10 @@ const columns: ColumnDef<Customer>[] = [
     accessorKey: 'index',
     header: () => h('div', {}, '序号'),
     cell: ({ row }) => {
-    const pageSize = pages.value.pageSize
-    const currentPage = pages.value.currentPage
-    return h('div', {}, row.index + 1 + (currentPage - 1) * pageSize)
-  }
+      const pageSize = pages.value.pageSize
+      const currentPage = pages.value.currentPage
+      return h('div', {}, row.index + 1 + (currentPage - 1) * pageSize)
+    }
   },
   {
     accessorKey: 'name',
@@ -291,7 +289,7 @@ const openDialog = (title: string) => {
 const onSubmit = () => {
   // 实现后端
   // ...
-  axios.post("http://localhost:9000/customer/add", form).then((res ) => {
+  axios.post("/customer/add", form).then((res) => {
 
   })
 
@@ -448,7 +446,7 @@ const openDeleteForm = (customer: Customer) => {
     }
   )
     .then(() => {
-      axios.post("http://localhost:9000/customer/deleteById", customer.customerId).then((res:any) => {
+      axios.post("/customer/deleteById", customer.customerId).then((res: any) => {
         if (res.data.status === 200) {
           ElMessage({
             type: 'success',
@@ -472,16 +470,16 @@ const openDeleteForm = (customer: Customer) => {
 }
 
 const selectedCustomerType = ref('自理老人')
-watch(selectedCustomerType, (newType: any) =>{
+watch(selectedCustomerType, (newType: any) => {
   fetchCustomers()
 })
 
 onMounted(() => {
   fetchCustomers()
-  
+
 })
-function change(e: string){
-  selectedCustomerType.value=e
+function change(e: string) {
+  selectedCustomerType.value = e
 }
 </script>
 
@@ -754,19 +752,19 @@ function change(e: string){
           </el-col>
           <el-col :span="12">
             <el-form-item label="楼栋：" prop="building">
-              <el-input v-model="form.building" disabled/>
+              <el-input v-model="form.building" disabled />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="房间号：" prop="roomNumber">
-              <el-input v-model="form.roomNumber" disabled/>
+              <el-input v-model="form.roomNumber" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="床位号：" prop="bedNumber">
-              <el-input v-model="form.bedNumber" disabled/>
+              <el-input v-model="form.bedNumber" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -780,7 +778,7 @@ function change(e: string){
 
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" disabled/>
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" disabled />
           </el-col>
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">

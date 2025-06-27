@@ -1,6 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import type { CheckoutRegistration, Customer, OutingRegistration } from "@/pages/ctm/type";
+import type { BedUser } from "./type";
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
   const checkoutList = ref<CheckoutRegistration[]>([])

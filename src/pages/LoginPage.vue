@@ -9,22 +9,19 @@ import IInput from '@/components/ui/insput/IInput.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { inject, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
-import { type AxiosInstance } from 'axios'
-import { ElMessage } from 'element-plus'
+import { axiosInstance as axios } from '@/lib/core'
 const router = useRouter()
 
-const axios = inject('axios') as AxiosInstance
-
 type UserMes = {
-    account: string;
-    password: string;
+    account: string,
+    password: string
 }
 const formSchema = toTypedSchema(z.object({
-    account: z.string(),
-    password: z.string()
+    username: z.string(),
+    userPassword: z.string()
 }))
 
 const { handleSubmit } = useForm({
@@ -38,6 +35,13 @@ const user1 = ref<UserMes>({
 
 const jump = () => {
     router.push('/main')
+}
+
+const simpleLogin= async()=>{
+     const res= await axios.post("/user/login",user1.value)
+     console.log(res)
+     jump()
+
 }
 
 const login = () => {
@@ -72,7 +76,7 @@ const login = () => {
             type: 'spring'
         }" class="absolute  -translate-x-1/4 z-1">
             <Card class="h-[50vh] w-[30vw]">
-                
+                1
             </Card>
         </motion.div>
         <motion.div 
@@ -91,13 +95,13 @@ const login = () => {
             <Card class="">
                 <CardContent>
                     <form class="grid gap-4">
-                        <FormField v-slot="{ componentField }" name="account">
+                        <FormField v-slot="{ componentField }" name="username">
                             <FormLabel>账号</FormLabel>
                             <FormControl>
                                 <IInput v-bind:componentField v-model="user1.account"></IInput>
                             </FormControl>
                         </FormField>
-                        <FormField v-slot="{ componentField }" name="password">
+                        <FormField v-slot="{ componentField }" name="userPassword">
                             <FormLabel>密码</FormLabel>
                             <FormControl>
                                 <IInput type="password" v-bind:componentField v-model="user1.password"></IInput>
@@ -105,7 +109,7 @@ const login = () => {
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="login">提交</Button>
+                        <Button class=" mt-4" @Click="simpleLogin">提交</Button>
                     </div>
 
                 </CardContent>

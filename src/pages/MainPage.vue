@@ -163,7 +163,7 @@ const sidebarItems = [
 <template>
     <div class="bg-img h-full flex flex-col">
         <div class="flex backBlur w-full z-1 right-0 justify-end">
-            <div class="z-0 flex w-2/3 justify-end">
+            <div class="z-0 flex w-3/4 justify-end">
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
                         <div class="translate-x-1/4 flex-1 space-x-4 flex">

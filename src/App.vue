@@ -28,9 +28,9 @@ axios.interceptors.request.use(function(config) {
 		if(token){
 			config.headers['token']=token;
 		}
-		
+
     return config;
-  }, 
+  },
   function(error) {
     console.log('对请求错误的处理');
     return Promise.reject(error);
@@ -45,7 +45,7 @@ axios.interceptors.response.use(function(response) {
 		  router.push('/errorPage');
 		}
     return response;
-  }, 
+  },
   function(error) {
     console.log('对响应错误的处理');
     return Promise.reject(error);
