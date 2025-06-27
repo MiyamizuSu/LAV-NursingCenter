@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import 'vue-sonner/style.css'
 import { Button } from '@/components/ui/button';
-import 'element-plus/dist/index.css'
-import axios from 'axios'
-import { provide } from 'vue';
 
 const router=useRouter()
 

@@ -16,15 +16,12 @@ import DropdownMenuGroup from '@/components/ui/dropdown-menu/DropdownMenuGroup.v
 // import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
 import { onBeforeRouteUpdate, useRouter } from 'vue-router';
-
-import { inject } from 'vue';
-import { type AxiosInstance } from 'axios';
 import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
 import { reactive, ref, type Reactive, type Ref } from 'vue';
+import { axiosInstance as axios } from '@/lib/core'
 
-const axios = inject('axios') as AxiosInstance
 const router = useRouter();
 const frameController = reactive({
     frameStack: ['主页'] as Key<typeof STATENAME_TAG>[],
