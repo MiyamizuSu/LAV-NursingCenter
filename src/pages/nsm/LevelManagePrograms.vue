@@ -154,16 +154,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, inject } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { type NursingLevel, type NursingProgram } from '@/lib/type.d';
-import axios from 'axios'
+import { type AxiosInstance } from 'axios'
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol } from 'element-plus' 
 // import {Edit, Plus, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';
 
 const router = useRouter()
 const route = useRoute()
+
+const axios = inject('axios') as AxiosInstance
 
 onMounted(() => {
     loadData()

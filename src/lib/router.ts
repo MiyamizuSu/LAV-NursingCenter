@@ -11,6 +11,7 @@ import ServiceObjectSetting from '@/pages/htm/ServiceObjectSetting.vue'
 import ManageNursingCustomers from '@/pages/htm/ManageNursingCustomers.vue'
 import ServiceFocus from '@/pages/htm/ServiceFocus.vue'
 import ManageCustomerPrograms from '@/pages/htm/ManageCustomerPrograms.vue'
+import ErrorPage from '@/pages/ErrorPage.vue'
 const routes:RouteRecordRaw[]=[
     {
         path:'/login',component:LoginPage
@@ -59,6 +60,10 @@ const routes:RouteRecordRaw[]=[
                 component: ManageCustomerPrograms
             },
         ]
+    },
+    {
+        path: "/errorPage",
+        component: ErrorPage
     },
 ]
 export const router=createRouter({

@@ -64,13 +64,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, inject } from 'vue';
 import { type User, type Customer} from '@/lib/type.d';
-import axios from 'axios'
+import { type AxiosInstance } from 'axios'
 import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageBox } from 'element-plus' 
 import {Edit, Setting, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter } from 'vue-router';
+
+const axios = inject('axios') as AxiosInstance
 
 onMounted(() => {
     loadData()

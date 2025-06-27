@@ -9,18 +9,22 @@ import IInput from '@/components/ui/insput/IInput.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
+import { type AxiosInstance } from 'axios'
+import { ElMessage } from 'element-plus'
 const router = useRouter()
 
+const axios = inject('axios') as AxiosInstance
+
 type UserMes = {
-    username: string;
-    userPassword: string;
+    account: string;
+    password: string;
 }
 const formSchema = toTypedSchema(z.object({
-    username: z.string(),
-    userPassword: z.string()
+    account: z.string(),
+    password: z.string()
 }))
 
 const { handleSubmit } = useForm({
@@ -28,12 +32,32 @@ const { handleSubmit } = useForm({
 })
 
 const user1 = ref<UserMes>({
-    username: '',
-    userPassword: ''
+    account: '',
+    password: ''
 })
 
 const jump = () => {
     router.push('/main')
+}
+
+const login = () => {
+    axios.post("http://localhost:9000/user/login", user1.value).then(response => {
+		let rb = response.data;
+		if (rb.status == 200) {
+			// 取得登录成功的用户的令牌
+			let token = rb.data;
+			// 把用户对象变成JSON字符串
+			// let userJson=JSON.stringify(user);
+			// 把用户令牌存入前端Session中
+			sessionStorage.setItem('token', token);
+			// 登录成功
+            ElMessage({message: "登录成功！", type: "success"})
+			router.push('/main/nursingLevel');
+		} else {
+			// 登录失败
+			ElMessage({message: rb.msg, type: "error"})
+		}
+	})
 }
 
 </script>
@@ -50,7 +74,7 @@ const jump = () => {
             type: 'spring'
         }" class="absolute  -translate-x-1/4 z-1">
             <Card class="h-[50vh] w-[30vw]">
-                1
+                
             </Card>
         </motion.div>
         <motion.div 
@@ -69,21 +93,21 @@ const jump = () => {
             <Card class="">
                 <CardContent>
                     <form class="grid gap-4">
-                        <FormField v-slot="{ componentField }" name="username">
+                        <FormField v-slot="{ componentField }" name="account">
                             <FormLabel>账号</FormLabel>
                             <FormControl>
-                                <IInput v-bind:componentField v-model="user1.username"></IInput>
+                                <IInput v-bind:componentField v-model="user1.account"></IInput>
                             </FormControl>
                         </FormField>
-                        <FormField v-slot="{ componentField }" name="userPassword">
+                        <FormField v-slot="{ componentField }" name="password">
                             <FormLabel>密码</FormLabel>
                             <FormControl>
-                                <IInput type="password" v-bind:componentField v-model="user1.userPassword"></IInput>
+                                <IInput type="password" v-bind:componentField v-model="user1.password"></IInput>
                             </FormControl>
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="jump">提交</Button>
+                        <Button class=" mt-4" @Click="login">提交</Button>
                     </div>
 
                 </CardContent>

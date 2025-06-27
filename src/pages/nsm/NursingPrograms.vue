@@ -180,14 +180,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, inject } from 'vue';
 import { type NursingProgram } from '@/lib/type.d';
-import axios from 'axios'
+import { type AxiosInstance} from 'axios'
 import Switcher from '@/components/custom/Switcher.vue';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules, ElMessageBox } from 'element-plus' 
 import {Edit, Setting, Delete } from '@element-plus/icons-vue'
 import { router } from '@/lib/router';
 import Button from '@/components/ui/button/Button.vue';
+
+const axios = inject('axios') as AxiosInstance
 
 onMounted(() => {
     loadData()

@@ -249,9 +249,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, inject } from 'vue';
 import { type User, type NursingLevel, type Customer, type CustomerNursingService, type NursingProgram} from '@/lib/type.d';
-import axios from 'axios'
+import {type AxiosInstance } from 'axios'
 import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageBox, type FormRules } from 'element-plus' 
 import {Edit, Setting, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';
@@ -259,6 +259,8 @@ import { useRouter, useRoute } from 'vue-router';
 
 const route = useRoute()
 const router = useRouter()
+
+const axios = inject('axios') as AxiosInstance
 
 onMounted(() => {
     currentCustomer.value = JSON.parse(route.query.currentCustomer as string)

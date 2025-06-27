@@ -17,6 +17,11 @@ import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
 import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 
+import { inject } from 'vue';
+import { type AxiosInstance } from 'axios';
+import { ElMessage } from 'element-plus';
+
+const axios = inject('axios') as AxiosInstance
 
 const { addState, deleteState, appState } = useAppState()
 let appStateCur:Key<typeof STATENAME_TAG>|''=''
@@ -46,6 +51,18 @@ const STATENAME_TAG={
     '':'',
     入住登记:'checkIn',
     退住登记:undefined
+}
+
+const logout = () => {
+    axios.post("http://localhost:9000/user/logout", {}).then(res => {
+        if (res.data.status == 200) {
+            sessionStorage.removeItem("token")
+            ElMessage({message: "已退出登录", type: "info"})
+            router.push('/login')
+        } else {
+            ElMessage({message: res.data.msg, type: "error"})
+        }
+    })
 }
 </script>
 
@@ -84,7 +101,7 @@ const STATENAME_TAG={
                                     <span>设置</span>
                                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem @click="logout">
                                     <span>退出</span>
                                     <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
                                 </DropdownMenuItem>

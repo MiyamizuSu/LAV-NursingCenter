@@ -135,20 +135,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
-import { type NursingLevel } from '@/lib/type.d';
-import axios from 'axios'
+import { onMounted, reactive, ref, watch, inject } from 'vue';
+import { type NursingLevel, type User } from '@/lib/type.d';
+import { type AxiosInstance} from 'axios'
 import Switcher from '@/components/custom/Switcher.vue';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules } from 'element-plus' 
 import {Edit, Setting } from '@element-plus/icons-vue'
-import Button from '@/components/ui/button/Button.vue';
+import {Button} from '@/components/ui/button';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
+const axios = inject('axios') as AxiosInstance
+
 onMounted(() => {
     loadData()
 })
+
+let currentUser = ref({} as User)
 
 // 分页数据
 let tableData = ref([] as NursingLevel[])
@@ -320,6 +324,13 @@ const start_managePrograms = (selectedLevel: NursingLevel) => {
 }
 
 const loadData = () => {
+    axios.post("http://localhost:9000/user/load", {}).then(res => {
+        if (res.data.status == 200) {
+            currentUser.value = res.data.data
+            console.log("currentUser: ", currentUser.value)
+        }
+    })
+
     axios.post("http://localhost:9000/nursingLevel/pageByStatus", queryEntity.value)
     .then(res => {
         if (res.data.status == 200) {
@@ -333,9 +344,9 @@ const loadData = () => {
             total.value = res.data.total
             console.log(tableData.value)
             ElNotification({
-                title: '没有符合条件的数据',
+                title: 'Error',
                 message: res.data.msg,
-                type: 'warning',
+                type: 'error',
             })
         }
     })
