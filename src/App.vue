@@ -14,7 +14,7 @@ router.push('/main/nursingLevel')
 </script>
 
 <template>
-  <div class="w-screen h-screen overflow-hidden">
+  <div class="w-screen h-screen ">
     <RouterView></RouterView>
     <!-- <CheckIn></Checkin> -->
     <!-- <SidebarProvider>

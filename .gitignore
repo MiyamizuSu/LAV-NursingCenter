@@ -428,6 +428,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-./src/App.vue
-./src/pages/MainPage.vue
-./src/pages/LoginPage.vue
+
+src/App.vue
+src/components/custom/AppSideBar.vue
