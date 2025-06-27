@@ -9,7 +9,7 @@
 <template>
     <el-container style="align-content: center; overflow-y: auto;">
         <!-- <p style="margin-top: -5vh; text-align: center; font-size: 20px; font-weight: bold;">护理记录</p> -->
-        <el-col style="margin-left: 20%; width: 80%;">
+        <el-col style="margin-left: 5%; width: 95%;">
             <p style="">
                 <!-- 搜索框 -->
                 <el-input v-model="nurse_queryEntity.name" clearable placeholder="管家姓名" style="width: 30vh;"></el-input>
@@ -17,34 +17,34 @@
             </p>
             <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 800px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 1250px; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">健康管家列表</label>
             </div>
-            <el-table :data="allNurses" :border="true" :stripe="true" style="width: 800px;">
-                <el-table-column type="index" label="序号" width="80"
+            <el-table :data="allNurses"  :stripe="true" style="width: 1250px;">
+                <el-table-column type="index" label="序号" width="100"
                     >
                 </el-table-column>
-                <el-table-column property="name" label="姓名" width="120"
+                <el-table-column property="name" label="姓名" width="180"
                     >
                 </el-table-column>
-                <el-table-column property="phoneNumber" label="电话" width="150"
+                <el-table-column property="phoneNumber" label="电话" width="200"
                     >
                 </el-table-column>
-                <el-table-column label="性别" width="90"
+                <el-table-column label="性别" width="150"
                     >
                     <template #default="scope">
                         <span v-if="scope.row.gender==1">男</span>
                         <span v-else>女</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="email" label="邮箱" width="200"
+                <el-table-column property="email" label="邮箱" width="300"
                     >
                 </el-table-column>
                     
-                <el-table-column  label="操作" width="160" style="text-align: center;">
+                <el-table-column  label="操作" width="320" style="text-align: center;">
                     <template #default="scope">
                         <Button @click="manageNursingCustomers(scope.row)"
-                            style="background-color: #007bff; color: white;">设置服务对象</Button>
+                            style="background-color: #007bff; color: white; ">设置服务对象</Button>
                     </template>
                 </el-table-column>
             </el-table>

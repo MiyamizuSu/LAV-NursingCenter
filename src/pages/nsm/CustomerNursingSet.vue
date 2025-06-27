@@ -7,12 +7,8 @@
 </style>
 
 <template>
-    <el-container style="align-content: center; width: 100%;">
-        <!-- <p style="margin-top: 0; text-align: center; font-size: 30px; font-weight: bolder;">客户护理设置</p> -->
-
-        <!-- 表格区域 -->
-        <div 
-        style="margin-top: 3vh; margin-left: 20%; align-items: center;">
+    <el-main style="width: 100%; margin-top: -5vh; overflow-y: auto;">
+        <div style="margin-top: 3vh; margin-left: 5%; align-items: center;">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名" style="width: 30vh;"></el-input>
@@ -22,48 +18,48 @@
 
             <br>
         
-            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 16px; font-weight: bold;">客户信息列表</label>
             </div>
-            <el-table :data="nursingCustomers" :border="true" :stripe="true" 
+            <el-table :data="nursingCustomers" :border="true" :stripe="true" style="width: 1300px;"
                 >
                 <el-table-column type="index" label="序号" width="80" style="text-align: center;"
                 >
                 </el-table-column>
-                <el-table-column property="name" label="客户姓名" width="120"
+                <el-table-column property="name" label="客户姓名" width="150"
                 >
                 </el-table-column>
                 <el-table-column property="age" label="年龄" width="100"
                 >
                 </el-table-column>
-                <el-table-column label="性别" width="100">
+                <el-table-column label="性别" width="110">
                     <template #default="scope">
                         <span v-if="scope.row.gender == 0">女</span>
                         <span v-else-if="scope.row.gender == 1">男</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="roomNumber" label="房间号" width="100"
+                <el-table-column property="roomNumber" label="房间号" width="110"
                 >
                 </el-table-column>
-                <el-table-column property="bedNumber" label="床位号" width="100"
+                <el-table-column property="bedNumber" label="床位号" width="140"
                 >
                 </el-table-column>
                 <el-table-column property="building" label="所属楼栋" width="100"
                 >
                 </el-table-column>
-                <el-table-column property="phoneNumber" label="联系电话" width="120"
+                <el-table-column property="phoneNumber" label="联系电话" width="155"
                 >
                 </el-table-column>
-                <el-table-column property="nursingLevelName" label="护理级别" width="100"
+                <el-table-column property="nursingLevelName" label="护理级别" width="110"
                 >
                 </el-table-column>
-                <el-table-column  label="操作" width="200" style="text-align: center;">
+                <el-table-column  label="操作" width="240" style="text-align: center;">
                     <template #default="scope">
-                        <div v-if="scope.row.nursingLevelName.length > 0">
+                        <div v-if="scope.row.nursingLevelName.length > 0" style="margin-left: 3vh;">
                             <Button @click="start_resetLevel(scope.row)"
                                 style="background-color: white; color: red; border: 2px;">移除护理级别</Button>
                         </div>
-                        <div v-else>
+                        <div v-else style="margin-left: 3vh;">
                             <Button @click="start_setService(scope.row)"
                                 style="background-color: white; color: blue; border: 2px;">设置护理级别</Button>
                         </div>
@@ -74,6 +70,7 @@
             <!-- 客户护理项目服务页面弹框 -->
             <el-dialog v-model="dialogControl.isVisible" :title="dialogControl.title" 
             style="width: 1200px; height: 700px; overflow-y: auto;" draggable overflow>
+               <el-divider></el-divider>
                 <p>
                     <label style="font-weight: bolder; font-size: 17px;">护理级别：</label>
                     <el-select v-model="selectedLevel" value-key="id" placeholder="请选择护理级别" @change="handle_levelChange"
@@ -145,14 +142,13 @@
             />
         </div>
     
-    </el-container>
+    </el-main>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch, inject } from 'vue';
 import { type NursingLevel, type NursingProgram, type Customer, type CustomerNursingService } from '@/lib/type.d';
 import { type AxiosInstance } from 'axios'
-import Switcher from '@/components/custom/Switcher.vue';
 import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElMessageBox } from 'element-plus' 
 import {Edit, Setting, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';

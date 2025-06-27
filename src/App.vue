@@ -10,10 +10,10 @@ import axios from 'axios'
 import { provide } from 'vue';
 
 const router=useRouter()
-// router.push('/login')
-router.push('/main/nursingLevel')
+router.push('/login')
+// router.push('/main')
 
-
+// 在App.vue中对axios全局配置，其他页面通过 const axios = inject('axios') as AxiosInstance 来获取
 axios.defaults.baseURL='http://localhost:9000/'
 // 请求拦截器和响应拦截器全局设置
 //请求拦截器
@@ -24,9 +24,7 @@ axios.interceptors.request.use(function(config) {
 		console.log(token);
 		// 把令牌加入请求的头部报文中
 		// 给请求对象的头部报文中增加一个键，该键名为token
-		// null等价于false
-		// !=null 等价于true
-		// if(token！=null)可以简写为if(token)
+		// if(token != null)可以简写为if(token)
 		if(token){
 			config.headers['token']=token;
 		}
@@ -34,25 +32,26 @@ axios.interceptors.request.use(function(config) {
     return config;
   }, 
   function(error) {
-    console.log('对请求错误做些什么');
+    console.log('对请求错误的处理');
     return Promise.reject(error);
 });
 
 //响应拦截器
 axios.interceptors.response.use(function(response) {
-    console.log('在响应之前做些什么');
+    console.log('在响应之前的动作');
 		console.log(response.data);
-		if(response.data==='invalid token'){
+    // 当token失效时，会自动跳转至提示页面要求用户登录
+		if(response.data ==='invalid token'){
 		  router.push('/errorPage');
 		}
     return response;
   }, 
   function(error) {
-    console.log('对响应错误做点什么');
+    console.log('对响应错误的处理');
     return Promise.reject(error);
 });
 
-// 实现axios对象全局注入
+// 实现axios对象全局注入，其他页面通过 inject('axios') 获取
 provide('axios',axios);
 
 </script>

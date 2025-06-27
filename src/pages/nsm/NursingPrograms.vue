@@ -11,8 +11,8 @@
     
     <el-container style="align-content: center; overflow-y: auto;">
         <!-- 表格区域 -->
-        <el-col :span="16" 
-        style=" align-items: center; margin-left: 20%;">
+        <el-col 
+        style=" align-items: center; margin-left: 5%; width: 95%;">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="queryEntity.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
@@ -23,50 +23,46 @@
             </p>
 
             <br>
-            
-            <Switcher left-value="启用" right-value="停用" >
-            </Switcher>
-            <br>
 
-            <p>
-                <el-switch v-model="isActive" :checked="true" size="large"
-                    active-text="启用" inactive-text="停用"
-                    :active-value="1" :inactive-value="0" @change="handleChange"
-                />
-                <el-button type="danger" style="font-size: 15px; margin-left: 2vh;" @click="start_deleteBatch">批量删除</el-button>
-            </p>
+            <el-row style="margin-top: 1vh;">
+                <Switcher left-value="启用" right-value="停用"  @select-value-change="handleChange">
+                </Switcher>
+
+                <Button  style="font-size: 15px; background-color: red; color: white; margin-left: 2vh;" 
+                @click="start_deleteBatch">批量删除</Button>
+            </el-row>
             
             <br>
-            <div style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 15px; ">护理项目列表</label>
             </div>
-            <el-table :data="allPrograms" :border="true" :stripe="true" 
+            <el-table :data="allPrograms" :border="true" :stripe="true" style="width: 1300px;"
                 @selection-change="handleSelectionChange">
                 <el-table-column 
                     type="selection"
-                    width="50"
+                    width="60"
                 >
                 </el-table-column>
                 <el-table-column 
                     type="index"
                     label="序号" 
-                    width="60"
+                    width="80"
                     style="text-align: center;"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="programCode" 
                     label="编号" 
-                    width="120"
+                    width="130"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="name" 
                     label="名称" 
-                    width="125"
+                    width="130"
                 >
                 </el-table-column>
-                <el-table-column label="价格" width="100">
+                <el-table-column label="价格" width="110">
                     <template #default="scope">
                         <span v-if="scope.row.price > 0">{{ scope.row.price }}元/次</span>
                         <span v-else>免费</span>
@@ -75,30 +71,30 @@
                 <el-table-column 
                     property="executionPeriod" 
                     label="执行周期" 
-                    width="90"
+                    width="120"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="executionTimes" 
                     label="执行次数"
-                    width="80"
+                    width="100"
                     style="text-align: center;"
                 >
                 </el-table-column>
                 <el-table-column 
                     property="description" 
                     label="描述"
-                    width="220"
+                    width="260"
                     show-overflow-tooltip
                 >
                 </el-table-column>
-                <el-table-column  label="状态" width="90">
+                <el-table-column  label="状态" width="100">
                     <template #default="scope">
                         <span v-if="scope.row.status==1">启用</span>
                         <span v-else>停用</span>
                     </template>
                 </el-table-column>
-                <el-table-column  label="操作" width="200" style="text-align: center;">
+                <el-table-column  label="操作" width="210" style="text-align: center;">
                     <template #default="scope">
                         <label @click="start_updateProgram(scope.row)"
                             style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
@@ -217,9 +213,13 @@ let queryEntity = ref({
 
 const isActive = ref(true) // status是否等于1（启用状态）
 
-const handleChange = (val: number) => {
-    console.log("Switch的值改变了：", val)
-    queryEntity.value.status = val
+const handleChange = (val: string) => {
+    console.log("Switcher的值改变了：", val)
+    if (val == '启用') {
+        queryEntity.value.status = 1
+    } else if (val == '停用') {
+        queryEntity.value.status = 0
+    }
     console.log(queryEntity.value.status)
     loadData()
 }

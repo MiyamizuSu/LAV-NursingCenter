@@ -20,19 +20,11 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { inject } from 'vue';
 import { type AxiosInstance } from 'axios';
 import { ElMessage } from 'element-plus';
-
-const axios = inject('axios') as AxiosInstance
-
-const { addState, deleteState, appState } = useAppState()
-let appStateCur:Key<typeof STATENAME_TAG>|''=''
-const router = useRouter()
-//To-do-List
-onBeforeRouteUpdate(async (to,from)=>{
-    if(from.fullPath==='/main'){
-        return true
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
 import { reactive, ref, type Reactive, type Ref } from 'vue';
+
+const axios = inject('axios') as AxiosInstance
 const router = useRouter();
 const frameController = reactive({
     frameStack: ['主页'] as Key<typeof STATENAME_TAG>[],
@@ -70,17 +62,17 @@ const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
     router.push(`/main${STATENAME_TAG[frame]}`);
     frameController.curFrameIndex=index
 }
-      const logout = () => {
-        axios.post("http://localhost:9000/user/logout", {}).then(res => {
-          if (res.data.status == 200) {
+const logout = () => {
+    axios.post("user/logout", {}).then(res => {
+        if (res.data.status == 200) {
             sessionStorage.removeItem("token")
             ElMessage({message: "已退出登录", type: "info"})
             router.push('/login')
-          } else {
+        } else {
             ElMessage({message: res.data.msg, type: "error"})
-          }
-        })
-      }
+        }
+    })
+}
 
 const STATENAME_TAG = {
     主页: '',
@@ -238,10 +230,5 @@ const sidebarItems = [
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    //position: fixed;  /*将图片固定，不随页面滚动*/
-    //opacity: 0.3;  /*修改透明度*/
-    //height: 100%;
-    //width: 100%;
-    //z-index: -1;  /*将图片放在最底层*/
 }
 </style>

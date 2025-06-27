@@ -8,7 +8,7 @@
 
 <template>
     <el-main style="align-content: center; margin-top: -10vh;">
-        <p style="margin-left: 10%; ">
+        <p style="margin-left: 5%; ">
             <label style="font-size: 18px; font-weight: bold;">管家服务对象配置 - {{ currentNurse.name }}</label>
             <Button @click="goBack()" style="font-size: 14px; margin-left: 3vh;">返回管家列表</Button>
         </p>
@@ -16,7 +16,7 @@
         <br>
 
         <!-- 左右表格区域 -->
-        <el-container  style="align-items: center; margin-top: 2vh; margin-left: 10%; width: 90%;">
+        <el-container  style="align-items: center; margin-top: 2vh; margin-left: 5%; width: 95%;">
             <el-card style="width: 45%; height: 70vh; overflow-y: auto;">
                 <!-- 搜索框 -->
                 <p>
@@ -33,13 +33,13 @@
                     <el-table-column type="index" label="序号" width="60" style="text-align: center;"
                     >
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="90"
+                    <el-table-column property="name" label="姓名" width="105"
                     >
                     </el-table-column>
                     <el-table-column property="age" label="年龄" width="75"
                     >
                     </el-table-column>
-                    <el-table-column label="性别" width="80">
+                    <el-table-column label="性别" width="85">
                         <template #default="scope">
                             <span v-if="scope.row.gender == 0">女</span>
                             <span v-else-if="scope.row.gender == 1">男</span>
@@ -48,10 +48,10 @@
                     <el-table-column property="bedNumber" label="床位号" width="110"
                     >
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="90"
+                    <el-table-column property="nursingLevelName" label="护理级别" width="100"
                     >
                     </el-table-column>
-                    <el-table-column  label="操作" width="110" style="text-align: center;">
+                    <el-table-column  label="操作" width="120" style="text-align: center;">
                         <template #default="scope">
                             <Button @click="assignNurse(scope.row)"
                                 class="add-button" style="font-size: 15px; margin-left: 1vh;">添加</Button>
@@ -89,33 +89,33 @@
                     <el-table-column type="index" label="序号" width="60" style="text-align: center;"
                     >
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="100"
+                    <el-table-column property="name" label="姓名" width="110"
                     >
                     </el-table-column>
                     <el-table-column property="age" label="年龄" width="75"
                     >
                     </el-table-column>
-                    <el-table-column label="性别" width="80">
+                    <el-table-column label="性别" width="85">
                         <template #default="scope">
                             <span v-if="scope.row.gender == 0">女</span>
                             <span v-else-if="scope.row.gender == 1">男</span>
                         </template>
                     </el-table-column>
-                    <el-table-column property="bedNumber" label="床位号" width="100"
+                    <el-table-column property="bedNumber" label="床位号" width="110"
                     >
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="95"
+                    <el-table-column property="nursingLevelName" label="护理级别" width="100"
                     >
                     </el-table-column>
-                    <el-table-column  label="操作" width="130" style="text-align: center;">
+                    <el-table-column  label="操作" width="140" style="text-align: center;">
                         <template #default="scope">
                             <Button @click="start_resetNurse(scope.row)"
-                                style="background-color: white; color: red; font-weight: bold; margin-left: 2vh;">移除</Button>
+                                style="background-color: white; color: red; margin-left: 2vh;">移除</Button>
                         </template>
                     </el-table-column>
                 </el-table>
 
-                <Button style="background-color: red; font-size: 14px; margin-top: 2vh;" 
+                <Button style="background-color: red; font-size: 15px; margin-top: 2vh; font-weight: bold;" 
                     @click="start_resetNurseBatch">批量移除</Button>
 
                 <el-pagination

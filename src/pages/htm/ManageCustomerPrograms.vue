@@ -8,10 +8,10 @@
 
 <template>
     <el-container style="align-content: center; overflow-y: auto;">
-        <el-col style="margin-left: 20%; width: 80%;">
-            <p style="margin-bottom: 2vh; ">
+        <el-col style="margin-left: 5%; width: 95%;">
+            <p style="margin-bottom: 2vh; margin-top: 2vh;">
                 <label style="font-size: 18px; font-weight: bold;">客户护理项目配置 - {{ currentCustomer.name }}</label>
-                <Button @click="goBack()" style="margin-left: 3vh; font-size: 14px;">返回客户列表</Button>
+                <Button @click="goBack()" style="margin-left: 5vh; font-size: 14px;">返回客户列表</Button>
             </p>
             <p>
                 <!-- 搜索框 -->
@@ -23,40 +23,40 @@
             </p>
             <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 1050px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 1400px; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">{{ currentCustomer.name }} - 已购的护理项目</label>
             </div>
-            <el-table :data="currentServices" :border="true" :stripe="true" style="width: 1050px;"
+            <el-table :data="currentServices"  :stripe="true" style="width: 1400px;"
                 @selection-change="handleSelectionChange"
             >
-                <el-table-column type="selection" width="50" ></el-table-column>
-                <el-table-column type="index" label="序号" width="60" style="text-align: center;"
+                <el-table-column type="selection" width="60" ></el-table-column>
+                <el-table-column type="index" label="序号" width="95" style="text-align: center;"
                     >
                 </el-table-column>
-                <el-table-column property="programCode" label="项目编号" width="120"
+                <el-table-column property="programCode" label="项目编号" width="150"
                     >
                 </el-table-column>
-                 <el-table-column property="programName" label="项目名称" width="125"
+                 <el-table-column property="programName" label="项目名称" width="155"
                     >
                 </el-table-column>
-                <el-table-column label="单次价格" width="100">
+                <el-table-column label="单次价格" width="150">
                     <template #default="scope">
                         <span v-if="scope.row.programPrice > 0">{{ scope.row.programPrice }}元/次</span>
                         <span v-else>免费</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="余量" width="90">
+                <el-table-column label="余量" width="110">
                     <template #default="scope">
                         <span>{{ scope.row.totalCount - scope.row.usedCount }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="purchaseDate" label="服务购买日期" width="130"
+                <el-table-column property="purchaseDate" label="服务购买日期" width="180"
                     >
                 </el-table-column>
-                <el-table-column property="expirationDate" label="服务到期日期" width="130"
+                <el-table-column property="expirationDate" label="服务到期日期" width="180"
                     >
                 </el-table-column>
-                <el-table-column label="状态" width="130">
+                <el-table-column label="状态" width="170">
                     <template #default="scope">
                         <p>
                             <Button v-if="scope.row.totalCount - scope.row.usedCount > 5" 
@@ -74,10 +74,10 @@
                         </p>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="115">
+                <el-table-column label="操作" width="150">
                     <template #default="scope">
-                        <p> <el-button @click="start_deleteService(scope.row)" style="color: red; margin-left: 1vh;">移除</el-button> </p>
-                        <p style="margin-top: 1vh;"> <el-button @click="start_renewService(scope.row)" style="color: deepskyblue; margin-left: 1vh;">续费</el-button> </p>
+                        <p> <el-button @click="start_deleteService(scope.row)" style="color: red; ">移除</el-button> </p>
+                        <p style="margin-top: 1vh;"> <el-button @click="start_renewService(scope.row)" style="color: deepskyblue; ">续费</el-button> </p>
                     </template>
                 </el-table-column>
             </el-table>
@@ -96,42 +96,42 @@
 
         <!-- 添加客户护理项目服务页面弹框 -->
         <el-dialog v-model="add_dialogControl.isVisible" :title="add_dialogControl.title" 
-            style="width: 1200px; height: 700px; overflow-y: auto;" draggable overflow>    
-            <div style="background-color: #007bff; margin-top: 2vh; width: 66%; height: 3vh; align-content: center;">
+            style="width: 1200px; height: 750px; overflow-y: auto;" draggable overflow>    
+            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 16px; font-weight: bold;">可选的护理项目</label>
             </div>
-            <el-table :data="availablePrograms" :border="true" :stripe="true" style="width: 66%;"
+            <el-table :data="availablePrograms"  :stripe="true" style="width: 100%;"
                 >
                 <!-- <el-table-column type="selection" width="50" ></el-table-column> -->
-                <el-table-column type="index" label="序号" width="80" style="text-align: center;"
+                <el-table-column type="index" label="序号" width="110" style="text-align: center;"
                     >
                 </el-table-column>
-                <el-table-column property="programCode" label="项目编号" width="120"
+                <el-table-column property="programCode" label="项目编号" width="180"
                     >
                 </el-table-column>
-                <el-table-column property="name" label="项目名称" width="125"
+                <el-table-column property="name" label="项目名称" width="180"
                     >
                 </el-table-column>
-                <el-table-column label="单次价格" width="100">
+                <el-table-column label="单次价格" width="180">
                     <template #default="scope">
                         <span v-if="scope.row.price > 0">{{ scope.row.price }}元/次</span>
                         <span v-else>免费</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="executionPeriod" label="护理周期" width="125"
+                <el-table-column property="executionPeriod" label="护理周期" width="160"
                     >
                 </el-table-column>
-                <el-table-column property="executionTimes" label="护理频次" width="100"
+                <el-table-column property="executionTimes" label="护理频次" width="150"
                     >
                 </el-table-column>
-                <el-table-column  label="操作" width="115" style="text-align: center;">
+                <el-table-column  label="操作" width="205">
                     <template #default="scope">
                         <div v-if="judgeContains(scope.row.id)">
-                            <label style="font-size: 15px; color: #007bff; margin-left: 1vh; " >已添加</label>
+                            <label style="font-size: 15px; color: #007bff; " >已添加</label>
                         </div>
                         <div v-else>
                             <Button @click="addToSelected(scope.row)"
-                            class="add-button" style="font-size: 15px; margin-left: 1vh;">添加</Button>
+                            class="add-button" style="font-size: 15px; ">添加</Button>
                         </div>
                     </template>
                 </el-table-column>

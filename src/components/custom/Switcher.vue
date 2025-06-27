@@ -11,10 +11,10 @@ const emits=defineEmits(['selectValueChange'])
 function emitValue(){
     isLeft.value=!(isLeft.value)
     if(isLeft.value){
-        emits('selectValueChange','自理老人')
+        emits('selectValueChange',props.leftValue)
     } 
     else{
-        emits('selectValueChange','护理老人')
+        emits('selectValueChange',props.rightValue)
     }
 }
 // 滑块动画值

@@ -14,19 +14,13 @@ import ManageCustomerPrograms from '@/pages/htm/ManageCustomerPrograms.vue'
 import BedLayoutDiagram from '@/pages/bdm/BedLayoutDiagram.vue'
 import BedManagement from '@/pages/bdm/BedManagement.vue'
 import CheckOutPage from '@/pages/ctm/CheckOutPage.vue'
-import ServiceFocus from '@/pages/htm/ServiceFocus.vue'
-import ServiceObjectSetting from '@/pages/htm/ServiceObjectSetting.vue'
 import MealCalendar from '@/pages/mlm/MealCalendar.vue'
 import MealSet from '@/pages/mlm/MealSet.vue'
-import CustomerNursingSet from '@/pages/nsm/CustomerNursingSet.vue'
-import NursingLevel from '@/pages/nsm/NursingLevel.vue'
-import NursingPrograms from '@/pages/nsm/NursingPrograms.vue'
-import NursingRecord from '@/pages/hts/NursingRecord.vue'
 import BasicInformationMaintain from '@/pages/usm/BasicInformationMaintain.vue'
 import GoOutPage from '@/pages/ctm/GoOutPage.vue'
-export const routes:RouteRecordRaw[]=[
 import ErrorPage from '@/pages/ErrorPage.vue'
-const routes:RouteRecordRaw[]=[
+
+export const routes:RouteRecordRaw[]=[
     {
         path:'/login',component:LoginPage
     },
@@ -101,7 +95,7 @@ const routes:RouteRecordRaw[]=[
             path:'basicInformationMaintain',
             component:BasicInformationMaintain
         }
-    ]
+        ]
     },
     {
         path: "/errorPage",

@@ -4,13 +4,17 @@
         background-color: #007bff;
         font-size: 16px;
     }
+
+    .delete-button {
+        background-color: red;
+        color: white;
+    }
 </style>
 
 <template>
     <el-main style="align-content: center; margin-top: -10vh;">
-        <!-- <p style="margin-top: -5vh; text-align: center; font-size: 20px; font-weight: bold;">护理记录</p> -->
 
-        <p style="margin-left: 10%; margin-top: -5vh;">
+        <p style="margin-left: 5%; margin-top: -5vh;">
             <!-- 搜索框 -->
             <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名" style="width: 30vh;"></el-input>
             <Button @click="loadUsers" class="add-button" style="margin-left: 2vh;">查询</Button>
@@ -18,7 +22,7 @@
         <br>
 
         <!-- 左右表格区域 -->
-        <el-container  style="align-items: center; margin-top: 2vh; margin-left: 10%; width: 90%;">
+        <el-container  style="align-items: center; margin-top: 2vh; margin-left: 5%; width: 95%;">
             <el-card style="width: 40%; height: 70vh; overflow-y: auto;">
                 <div style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
                     <label style="text-align: center; color: white; font-size: 15px; "> 客户信息</label>
@@ -28,10 +32,10 @@
                     <el-table-column type="index" label="序号" width="50" style="text-align: center;"
                     >
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="90"
+                    <el-table-column property="name" label="姓名" width="100"
                     >
                     </el-table-column>
-                    <el-table-column property="age" label="年龄" width="60"
+                    <el-table-column property="age" label="年龄" width="70"
                     >
                     </el-table-column>
                     <el-table-column label="性别" width="70">
@@ -43,10 +47,10 @@
                     <el-table-column property="bedNumber" label="床位号" width="100"
                     >
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="80"
+                    <el-table-column property="nursingLevelName" label="护理级别" width="88"
                     >
                     </el-table-column>
-                    <el-table-column  label="操作" width="95" style="text-align: center;">
+                    <el-table-column  label="操作" width="100" style="text-align: center;">
                         <template #default="scope">
                             <label @click="start_viewRecords(scope.row)"
                                 style="color: blue; border: 2px;">查看记录</label>
@@ -86,28 +90,28 @@
                     <el-table-column property="executionCount" label="护理数量" width="60"
                     >
                     </el-table-column>
-                    <el-table-column property="description" label="护理内容" width="100" show-overflow-tooltip
+                    <el-table-column property="description" label="护理内容" width="110" show-overflow-tooltip
                     >
                     </el-table-column>
                     <el-table-column property="nurseName" label="护理人员" width="70"
                     >
                     </el-table-column>
-                    <el-table-column property="nursePhone" label="护理人员手机" width="90"
+                    <el-table-column property="nursePhone" label="护理人员手机" width="120"
                     >
                     </el-table-column>
                     <el-table-column property="nursingTime" label="护理时间" width="110"
                     >
                     </el-table-column>
-                    <el-table-column  label="操作" width="80" style="text-align: center;">
+                    <el-table-column  label="操作" width="75" style="text-align: center;">
                         <template #default="scope">
                             <label @click="start_deleteRecord(scope.row)"
-                                style="color: red; ">移除</label>
+                                style="color: red; font-size: 15px;">移除</label>
                         </template>
                     </el-table-column>
                 </el-table>
 
-                <el-button type="danger" style="font-size: 14px; margin-top: 2vh;" 
-                    @click="start_deleteBatch">批量移除</el-button>
+                <Button class="delete-button" style="font-size: 15px; margin-top: 2vh;" 
+                    @click="start_deleteBatch">批量移除</Button>
 
                 <el-pagination
                     :current-page="record_queryEntity.current"

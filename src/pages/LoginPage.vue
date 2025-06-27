@@ -50,7 +50,7 @@ const login = () => {
 			sessionStorage.setItem('token', token);
 			// 登录成功
             ElMessage({message: "登录成功！", type: "success"})
-			router.push('/main/nursingLevel');
+			router.push('/main');
 		} else {
 			// 登录失败
 			ElMessage({message: rb.msg, type: "error"})

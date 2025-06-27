@@ -12,7 +12,7 @@
             <p style="margin-top: 2vh; margin-bottom: 2vh;">
                 <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
 
-                <Button @click="goto_nursingPrograms" 
+                <!-- <Button @click="goto_nursingPrograms" 
                 style="margin-left: 1vh;">护理项目管理</Button>
 
                 <Button @click="goto_customerNursingSet" 
@@ -25,24 +25,24 @@
                 style="margin-left: 1vh;">设置服务对象</Button>
 
                 <Button @click="goto_serviceFocus" 
-                style="margin-left: 1vh;">服务关注</Button>
+                style="margin-left: 1vh;">服务关注</Button> -->
             </p>
 
-            <Switcher left-value="启用" right-value="停用" >
+            <Switcher left-value="启用" right-value="停用" @select-value-change="handleChange">
             </Switcher>
             <br>
 
-            <el-switch v-model="isActive" :checked="true" size="large"
+            <!-- <el-switch v-model="isActive" :checked="true" size="large"
                 active-text="启用" inactive-text="停用"
-                :active-value="1" :inactive-value="0" @change="handleChange"
-            />
+                active-value="启用" inactive-value="停用" @change="handleChange"
+            /> -->
 
             <br>
             <div style="background-color: #007bff; margin-top: 2vh; width: 1200px; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
             </div>
             
-            <el-table :data="tableData" :border="true" :stripe="true" style="width: 1200px;">
+            <el-table :data="tableData"  :stripe="true" style="width: 1200px;">
                 <el-table-column type="index" label="序号" width="200"
                     style="text-align: center;"
                     >
@@ -61,13 +61,13 @@
                     <template #default="scope">
                         <div v-if="queryEntity.status == 1">
                             <label @click="start_updateLevel(scope.row)"
-                                style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                                style="font-size: 15px; color: #007bff;  " ><el-icon> <Edit /> </el-icon> 修改</label>
                             <label @click="start_managePrograms(scope.row)"
                                 style="font-size: 15px; color: green; margin-left: 9vh;"><el-icon><Setting /></el-icon> 护理项目配置</label>
                         </div>
                         <div v-else>
                             <label @click="start_updateLevel(scope.row)"
-                                style="font-size: 15px; color: #007bff; margin-left: 1vh; " ><el-icon> <Edit /> </el-icon> 修改</label>
+                                style="font-size: 15px; color: #007bff; " ><el-icon> <Edit /> </el-icon> 修改</label>
                         </div>
                     </template>
                 </el-table-column>
@@ -76,6 +76,7 @@
             <el-dialog v-model="dialogFormControl.isVisible" :title="dialogFormControl.title" 
             style="width: 500px; height: 400px; overflow-y: auto;" draggable overflow>
                 <el-form :model="editForm" :rules="editLevelRules">
+                    <el-divider></el-divider>
                     <el-form-item label="名称" prop="name" label-width="100px" style="margin-top: 50px;">
                         <el-input type="text" v-model="editForm.name"  :disabled="dialogFormControl.isUpdate"
                             placeholder="请输入护理级别名称" style="width: 300px;"></el-input>
@@ -163,9 +164,13 @@ const goto_serviceFocus = () => {
 
 const isActive = ref(true) // status是否等于1（启用状态）
 
-const handleChange = (val: number) => {
-    console.log("Switch的值改变了：", val)
-    queryEntity.value.status = val
+const handleChange = (val: string) => {
+    console.log("Switcher的值改变了：", val)
+    if (val == '启用') {
+        queryEntity.value.status = 1
+    } else {
+        queryEntity.value.status = 0
+    }
     console.log(queryEntity.value.status)
     loadData()
 }
@@ -301,7 +306,7 @@ const start_managePrograms = (selectedLevel: NursingLevel) => {
 }
 
 const loadData = () => {
-    axios.post("user/load", {}).then(res => {
+    axios.post("http://localhost:9000/user/load", {}).then(res => {
         if (res.data.status == 200) {
             currentUser.value = res.data.data
             console.log("currentUser: ", currentUser.value)

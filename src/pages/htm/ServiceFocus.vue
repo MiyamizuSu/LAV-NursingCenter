@@ -9,7 +9,7 @@
 <template>
     <el-container style="align-content: center; overflow-y: auto;">
         <!-- <p style="margin-top: -5vh; text-align: center; font-size: 20px; font-weight: bold;">护理记录</p> -->
-        <el-col style="margin-left: 20%; width: 80%;">
+        <el-col style="margin-left: 5%; width: 95%;">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名" style="width: 30vh;"></el-input>
@@ -17,36 +17,36 @@
             </p>
             <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 900px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">客户信息列表</label>
             </div>
-            <el-table :data="allCustomers" :border="true" :stripe="true" style="width: 900px;">
-                <el-table-column type="index" label="序号" width="80"
+            <el-table :data="allCustomers" :stripe="true" style="width: 1300px;">
+                <el-table-column type="index" label="序号" width="110"
                     >
                 </el-table-column>
-                <el-table-column property="name" label="客户姓名" width="120"
+                <el-table-column property="name" label="客户姓名" width="150"
                     >
                 </el-table-column>
-                <el-table-column property="age" label="年龄" width="90"
+                <el-table-column property="age" label="年龄" width="130"
                     >
                 </el-table-column>
-                <el-table-column label="性别" width="90"
+                <el-table-column label="性别" width="130"
                     >
                     <template #default="scope">
                         <span v-if="scope.row.gender==1">男</span>
                         <span v-else>女</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="bedNumber" label="床位号" width="110"
+                <el-table-column property="bedNumber" label="床位号" width="150"
                     >
                 </el-table-column>
-                <el-table-column property="nursingLevelName" label="护理级别" width="90"
+                <el-table-column property="nursingLevelName" label="护理级别" width="150"
                     >
                 </el-table-column>
-                <el-table-column property="phoneNumber" label="联系电话" width="150"
+                <el-table-column property="phoneNumber" label="联系电话" width="180"
                     >
                 </el-table-column>
-                <el-table-column  label="操作" width="170" style="text-align: center;">
+                <el-table-column  label="操作" width="300" style="text-align: center;">
                     <template #default="scope">
                         <Button @click="manageCustomerPrograms(scope.row)"
                             style="background-color: #007bff; color: white;">配置护理项目</Button>
