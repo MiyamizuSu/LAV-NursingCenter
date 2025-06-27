@@ -7,8 +7,8 @@ router.push('/login')
 
 </script>
 
-<template>
-  <div class="w-screen h-screen overflow-hidden">
+<template> 
+  <div class="w-screen h-screen ">
     <RouterView></RouterView>
   </div>
 </template>
