@@ -491,7 +491,7 @@ function change(e: string) {
       <Input class="max-w-sm" placeholder="客户姓名" :model-value="table.getColumn('name')?.getFilterValue() as string"
         @update:model-value=" table.getColumn('name')?.setFilterValue($event)" />
 
-      <div class="grid place-content-center p-8">
+      <div class="grid place-content-center p-8 justify-end">
         <RippleButton @click="openDialog('入住登记')"> 登记 </RippleButton>
       </div>
     </div>

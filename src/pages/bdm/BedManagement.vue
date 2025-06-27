@@ -30,6 +30,7 @@ import {
 import { useBedManagementStore } from '@/lib/store'
 import type { BedUser, StrictDate } from '@/lib/type'
 import { valueUpdater } from '@/components/ui/table/utils'
+import { axiosInstance as axios } from '@/lib/core';
 import { cn } from '@/lib/utils'
 import Switcher from '@/components/custom/Switcher.vue';
 import DynamicButton from '@/components/custom/DynamicButton.vue';
@@ -47,11 +48,33 @@ function _mockDataGenerator(mockData: BedUser[], times: number = 10, seed: numbe
         mockData[i] = singleMock
     }
 }
-onMounted(() => {
-    const mockData: BedUser[] = []
-    _mockDataGenerator(mockData);
-    bdmStore.setUsingBeds(mockData);
-    console.log(mockData)
+
+async function xhrBedMessage(){
+    const res =(await axios.post('/bedUsageRecord/listAll')).data
+    return res.data as any[]
+}
+function responseAdaptor(adapted:BedUser[],sources:any[]){
+    for(let i=0;i<sources.length;i++){
+        const source=sources[i];
+        const b:BedUser={
+            Id:i+1,
+            Name:source.customerName,
+            gender:source.customerGender?'男':'女',
+            bedMes:source.bedNumber,
+            startUsedTime:source.startDate,
+            endUsedTime:source.endDate||'没有结束'
+        }
+        adapted[i]=b;
+    }
+}
+
+onMounted( async () => {
+    // const mockData: BedUser[] = []
+    // _mockDataGenerator(mockData);
+    const bedData=[] as BedUser[]
+    responseAdaptor(bedData,await xhrBedMessage())
+    bdmStore.setUsingBeds(bedData);
+    console.log(bedData)
 })
 const columns: ColumnDef<BedUser>[] = [
     {

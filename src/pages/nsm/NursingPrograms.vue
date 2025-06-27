@@ -180,13 +180,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { type NursingProgram } from '@/lib/type.d';
 import { axiosInstance as axios } from '@/lib/core';
 import Switcher from '@/components/custom/Switcher.vue';
-import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules, ElMessageBox } from 'element-plus' 
-import {Edit, Setting, Delete } from '@element-plus/icons-vue'
-import { router } from '@/lib/router';
+import { ElContainer, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules, ElMessageBox } from 'element-plus' 
+import {Edit, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';
 
 onMounted(() => {

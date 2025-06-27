@@ -159,7 +159,6 @@ import { useRouter, useRoute } from 'vue-router';
 import { type NursingLevel, type NursingProgram } from '@/lib/type.d';
 import { axiosInstance as axios } from '@/lib/core';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol } from 'element-plus' 
-// import {Edit, Plus, Delete } from '@element-plus/icons-vue'
 import Button from '@/components/ui/button/Button.vue';
 
 const router = useRouter()

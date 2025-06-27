@@ -6,7 +6,7 @@
 }
 </style>
 <template>
-    <div >
+    <div>
         <el-container style="align-content: center; width: 100%;" class="w-full">
             <div style="margin-top: 3vh; align-items: center;">
                 <p>
@@ -129,12 +129,10 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { type NursingLevel, type NursingProgram, type Customer, type CustomerNursingService } from '@/lib/type.d';
 import { axiosInstance as axios } from '@/lib/core';
-import Switcher from '@/components/custom/Switcher.vue';
-import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElMessageBox } from 'element-plus'
-import { Edit, Setting, Delete } from '@element-plus/icons-vue'
+import { ElMessage, ElNotification, ElTable, ElButton, ElDialog, ElMessageBox } from 'element-plus'
 import Button from '@/components/ui/button/Button.vue';
 
 onMounted(() => {

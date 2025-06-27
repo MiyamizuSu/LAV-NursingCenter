@@ -127,11 +127,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue';
-import { type NursingLevel, type NursingRecord, type Customer} from '@/lib/type.d';
+import { onMounted, ref } from 'vue';
+import { type NursingRecord, type Customer} from '@/lib/type.d';
 import { axiosInstance as axios } from '@/lib/core';
-import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElMessageBox } from 'element-plus' 
-import {Edit, Setting, Delete } from '@element-plus/icons-vue'
+import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElMessageBox } from 'element-plus' 
 import Button from '@/components/ui/button/Button.vue';
 
 onMounted(() => {
