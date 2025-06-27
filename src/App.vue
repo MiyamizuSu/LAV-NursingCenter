@@ -8,16 +8,8 @@ router.push('/login')
 </script>
 
 <template>
-  <div class="w-screen h-screen overflow-hidden">
-    <SidebarProvider>
-      <AppSideBar>
-      </AppSideBar>
-      <SidebarTrigger>
-        <Button>
-        </Button>
-      </SidebarTrigger>
-      <CheckOut></CheckOut>
-    </SidebarProvider>
+  <div class="w-screen h-screen ">
+    <RouterView></RouterView>
   </div>
 </template>
 
