@@ -1,7 +1,16 @@
 import {createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import LoginPage from '@/pages/LoginPage.vue'
 import MainPage from '@/pages/MainPage.vue'
+import NursingLevel from '@/pages/nsm/NursingLevel.vue'
+import LevelManagePrograms from '@/pages/nsm/LevelManagePrograms.vue'
+import NursingPrograms from '@/pages/nsm/NursingPrograms.vue'
+import CustomerNursingSet from '@/pages/nsm/CustomerNursingSet.vue'
 import CheckInPage from '@/pages/ctm/CheckInPage.vue'
+import NursingRecord from '@/pages/nsm/NursingRecord.vue'
+import ServiceObjectSetting from '@/pages/htm/ServiceObjectSetting.vue'
+import ManageNursingCustomers from '@/pages/htm/ManageNursingCustomers.vue'
+import ServiceFocus from '@/pages/htm/ServiceFocus.vue'
+import ManageCustomerPrograms from '@/pages/htm/ManageCustomerPrograms.vue'
 import BedLayoutDiagram from '@/pages/bdm/BedLayoutDiagram.vue'
 import BedManagement from '@/pages/bdm/BedManagement.vue'
 import CheckOutPage from '@/pages/ctm/CheckOutPage.vue'
@@ -82,6 +91,7 @@ export const routes:RouteRecordRaw[]=[
     }
 ]
 export const router=createRouter({
+    // history:createMemoryHistory(),
     history:createWebHistory(),
     routes
 })

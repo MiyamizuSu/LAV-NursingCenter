@@ -140,8 +140,6 @@ const sidebarItems = [
     }
 ];
 </script>
-
-
 <template>
     <div class="bg-img h-full flex flex-col">
         <div class="flex backBlur w-full z-1 right-0 justify-end">
