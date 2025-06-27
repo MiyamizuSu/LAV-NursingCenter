@@ -6,11 +6,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-// https://vite.dev/config/
+import ElementPlus from 'unplugin-element-plus/vite'
 export default defineConfig({
-  plugins: [
-    vue(),tailwindcss(),vueDevTools(),
-    // ElementPlus自动导入
+  plugins: [vue(),tailwindcss(),vueDevTools(),ElementPlus({}),
     AutoImport({
       resolvers: [ElementPlusResolver()],
     }),
@@ -36,5 +34,4 @@ export default defineConfig({
       }
     }
   },
-  // server:{ host: '127.0.0.1', port: 3000 }
 })
