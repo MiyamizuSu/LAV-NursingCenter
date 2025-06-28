@@ -17,9 +17,8 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown, ChevronsUpDown, IdCard, Import } from 'lucide-vue-next'
 import { h, reactive, ref, onMounted, watch } from 'vue'
-import { axiosInstance as axios } from '@/lib/core'
+import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { cn, debounce } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -33,7 +32,6 @@ import {
 } from '@/components/ui/table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu'
 import { RippleButton } from '@/components/ui/ripple-button'
 import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
@@ -51,7 +49,6 @@ const pages = ref({
 })
 const customerType = ref(0)
 
->>>>>>> 5c36f5388b0bb20a960ef4efb28d709dc2dd194a
 const columns: ColumnDef<Customer>[] = [
   {
     id: 'select',
@@ -72,10 +69,6 @@ const columns: ColumnDef<Customer>[] = [
     accessorKey: 'index',
     header: () => h('div', {}, '序号'),
     cell: ({ row }) => {
-      const pageSize = pages.value.pageSize
-      const currentPage = pages.value.currentPage
-      return h('div', {}, row.index + 1 + (currentPage - 1) * pageSize)
-    }
       const pageSize = pages.value.pageSize
       const currentPage = pages.value.currentPage
       return h('div', {}, row.index + 1 + (currentPage - 1) * pageSize)
@@ -474,8 +467,6 @@ onMounted(async () => {
 })
 function change(e: string) {
   selectedCustomerType.value = e
-function change(e: string) {
-  selectedCustomerType.value = e
 }
 </script>
 
@@ -746,7 +737,6 @@ function change(e: string) {
           <el-col :span="12">
             <el-form-item label="楼栋：" prop="building">
               <el-input v-model="form.building" disabled />
-              <el-input v-model="form.building" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -754,12 +744,10 @@ function change(e: string) {
           <el-col :span="12">
             <el-form-item label="房间号：" prop="roomNumber">
               <el-input v-model="form.roomNumber" disabled />
-              <el-input v-model="form.roomNumber" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="床位号：" prop="bedNumber">
-              <el-input v-model="form.bedNumber" disabled />
               <el-input v-model="form.bedNumber" disabled />
             </el-form-item>
           </el-col>
@@ -774,7 +762,6 @@ function change(e: string) {
 
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" disabled />
             <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" disabled />
           </el-col>
         </el-form-item>
