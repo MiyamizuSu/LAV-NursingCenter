@@ -291,6 +291,7 @@ const loadCheckoutRegistrations = async () => {
         //     checkinDate: '',  // 补字段
         //     bedNumber: ''
         // }))
+        
         // ctmStore.getCheckoutList.value.forEach(checkout => {
         //     const customer = ctmStore.getCustomerList.value.find(c => c.customerId === checkout.customerId)
         //     console.log("要找的客户信息", customer)
