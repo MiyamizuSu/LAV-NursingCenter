@@ -54,12 +54,12 @@ const columns: ColumnDef<Customer>[] = [
     id: 'select',
     header: ({ table }) => h(Checkbox, {
       'modelValue': table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'),
-      'onUpdate:modelValue': value => table.toggleAllPageRowsSelected(!!value),
+      'onUpdate:modelValue': (value: any) => table.toggleAllPageRowsSelected(!!value),
       'ariaLabel': 'Select all',
     }),
     cell: ({ row }) => h(Checkbox, {
       'modelValue': row.getIsSelected(),
-      'onUpdate:modelValue': value => row.toggleSelected(!!value),
+      'onUpdate:modelValue': (value: any) => row.toggleSelected(!!value),
       'ariaLabel': 'Select row',
     }),
     enableSorting: false,
@@ -433,20 +433,20 @@ const openDeleteForm = async (customer: Customer) => {
       type: 'warning',
     }
   )
-    .then(async() => {
-      const res = await axios.post("http://localhost:9000/customer/delete", {customerId: customer.customerId})
-        if (res.data.status === 200) {
-          ElMessage({
-            type: 'success',
-            message: '删除成功',
-          })
-          loadCustomers()
-        } else {
-          ElMessage({
-            type: 'error',
-            message: '删除失败',
-          })
-        }
+    .then(async () => {
+      const res = await axios.post("http://localhost:9000/customer/delete", { customerId: customer.customerId })
+      if (res.data.status === 200) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+        loadCustomers()
+      } else {
+        ElMessage({
+          type: 'error',
+          message: '删除失败',
+        })
+      }
     })
     .catch(() => {
       ElMessage({
@@ -477,20 +477,20 @@ function change(e: string) {
     <div class="flex gap-2 items-center py-4 justify-between">
       <div class="flex items-center gap-2">
         <div>
-           <Input class="max-w-sm" placeholder="客户姓名" v-model="searchName" @input="onInput" />
+          <Input class="max-w-sm" placeholder="客户姓名" v-model="searchName" @input="onInput" />
         </div>
         <div>
-           <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3" text-after-color="#eaffd0"
-          before-color="#eaffd0" after-color="#95e1d3">
-          <template #svgIcon>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-            </svg>
-          </template>
-        </InteractiveHoverButton>  
+          <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
+            text-after-color="#eaffd0" before-color="#eaffd0" after-color="#95e1d3">
+            <template #svgIcon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </template>
+          </InteractiveHoverButton>
         </div>
       </div>
       <div class="grid place-content-center p-8 justify-end">
@@ -648,12 +648,14 @@ function change(e: string) {
 
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%"
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
           </el-col>
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%"
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
           </el-col>
         </el-form-item>
         <!-- 分隔符 -->
@@ -669,7 +671,7 @@ function change(e: string) {
 
     </el-dialog>
 
-    <el-dialog v-model="addCustomerVisible" title="提示" width="500" top="40vh">
+    <el-dialog v-model="addCustomerVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
       <span>确定登记该客户入住信息吗？</span>
       <template #footer>
         <div class="dialog-footer">
@@ -783,7 +785,7 @@ function change(e: string) {
 
     </el-dialog>
 
-    <el-dialog v-model="updateCustomerVisible" title="提示" width="500" top="40vh">
+    <el-dialog v-model="updateCustomerVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
       <span>确定修改该客户入住信息吗？</span>
       <template #footer>
         <div class="dialog-footer">

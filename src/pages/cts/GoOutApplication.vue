@@ -759,7 +759,7 @@ onMounted(async () => {
                 </el-form>
             </el-dialog>
 
-            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh">
+            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
                 <span>确定提交该外出申请吗？</span>
                 <template #footer>
                     <div class="dialog-footer">
@@ -811,7 +811,7 @@ onMounted(async () => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh">
+        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
             <span>确定登记实际回院时间吗？</span>
             <template #footer>
                 <div class="dialog-footer">

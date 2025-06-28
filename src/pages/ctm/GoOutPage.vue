@@ -16,7 +16,7 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { computed, h, onMounted, reactive, ref, watch } from 'vue'
+import { h, onMounted, reactive, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -38,7 +38,7 @@ import { debounce } from '@/lib/utils'
 const ctmStore = usecustomerManagementStore()
 const outingPages = ref({
     currentPage: 1,
-    pageSize: 10,
+    pageSize: 5,
     totalOuting: 0
 })
 const customerPages = ref({
@@ -349,7 +349,7 @@ const updateApproval = async () => {  // 提交审批
     }
 }
 const checkUpdateForm = () => {
-    ruleFormRef.value?.validate((valid) => {
+    ruleFormRef.value?.validate((valid: any) => {
         if (valid) {
             console.log("表单验证通过");
             submitApprovalVisible.value = true;
@@ -359,7 +359,7 @@ const checkUpdateForm = () => {
     })
 }
 
-watch(() => approvalForm.reviewStatus, (newVal) => {
+watch(() => approvalForm.reviewStatus, (newVal: any) => {
     console.log("审批类型", approvalForm.reviewStatus)
     if (approvalForm.reviewStatus === 1) {
         isPassed.value = false
@@ -589,7 +589,7 @@ onMounted(async () => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh">
+        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
             <span>确定提交对该客户退住申请的审批吗？</span>
             <template #footer>
                 <div class="dialog-footer">

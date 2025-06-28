@@ -350,7 +350,7 @@ const addCheckoutForm = reactive({ // 暂存审批信息
 })
 const selectedCustomer = ref(null)  // 已在下拉框选中的客户
 const onCustomerChange = (id: number) => {
-    const customer = ctsStore.getAllCustomerList.value.find(c => c.customerId === id);
+    const customer = ctsStore.getAllCustomerList.value.find((c: { customerId: number }) => c.customerId === id);
     if (customer) {
         addCheckoutForm.customerName = customer.name
         addCheckoutForm.customerId = customer.customerId
@@ -364,7 +364,7 @@ const onCustomerChange = (id: number) => {
 }
 const submitCheckoutFormVisible = ref(false)  // 确认提交表单可见性
 const checkCheckoutForm = () => {   // 检查表单
-    ruleFormRef.value?.validate((valid) => {
+    ruleFormRef.value?.validate((valid: any) => {
         if (valid) {
             console.log("表单验证通过");
             submitCheckoutFormVisible.value = true;
@@ -632,7 +632,7 @@ onMounted(async () => {
                 </el-form>
             </el-dialog>
 
-            <el-dialog v-model="submitCheckoutFormVisible" title="提示" width="500" top="40vh">
+            <el-dialog v-model="submitCheckoutFormVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
                 <span>确定提交该退住申请吗？</span>
                 <template #footer>
                     <div class="dialog-footer">

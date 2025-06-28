@@ -391,7 +391,7 @@ const updateApproval = async () => {  // 提交审批
     }
 }
 
-watch(() => approvalForm.reviewStatus, (newVal) => {
+watch(() => approvalForm.reviewStatus, (newVal: string) => {
     if (newVal === '1') {
         isPassed.value = false
     } else if (newVal === '2') {
@@ -594,7 +594,7 @@ onMounted(async () => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh">
+        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
             <span>确定提交对该客户退住申请的审批吗？</span>
             <template #footer>
                 <div class="dialog-footer">
