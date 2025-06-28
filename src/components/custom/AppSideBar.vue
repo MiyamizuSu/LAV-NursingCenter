@@ -19,81 +19,12 @@ import CollapsibleTrigger from "../ui/collapsible/CollapsibleTrigger.vue";
 import CollapsibleContent from "../ui/collapsible/CollapsibleContent.vue";
 import Separator from "../ui/separator/Separator.vue";
 import { useAppState } from "@/lib/store";
+import type { sidebarItem } from "./type";
 
 const emits = defineEmits(['memoryPlus'])
-
-type siderbarItem = {
-  title: string,
-  icon?: FunctionalComponent
-  children?: siderbarItem[]
-}
-const applictionName = "东软颐养"
-const items: siderbarItem[] = [
-  { title: "首页" },
-  {
-    title: "客户管理",
-    icon: ShieldUser,
-    children: [{
-      title: "入住登记"
-    }, {
-      title: "退住登记"
-    }, {
-      title: '外出登记'
-    }]
-  },
-  {
-    title: "床位管理",
-    icon: Bed,
-    children: [{
-      title: "床位示意图"
-    },
-    {
-      title: "床位管理"
-    }
-    ]
-  },
-  {
-    title: "护理管理",
-    icon: SquareActivity,
-    children: [{
-      title: "护理级别"
-    },
-    {
-      title: "护理项目"
-    }, {
-      title: "客户护理设置"
-    },
-    {
-      title: "护理记录"
-    }
-    ]
-  },
-  {
-    title: "膳食管理",
-    icon: Apple,
-    children: [{
-      title: "膳食日历"
-    }, {
-      title: "膳食配置"
-    }]
-  },
-  {
-    title: "健康管家",
-    icon: HeartPlus,
-    children: [{
-      title: "设置服务对象"
-    }, {
-      title: "服务关注"
-    }]
-  }
-  , {
-    title: '用户管理',
-    icon: CircleUserRound,
-    children: [{
-      title: "基础信息维护"
-    }]
-  }
-];
+const props=defineProps(['sidebarItems','applicationName'])
+const applictionName =props.applicationName
+const items: sidebarItem[] = props.sidebarItems
 </script>
 
 
