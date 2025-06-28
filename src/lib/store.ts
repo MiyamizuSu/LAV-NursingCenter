@@ -4,13 +4,18 @@ import type { CheckoutRegistration, Customer, OutingRegistration } from "@/pages
 import type { BedUser } from "./type";
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
+  const allCustomerList = ref<Customer[]>([])
   const checkoutList = ref<CheckoutRegistration[]>([])
   const outingList = ref<OutingRegistration[]>([])
   const getCustomerList = computed(() => customerList)
+  const getAllCustomerList = computed(() => allCustomerList)
   const getCheckoutList = computed(() => checkoutList)
   const getOutingList = computed(() => outingList)
   const addNewCutomer = (newCutomer: Customer) => {
     customerList.value.push(newCutomer)
+  }
+  const setAllCustomerList = (newList: Customer[]) => {
+    allCustomerList.value = newList
   }
   const setNewList = (newList: Customer[]) => {
     customerList.value = newList
@@ -22,7 +27,7 @@ export const usecustomerManagementStore = defineStore('customManagentStore', () 
     outingList.value = newList
   }
   return {
-    getCustomerList, getCheckoutList, getOutingList, addNewCutomer, setNewList, setOutingList
+    getCustomerList, getCheckoutList, getOutingList, getAllCustomerList, addNewCutomer, setNewList, setOutingList, setAllCustomerList, setCheckoutList
   }
 })
 export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
@@ -43,9 +48,12 @@ export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
   const setAllCustomerList = (newList: Customer[]) => {
     allCustomerList.value = newList
   }
+  const setCheckoutList = (newList: CheckoutRegistration[]) => {
+    checkoutList.value = newList
+  }
 
   return {
-    getCustomerList, getCheckoutList, getOutingList, getAllCustomerList,setCustomerList, setOutingList, setAllCustomerList
+    getCustomerList, getCheckoutList, getOutingList, getAllCustomerList,setCustomerList, setCheckoutList, setOutingList, setAllCustomerList
   }
 })
 export const useBedManagementStore=defineStore("bedUseStore",()=>{
