@@ -17,11 +17,10 @@ import {
   getSortedRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown, ChevronsUpDown, IdCard, Import } from 'lucide-vue-next'
 import { h, reactive, ref, onMounted, watch } from 'vue'
-import { axiosInstance as axios } from '@/lib/core'
+import axios from 'axios'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { cn, debounce } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import {
   Table,
@@ -33,7 +32,6 @@ import {
 } from '@/components/ui/table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu'
 import { RippleButton } from '@/components/ui/ripple-button'
 import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
@@ -41,95 +39,27 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
-const data: Customer[] = [
-]
+
 const ctmStore = usecustomerManagementStore()
 // 分页参数
 const pages = ref({
   currentPage: 1,
-  pageSize: 10
+  pageSize: 8,
+  total: 0
 })
-const total = ref(0)
 const customerType = ref(0)
-
-// 获取分页客户数据
-const fetchCustomers = async () => {
-  if (import.meta.env.VITE_DEV_ENV === 'sameSite') {
-    if (selectedCustomerType.value === '护理老人') {
-      customerType.value = 1
-    } else {
-      customerType.value = 0
-    }
-    axios.post('http://10.25.41.129:9000/customer/page', {
-      current: pages.value.currentPage,
-      size: pages.value.pageSize,
-      customerType: customerType.value,
-      name: ""
-    }
-    ).then((res) => {
-      console.log(res.data)
-      if (res.data.status === 200) {
-        ctmStore.setNewList(res.data.data)
-        total.value = res.data.total
-        updateTableData(ctmStore.getCustomerList.value)
-      } else {
-        ctmStore.getCustomerList.value = []
-      }
-    })
-  }
-}
-
-const showUpdateForm = ref(false)  // 修改界面的可见性
-const updateCustomerVisible = ref(false) // 确认修改界面的可见性
-const openUpdateForm = (customer: Customer) => {  // 打开修改界面
-  Object.assign(form, customer)
-  console.log("当前客户信息", form)
-  showUpdateForm.value = true
-}
-const checkUpdateForm = () => {
-  formRef.value?.validate((valid: boolean) => {
-    if (valid) {
-      console.log('表单数据:', form)
-      updateCustomerVisible.value = true
-    } else {
-      console.log('表单验证失败')
-    }
-  })
-}
-const cancelUpdate = () => {
-  console.log('取消修改：')
-  showUpdateForm.value = false
-  clearForm()
-}
-const updateForm = async () => {
-  // 后端
-  axios.post("/customer/update", form).then((res) => {
-    console.log(res.data)
-    if (res.data.status === 200) {
-      fetchCustomers()
-    } else {
-
-    }
-
-  })
-
-  updateCustomerVisible.value = false
-  showUpdateForm.value = false
-  clearForm()
-
-}
 
 const columns: ColumnDef<Customer>[] = [
   {
     id: 'select',
     header: ({ table }) => h(Checkbox, {
       'modelValue': table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'),
-      'onUpdate:modelValue': value => table.toggleAllPageRowsSelected(!!value),
+      'onUpdate:modelValue': (value: any) => table.toggleAllPageRowsSelected(!!value),
       'ariaLabel': 'Select all',
     }),
     cell: ({ row }) => h(Checkbox, {
       'modelValue': row.getIsSelected(),
-      'onUpdate:modelValue': value => row.toggleSelected(!!value),
+      'onUpdate:modelValue': (value: any) => row.toggleSelected(!!value),
       'ariaLabel': 'Select row',
     }),
     enableSorting: false,
@@ -232,7 +162,6 @@ const columns: ColumnDef<Customer>[] = [
       ]),
   },
 ]
-
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
@@ -262,66 +191,51 @@ const table = useVueTable({
     get expanded() { return expanded.value },
   },
 })
-
-const showForm = ref(false)
-const form = reactive({
-  name: '',
-  age: '',
-  gender: '',
-  idCard: '',
-  bloodType: '',
-  relative: '',
-  phoneNumber: '',
-  building: '',
-  roomNumber: '',
-  bedNumber: '',
-  customerType: '',
-  checkinDate: '',
-  expirationDate: '',
-})
-const formTitle = ref()
-// 打开添加表单
-const openDialog = (title: string) => {
-  formTitle.value = title
-  showForm.value = true
+// 页码改变时
+const changePage = (page: number) => {
+  pages.value.currentPage = page
+  loadCustomers()
 }
-// 提交客户信息
-const onSubmit = () => {
-  // 实现后端
-  // ...
-  axios.post("/customer/add", form).then((res) => {
+const searchName = ref('')  // 搜索框输入
+// 处理重置搜索
+const resetCustomers = () => {
+  searchName.value = ''
+  loadCustomers()
+}
+const onInput = async (event: Event) => {
+  const deLoad = debounce(loadCustomers)
+  deLoad()
+}
 
+// 获取分页客户数据
+const loadCustomers = async () => {
+  if (selectedCustomerType.value === '护理老人') {
+    customerType.value = 1
+  } else {
+    customerType.value = 0
+  }
+  const res = await axios.post('http://localhost:9000/customer/page', {
+    current: pages.value.currentPage,
+    size: pages.value.pageSize,
+    customerType: customerType.value,
+    name: searchName.value
   })
-
-  addCustomerVisible.value = false
-  showForm.value = false
-  clearForm()
+  if (res.data.status === 200) {
+    ctmStore.setNewList(res.data.data)
+    pages.value.total = res.data.total
+  } else {
+    ctmStore.getCustomerList.value = []
+  }
 }
-const cancelSubmit = () => {
-  console.log('取消提交：')
-  showForm.value = false
-  clearForm()
+// 获取所有客户数据
+const loadAllCustomers = async () => {
+  const res = await axios.post('http://localhost:9000/customer/listAll')
+  if (res.data.status === 200) {
+    ctmStore.setAllCustomerList(res.data.data)
+  } else {
+    console.log('查询失败')
+  }
 }
-
-// 清空表单
-const clearForm = () => {
-  form.name = ''
-  form.age = ''
-  form.gender = ''
-  form.idCard = ''
-  form.bloodType = ''
-  form.relative = ''
-  form.phoneNumber = ''
-  form.building = ''
-  form.roomNumber = ''
-  form.bedNumber = ''
-  form.customerType = ''
-  form.checkinDate = ''
-  form.expirationDate = ''
-}
-
-const addCustomerVisible = ref(false)
-
 const formRef = ref<FormInstance>()
 // 配置表单校验规则
 const rules: FormRules = {
@@ -407,6 +321,23 @@ const rules: FormRules = {
     }
   ]
 }
+const showForm = ref(false)
+const form = reactive({
+  name: '',
+  age: '' as string | number,
+  gender: 1,
+  idCard: '',
+  bloodType: '',
+  relative: '',
+  phoneNumber: '',
+  building: '',
+  roomNumber: '',
+  bedNumber: '',
+  customerType: 0,
+  checkinDate: '',
+  expirationDate: '',
+})
+const addCustomerVisible = ref(false)
 // 检查用户输入
 const checkAddForm = () => {
   formRef.value?.validate((valid: boolean) => {
@@ -418,24 +349,81 @@ const checkAddForm = () => {
     }
   })
 }
-
-// 页码改变时
-const changePage = (page: number) => {
-  pages.value.currentPage = page
-  fetchCustomers()
+// 取消提交添加表单
+const cancelSubmit = () => {
+  formRef.value?.resetFields()
+  showForm.value = false
+  clearForm()
+}
+// 清空表单
+const clearForm = () => {
+  form.name = ''
+  form.age = ''
+  form.gender = 1
+  form.idCard = ''
+  form.bloodType = ''
+  form.relative = ''
+  form.phoneNumber = ''
+  form.building = ''
+  form.roomNumber = ''
+  form.bedNumber = ''
+  form.customerType = 0
+  form.checkinDate = ''
+  form.expirationDate = ''
+}
+// 提交客户信息
+const onSubmit = async () => {
+  console.log('提交外出申请', form)
+  form.age = Number(form.age)
+  const res = await axios.post('http://localhost:9000/customer/add', form)
+  if (res.data.status === 200) {
+    ElMessage.success('添加成功')
+    addCustomerVisible.value = false
+    showForm.value = false
+    await loadCustomers()
+    clearForm()
+  } else {
+    ElMessage.error('添加失败')
+  }
 }
 
-// 将数据更新到表格（如果使用 useTable）
-const updateTableData = (rows: any[]) => {
-  table.setOptions(prev => ({
-    ...prev,
-    data: rows
-  }))
+const showUpdateForm = ref(false)  // 修改界面的可见性
+const updateCustomerVisible = ref(false) // 确认修改界面的可见性
+const openUpdateForm = (customer: Customer) => {  // 打开修改界面
+  Object.assign(form, customer)
+  showUpdateForm.value = true
+}
+const checkUpdateForm = () => {
+  formRef.value?.validate((valid: boolean) => {
+    if (valid) {
+      console.log('表单数据:', form)
+      updateCustomerVisible.value = true
+    } else {
+      console.log('表单验证失败')
+    }
+  })
+}
+const cancelUpdate = () => {
+  formRef.value?.resetFields()
+  showUpdateForm.value = false
+  clearForm()
+}
+const updateForm = async () => {
+  const res = await axios.post('http://localhost:9000/customer/update', form)
+  if (res.data.status === 200) {
+    ElMessage.success('修改成功')
+    updateCustomerVisible.value = false
+    showUpdateForm.value = false
+    await loadCustomers()
+    clearForm()
+  } else {
+    ElMessage.error('修改失败')
+  }
 }
 
 const deleteCustomerVisible = ref(false) // 确认删除提示框可见性
 // 删除提示框
-const openDeleteForm = (customer: Customer) => {
+const openDeleteForm = async (customer: Customer) => {
   ElMessageBox.confirm(
     '确定要删除客户' + customer.name + '的信息吗？',
     '警告',
@@ -445,21 +433,20 @@ const openDeleteForm = (customer: Customer) => {
       type: 'warning',
     }
   )
-    .then(() => {
-      axios.post("/customer/deleteById", customer.customerId).then((res: any) => {
-        if (res.data.status === 200) {
-          ElMessage({
-            type: 'success',
-            message: '删除成功',
-          })
-          fetchCustomers()
-        } else {
-          ElMessage({
-            type: 'error',
-            message: '删除失败',
-          })
-        }
-      })
+    .then(async () => {
+      const res = await axios.post("http://localhost:9000/customer/delete", { customerId: customer.customerId })
+      if (res.data.status === 200) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+        loadCustomers()
+      } else {
+        ElMessage({
+          type: 'error',
+          message: '删除失败',
+        })
+      }
     })
     .catch(() => {
       ElMessage({
@@ -471,12 +458,12 @@ const openDeleteForm = (customer: Customer) => {
 
 const selectedCustomerType = ref('自理老人')
 watch(selectedCustomerType, (newType: any) => {
-  fetchCustomers()
+  loadCustomers()
 })
 
-onMounted(() => {
-  fetchCustomers()
-
+onMounted(async () => {
+  await loadCustomers()
+  await loadAllCustomers()
 })
 function change(e: string) {
   selectedCustomerType.value = e
@@ -486,36 +473,33 @@ function change(e: string) {
 <template>
 
   <!-- 客户信息列表 -->
-  <div class="w-full">
-    <div class="flex gap-2 items-center py-4">
-      <Input class="max-w-sm" placeholder="客户姓名" :model-value="table.getColumn('name')?.getFilterValue() as string"
-        @update:model-value=" table.getColumn('name')?.setFilterValue($event)" />
-
-      <div class="grid place-content-center p-8">
-        <RippleButton @click="openDialog('入住登记')"> 登记 </RippleButton>
+  <div class="w-full pr-10">
+    <div class="flex gap-2 items-center py-4 justify-between">
+      <div class="flex items-center gap-2">
+        <div>
+          <Input class="max-w-sm" placeholder="客户姓名" v-model="searchName" @input="onInput" />
+        </div>
+        <div>
+          <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
+            text-after-color="#eaffd0" before-color="#eaffd0" after-color="#95e1d3">
+            <template #svgIcon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </template>
+          </InteractiveHoverButton>
+        </div>
+      </div>
+      <div class="grid place-content-center p-8 justify-end">
+        <RippleButton @click="showForm = true"> 登记 </RippleButton>
       </div>
     </div>
-    <div>
+    <div class="mb-5">
       <Switcher left-value="自理老人" right-value="护理老人" @select-value-change="change">
       </Switcher>
-    </div>
-    <div class="flex justify-end pb-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="outline" class="ml-auto">
-            Columns
-            <ChevronDown class="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuCheckboxItem v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
-            :key="column.id" class="capitalize" :model-value="column.getIsVisible()" @update:model-value="(value: any) => {
-              column.toggleVisibility(!!value)
-            }">
-            {{ column.id }}
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
     <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
       客户信息
@@ -576,7 +560,7 @@ function change(e: string) {
           @click="changePage(pages.currentPage - 1)">
           前一页
         </Button>
-        <Button variant="outline" size="sm" :disabled="pages.currentPage * pages.pageSize >= total"
+        <Button variant="outline" size="sm" :disabled="pages.currentPage * pages.pageSize >= pages.total"
           @click="changePage(pages.currentPage + 1)">
           后一页
         </Button>
@@ -586,7 +570,7 @@ function change(e: string) {
 
   <!-- 添加客户表单 -->
   <div>
-    <el-dialog v-model="showForm" :title=formTitle width="35%" :append-to-body="true" label-position="left"
+    <el-dialog v-model="showForm" title="入住登记" width="35%" :append-to-body="true" label-position="left"
       @close="cancelSubmit">
       <el-form :model="form" :rules="rules" ref="formRef">
         <!-- 分隔符 -->
@@ -607,8 +591,8 @@ function change(e: string) {
           <el-col :span="12">
             <el-form-item label="性别：" prop="gender">
               <el-select v-model="form.gender" placeholder="请选择性别">
-                <el-option label="男" value="1" />
-                <el-option label="女" value="0" />
+                <el-option label="男" :value=1 />
+                <el-option label="女" :value=0 />
               </el-select>
             </el-form-item>
           </el-col>
@@ -657,19 +641,21 @@ function change(e: string) {
 
         <el-form-item label="客户类型：" prop="customerType">
           <el-radio-group v-model="form.customerType">
-            <el-radio value='0'>自理老人</el-radio>
-            <el-radio value='1'>护理老人</el-radio>
+            <el-radio :value=0>自理老人</el-radio>
+            <el-radio :value=1>护理老人</el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+            <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%"
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
           </el-col>
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%"
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
           </el-col>
         </el-form-item>
         <!-- 分隔符 -->
@@ -685,7 +671,7 @@ function change(e: string) {
 
     </el-dialog>
 
-    <el-dialog v-model="addCustomerVisible" title="提示" width="500" top="40vh">
+    <el-dialog v-model="addCustomerVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
       <span>确定登记该客户入住信息吗？</span>
       <template #footer>
         <div class="dialog-footer">
@@ -771,8 +757,8 @@ function change(e: string) {
 
         <el-form-item label="客户类型：" prop="customerType">
           <el-radio-group v-model="form.customerType" prop="customerType">
-            <el-radio value="0">自理老人</el-radio>
-            <el-radio value="1">护理老人</el-radio>
+            <el-radio :value=0>自理老人</el-radio>
+            <el-radio :value=1>护理老人</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -799,7 +785,7 @@ function change(e: string) {
 
     </el-dialog>
 
-    <el-dialog v-model="updateCustomerVisible" title="提示" width="500" top="40vh">
+    <el-dialog v-model="updateCustomerVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
       <span>确定修改该客户入住信息吗？</span>
       <template #footer>
         <div class="dialog-footer">
@@ -826,8 +812,6 @@ function change(e: string) {
       </template>
     </el-dialog>
   </div>
-
-
 
 </template>
 
