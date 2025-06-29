@@ -88,62 +88,69 @@ onMounted(fetchOrders)
 </script>
 
 <template>
-  <div class="container">
-    <!-- 查询条件 -->
-    <el-card shadow="hover" class="section-card">
-      <div class="filter-bar">
-        <el-select v-model="queryParams.isCompleted" placeholder="订单状态" style="width: 140px">
-          <el-option label="未完成" :value="0" />
-          <el-option label="已完成" :value="1" />
-        </el-select>
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
+      <!-- 查询条件 -->
+      <el-card shadow="hover" class="section-card">
+        <el-card shadow="hover" class="section-card">
+          <div class="filter-bar">
+            <el-select v-model="queryParams.isCompleted" placeholder="订单状态" style="width: 140px">
+              <el-option label="未完成" :value="0" />
+              <el-option label="已完成" :value="1" />
+            </el-select>
 
-        <el-date-picker v-model="queryParams.startTime" type="datetime" placeholder="开始时间"
-          value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
+            <el-date-picker v-model="queryParams.startTime" type="datetime" placeholder="开始时间"
+              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
 
-        <el-date-picker v-model="queryParams.endTime" type="datetime" placeholder="结束时间"
-          value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
+            <el-date-picker v-model="queryParams.endTime" type="datetime" placeholder="结束时间"
+              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
 
-        <div class="button-group">
-          <el-button type="primary" @click="fetchOrders" :icon="Search">查询</el-button>
-          <el-button type="success" @click="handleBatchComplete" :icon="Check" :disabled="selectedItems.length === 0">
-            批量完成
-          </el-button>
-        </div>
-      </div>
-    </el-card>
+            <div class="button-group">
+              <el-button type="primary" @click="fetchOrders" :icon="Search">查询</el-button>
+              <el-button type="success" @click="handleBatchComplete" :icon="Check"
+                :disabled="selectedItems.length === 0">
+                批量完成
+              </el-button>
+            </div>
+          </div>
+        </el-card>
 
-    <!-- 数据表格 -->
-    <el-card shadow="hover" class="section-card mt-16">
-      <el-table :data="tableData" v-loading="loading" stripe header-row-class-name="table-header"
-        row-class-name="table-row"
-        @selection-change="(rows: MealReservationItem[]) => selectedItems = rows.map(r => r.id)">
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="customerName" label="客户姓名" />
-        <el-table-column prop="foodName" label="膳食名称" />
-        <el-table-column prop="purchaseCount" label="购买数量" />
-        <el-table-column prop="purchaseTime" label="购买时间" />
-        <el-table-column label="状态">
-          <template #default="{ row }">
-            <el-tag :type="row.deleted ? 'success' : 'warning'">
-              {{ row.deleted ? '已完成' : '未完成' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="{ row }">
-            <el-button v-if="!row.deleted" type="primary" size="small" @click="handleComplete(row.id)" :icon="Check">
-              标记完成
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+        <!-- 数据表格 -->
+        <el-card shadow="hover" class="section-card mt-16">
+          <el-table :data="tableData" v-loading="loading" :fit="true" stripe header-row-class-name="table-header"
 
-      <!-- 分页 -->
-      <el-pagination background v-model:current-page="pagination.page" v-model:page-size="pagination.size"
-        :page-sizes="[10, 12, 15]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
-        @size-change="fetchOrders" @current-change="fetchOrders" />
-    </el-card>
-  </div>
+            row-class-name="table-row"
+            @selection-change="(rows: MealReservationItem[]) => selectedItems = rows.map(r => r.id)">
+            <el-table-column align="center" type="selection"/>
+            <el-table-column align="center" prop="customerName" label="客户姓名" />
+            <el-table-column align="center" prop="foodName" label="膳食名称" />
+            <el-table-column align="center" prop="purchaseCount" label="购买数量" />
+            <el-table-column align="center" prop="purchaseTime" label="购买时间" />
+            <el-table-column align="center" label="状态" min-width="100">
+              <template #default="{ row }">
+                <el-tag :type="row.deleted ? 'success' : 'warning'">
+                  {{ row.deleted ? '已完成' : '未完成' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template #default="{ row }">
+                <el-button v-if="!row.deleted" type="primary" size="small" @click="handleComplete(row.id)"
+                  :icon="Check">
+                  标记完成
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!-- 分页 -->
+          <el-pagination background v-model:current-page="pagination.page" v-model:page-size="pagination.size"
+            :page-sizes="[10, 12, 15]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
+            @size-change="fetchOrders" @current-change="fetchOrders" />
+        </el-card>
+      </el-card>
+    </el-col>
+  </el-container>
 </template>
 
 <style lang="css" scoped>
@@ -155,6 +162,7 @@ onMounted(fetchOrders)
 .section-card {
   border-radius: 12px;
   margin-bottom: 16px;
+  margin-right: 30px;
 
   :deep(.el-card__body) {
     padding: 16px;
@@ -215,7 +223,15 @@ onMounted(fetchOrders)
 
 
 .el-table {
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
 
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
   :deep(th),
   :deep(td) {
     padding: 8px 12px !important;
