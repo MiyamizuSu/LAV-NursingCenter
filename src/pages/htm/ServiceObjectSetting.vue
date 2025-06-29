@@ -6,12 +6,14 @@ import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageB
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useNursingCustomersStore } from '@/lib/store';
 
 onMounted(() => {
     loadData()
 })
 
 const router = useRouter()
+const nursingCustomersStore = useNursingCustomersStore()
 
 // 管家分页数据
 let allNurses = ref([] as User[])
@@ -38,12 +40,8 @@ const nurse_handleCurrentChange = (val: number) => {
 }
 
 const manageNursingCustomers = (nurse: User) => {
-    router.push({
-        path: '/main/manageNursingCustomers',
-        query: {
-            currentNurse: JSON.stringify(nurse)
-        }
-    })
+    nursingCustomersStore.setCurrentNurse(nurse)
+    router.push('/main/manageNursingCustomers')
 }
 
 const loadNurses = () => {

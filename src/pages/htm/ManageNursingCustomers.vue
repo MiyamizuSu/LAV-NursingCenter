@@ -6,12 +6,13 @@ import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, 
 import Button from '@/components/ui/button/Button.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useNursingCustomersStore } from '@/lib/store';
 
-const route = useRoute()
 const router = useRouter()
+const nursingCustomersStore = useNursingCustomersStore()
 
 onMounted(() => {
-    currentNurse.value = JSON.parse(route.query.currentNurse as string)
+    currentNurse.value = nursingCustomersStore.getCurrentNurse.value
     loadData()
 })
 

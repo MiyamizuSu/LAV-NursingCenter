@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import type { CheckoutRegistration, Customer, OutingRegistration } from "@/pages/ctm/type";
-import type { BedUser } from "./type";
+import type { CheckoutRegistration, OutingRegistration } from "@/pages/ctm/type";
+import type { BedUser, NursingLevel, User, Customer } from "./type";
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
   const checkoutList = ref<CheckoutRegistration[]>([])
@@ -58,5 +58,35 @@ export const useBedManagementStore=defineStore("bedUseStore",()=>{
   }
   return {
     getUsedBeds,getUsingBeds,setUsingBeds
+  }
+})
+export const useLevelProgramStore = defineStore('levelProgramStore', () =>{
+  const currentLevel = ref({} as NursingLevel)
+  const getCurrentLevel = computed(() => currentLevel)
+  const setCurrentLevel = (newLevel: NursingLevel) => {
+    currentLevel.value = newLevel
+  }
+  return {
+    getCurrentLevel, setCurrentLevel
+  }
+})
+export const useNursingCustomersStore = defineStore('nursingCustomersStore', () =>{
+  const currentNurse = ref({} as User)
+  const getCurrentNurse = computed(() => currentNurse)
+  const setCurrentNurse = (newNurse: User) => {
+    currentNurse.value = newNurse
+  }
+  return {
+    getCurrentNurse, setCurrentNurse
+  }
+})
+export const useCustomerProgramsStore = defineStore('customerProgramsStore', () =>{
+  const currentCustomer = ref({} as Customer)
+  const getCurrentCustomer = computed(() => currentCustomer)
+  const setCurrentCustomer = (newCustomer: Customer) => {
+    currentCustomer.value = newCustomer
+  }
+  return {
+    getCurrentCustomer, setCurrentCustomer
   }
 })

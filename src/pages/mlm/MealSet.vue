@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 膳食配置 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Delete, Search, Edit } from '@element-plus/icons-vue'

@@ -6,9 +6,10 @@ import { type NursingLevel, type NursingProgram } from '@/lib/type.d';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol } from 'element-plus'
 import Button from '@/components/ui/button/Button.vue';
 import { axiosInstance as axios } from '@/lib/core'
+import { useLevelProgramStore } from '@/lib/store'
 
 const router = useRouter()
-const route = useRoute()
+const levelProgramStore = useLevelProgramStore()
 
 onMounted(() => {
     loadData()
@@ -116,8 +117,9 @@ const addToLevel = (program: NursingLevel) => {
 
 
 const loadData = () => {
-    currentLevel.value = JSON.parse(route.query.currentLevel as string)
-    console.log(currentLevel.value)
+    // currentLevel.value = JSON.parse(route.query.currentLevel as string)
+    currentLevel.value = levelProgramStore.getCurrentLevel.value
+    // console.log(currentLevel.value)
     queryEntity1.value.levelId = currentLevel.value.id
 
     axios.post("/nursingProgram/page", queryEntity0.value)
@@ -125,7 +127,7 @@ const loadData = () => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
                 total0.value = res.data.total
-                console.log("allPrograms: ", allPrograms.value)
+                // console.log("allPrograms: ", allPrograms.value)
 
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
@@ -142,7 +144,7 @@ const loadData = () => {
             if (res.data.status == 200) {
                 currentPrograms.value = res.data.data
                 total1.value = res.data.total
-                console.log("currentPrograms: ", currentPrograms.value)
+                // console.log("currentPrograms: ", currentPrograms.value)
 
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {

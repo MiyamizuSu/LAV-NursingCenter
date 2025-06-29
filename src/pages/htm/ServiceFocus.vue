@@ -6,12 +6,14 @@ import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageB
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useCustomerProgramsStore } from '@/lib/store';
 
 onMounted(() => {
     loadData()
 })
 
 const router = useRouter()
+const customerProgramsStore = useCustomerProgramsStore()
 
 // 客户分页数据
 let allCustomers = ref([] as Customer[])
@@ -42,13 +44,8 @@ const manageCustomerPrograms = (customer: Customer) => {
         ElMessage({ message: "请先配置该客户的护理级别！", type: "warning" })
         return;
     }
-
-    router.push({
-        path: '/main/manageCustomerPrograms',
-        query: {
-            currentCustomer: JSON.stringify(customer)
-        }
-    })
+    customerProgramsStore.setCurrentCustomer(customer)
+    router.push('/main/manageCustomerPrograms')
 }
 
 const loadCustomers = () => {

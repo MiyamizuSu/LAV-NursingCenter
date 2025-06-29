@@ -6,12 +6,13 @@ import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageB
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter, useRoute } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useCustomerProgramsStore } from '@/lib/store';
 
-const route = useRoute()
 const router = useRouter()
+const customerProgramsStore = useCustomerProgramsStore()
 
 onMounted(() => {
-    currentCustomer.value = JSON.parse(route.query.currentCustomer as string)
+    currentCustomer.value = customerProgramsStore.getCurrentCustomer.value
     loadData()
 })
 
@@ -75,7 +76,6 @@ let multipleSelection = ref([] as CustomerNursingService[])
 
 const handleSelectionChange = (val: CustomerNursingService[]) => {
     multipleSelection.value = val
-    console.log(multipleSelection.value)
 }
 
 // 控制添加对话框
@@ -359,7 +359,7 @@ const loadAvailablePrograms = () => {
             if (res.data.status == 200) {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total
-                console.log(availablePrograms.value)
+                // console.log(availablePrograms.value)
             } else {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total

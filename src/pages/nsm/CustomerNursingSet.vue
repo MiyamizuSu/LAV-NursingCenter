@@ -215,9 +215,9 @@ const loadAllLevels = () => {
         .then(res => {
             if (res.data.status == 200) {
                 allLevels.value = res.data.data
-                console.log(allLevels.value)
+                // console.log(allLevels.value)
                 selectedLevel.value = allLevels.value[0]
-                console.log("护理级别默认值：", selectedLevel.value)
+                // console.log("护理级别默认值：", selectedLevel.value)
             } else {
                 ElNotification({
                     title: 'Error',
@@ -257,7 +257,7 @@ const loadProgramsUnderLevel = () => {
             if (res.data.status == 200) {
                 currentPrograms.value = res.data.data
                 service_total.value = res.data.total
-                console.log("currentPrograms: ", currentPrograms.value)
+                // console.log("currentPrograms: ", currentPrograms.value)
 
                 currentServices.value = []
                 for (let program of currentPrograms.value) {

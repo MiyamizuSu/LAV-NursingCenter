@@ -39,7 +39,7 @@ import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { Customer } from './type'
+import type { Customer } from '@/lib/type'
 import { usecustomerManagementStore } from '@/lib/store'
 const data: Customer[] = [
 ]

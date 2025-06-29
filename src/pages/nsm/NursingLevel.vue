@@ -7,8 +7,10 @@ import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCo
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useLevelProgramStore } from '@/lib/store'
 
 const router = useRouter()
+const levelProgramStore = useLevelProgramStore()
 
 onMounted(() => {
     loadData()
@@ -157,12 +159,8 @@ const cancel_commit = () => {
  * 去配置级别下的护理项目
 */
 const start_managePrograms = (selectedLevel: NursingLevel) => {
-    router.push({
-        path: '/main/levelManagePrograms',
-        query: {
-            currentLevel: JSON.stringify(selectedLevel)
-        }
-    })
+    levelProgramStore.setCurrentLevel(selectedLevel)
+    router.push('/main/levelManagePrograms')
 }
 
 const loadData = () => {
@@ -178,13 +176,10 @@ const loadData = () => {
             if (res.data.status == 200) {
                 tableData.value = res.data.data
                 total.value = res.data.total
-                console.log(tableData.value)
-
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 tableData.value = res.data.data
                 total.value = res.data.total
-                console.log(tableData.value)
                 // ElNotification({
                 //     title: 'Error',
                 //     message: res.data.msg,
