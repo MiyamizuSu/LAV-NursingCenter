@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import LoginPage from '@/pages/LoginPage.vue'
 import MainPage from '@/pages/MainPage.vue'
 import NursingLevel from '@/pages/nsm/NursingLevel.vue'
@@ -18,6 +18,11 @@ import MealCalendar from '@/pages/mlm/MealCalendar.vue'
 import MealSet from '@/pages/mlm/MealSet.vue'
 import BasicInformationMaintain from '@/pages/usm/BasicInformationMaintain.vue'
 import GoOutPage from '@/pages/ctm/GoOutPage.vue'
+import NursingRecord2 from '@/pages/hts/NursingRecord.vue'
+import DailyNursing from '@/pages/hts/DailyNursing.vue'
+import FoodManage from '@/pages/mlm/FoodManage.vue'
+import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
+import ErrorPage from '@/pages/ErrorPage.vue'
 export const routes:RouteRecordRaw[]=[
     {
         path:'/login',component:LoginPage
@@ -39,7 +44,7 @@ export const routes:RouteRecordRaw[]=[
         },
         {
             path:'checkOut',
-            component:CheckOutPage,   
+            component:CheckOutPage,
         },
         {
             path:'goOut',
@@ -50,8 +55,16 @@ export const routes:RouteRecordRaw[]=[
             component:ServiceFocus,
         },
         {
+            path: 'manageCustomerPrograms',
+            component: ManageCustomerPrograms
+        },
+        {
             path:'serviceObjectSetting',
             component:ServiceObjectSetting,
+        },
+        {
+            path: 'manageNursingCustomers',
+            component: ManageNursingCustomers
         },
         {
             path:'mealCalendar',
@@ -70,6 +83,10 @@ export const routes:RouteRecordRaw[]=[
             component:NursingLevel,
         },
         {
+            path: 'levelManagePrograms',
+            component: LevelManagePrograms
+        },
+        {
             path:'nursingPrograms',
             component:NursingPrograms,
         },
@@ -80,9 +97,29 @@ export const routes:RouteRecordRaw[]=[
         {
             path:'basicInformationMaintain',
             component:BasicInformationMaintain
+        },
+        {
+            path:'nursingRecord2',
+            component:NursingRecord2
+        },
+        {
+            path:'dailyNursing',
+            component:DailyNursing
+        },
+        {
+            path:'foodManage',
+            component:FoodManage
+        },
+        {
+            path:'mealReservationManage',
+            component:MealReservationManage
         }
-    ]
-    }
+        ]
+    },
+    {
+        path: "/errorPage",
+        component: ErrorPage
+    },
 ]
 export const router=createRouter({
     // history:createMemoryHistory(),

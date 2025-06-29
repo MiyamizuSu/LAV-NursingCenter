@@ -327,111 +327,117 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
-    <!-- 查询条件 -->
-    <div class="query-bar">
-      <el-input v-model="queryParams.name" placeholder="食品名称" style="width:200px" clearable />
-      <el-select v-model="queryParams.type" placeholder="食品类型" clearable multiple style="width:200px;margin:0 10px">
-        <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-      <el-button type="primary" @click="queryFoods">查询</el-button>
-      <el-button type="success" @click="openCreateDialog">新建食品</el-button>
-      <el-button type="danger" @click="handleBatchDelete" :disabled="selectedFoods.length === 0">
-        批量删除
-      </el-button>
-      <el-button type="warning" @click="showPriceChart" style="margin-left: 10px">
-        价格统计
-      </el-button>
-    </div>
-
-    <!-- 数据表格 -->
-    <el-table :data="foodList" @selection-change="(rows: Food[]) => selectedFoods = rows" style="width:100%">
-      <el-table-column type="selection" width="55" />
-      <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="name" label="食品名称" width="160" />
-      <el-table-column label="图片" width="160">
-        <template #default="{ row }">
-          <el-image :src="row.imageUrl" style="width:100px;height:60px" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="type" label="食品类型" width="160" />
-      <el-table-column prop="description" label="食品描述" width="360" />
-      <el-table-column prop="price" label="价格" width="100" />
-      <el-table-column label="操作" width="150">
-        <template #default="{ row }">
-          <el-button type="primary" size="small" @click="handleEdit(row)">
-            编辑
-          </el-button>
-          <el-button type="danger" size="small" @click="handleDelete(row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 分页 -->
-    <el-pagination v-model:current-page="queryParams.current" v-model:page-size="queryParams.size"
-      :page-sizes="[5, 6, 7, 8]" :total="total" layout="total, sizes, prev, pager, next, jumper"
-      @current-change="queryFoods" @size-change="queryFoods" />
-    <!-- 价格统计对话框 -->
-    <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow
-      @closed="chartInstance?.dispose()">
-      <div id="priceChart" style="width: 100%; height: 500px;"></div>
-    </el-dialog>
-
-    <!-- 创建/编辑对话框 -->
-    <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" @closed="formRef?.resetFields()"
-      draggable overflow>
-      <el-form :model="foodForm" :rules="formRules" ref="formRef" label-width="80px">
-        <el-form-item prop="name" label="食品名称">
-          <el-input v-model="foodForm.name" />
-        </el-form-item>
-        <el-form-item prop="type" label="食品类型">
-          <el-select v-model="foodForm.type" :multiple="formType === 'create'" clearable placeholder="请选择">
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
+      <el-card shadow="hover" class="section-card">
+        <!-- 查询条件 -->
+        <div class="query-bar">
+          <el-input v-model="queryParams.name" placeholder="食品名称" style="width:200px" clearable />
+          <el-select v-model="queryParams.type" placeholder="食品类型" clearable multiple style="width:200px;margin:0 10px">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
-        </el-form-item>
-        <el-form-item prop="description" label="食品描述">
-          <el-input v-model="foodForm.description" type="textarea" />
-        </el-form-item>
-        <el-form-item prop="price" label="价格">
-          <el-input-number v-model="foodForm.price" :min="0">
-            <template #suffix>
-              <span>RMB</span>
-            </template>
-          </el-input-number>
-        </el-form-item>
-        <el-form-item prop="imageUrl" label="食品图片">
-          <el-row :gutter="10" class="w-full">
-            <el-col :span="14">
-              <el-input v-model="foodForm.imageUrl" placeholder="或直接输入图片URL"
-                @change="formRef.validateField('imageUrl')" />
-            </el-col>
+          <el-button type="primary" @click="queryFoods">查询</el-button>
+          <el-button type="success" @click="openCreateDialog">新建食品</el-button>
+          <el-button type="danger" @click="handleBatchDelete" :disabled="selectedFoods.length === 0">
+            批量删除
+          </el-button>
+          <el-button type="warning" @click="showPriceChart" style="margin-left: 10px">
+            价格统计
+          </el-button>
+        </div>
 
-          </el-row>
-          <el-upload :show-file-list="false" :http-request="httpRequest" :on-change="handleFileChange"
-            :crossorigin="'use-credentials'" :before-upload="beforeUpload" class="image-container">
-            <div class="image-container">
-              <template v-if="isUploading">
-                <el-icon class="is-loading" color="#409eff" :size="28">
-                  <Loading />
-                </el-icon>
-              </template>
-              <img v-else-if="foodForm.imageUrl" :src="foodForm.imageUrl" class="upload-image" />
-              <div v-else class="upload-placeholder">
-                <el-icon>
-                  <Plus />
-                </el-icon>
-                <span class="tip-text">点击上传图片</span>
-              </div>
+        <!-- 数据表格 -->
+        <el-table :data="foodList" :fit="true" @selection-change="(rows: Food[]) => selectedFoods = rows"
+          style="width:100%">
+          <el-table-column align="center" type="selection" />
+          <el-table-column align="center" type="index" label="序号" />
+          <el-table-column align="center" prop="name" label="食品名称" />
+          <el-table-column align="center" label="图片" width="160">
+            <template #default="{ row }">
+              <el-image :src="row.imageUrl" style="width:100px;height:60px" />
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="type" label="食品类型" />
+          <el-table-column align="center" prop="description" label="食品描述" min-width="200" />
+          <el-table-column align="center" prop="price" label="价格" />
+          <el-table-column align="center" label="操作" min-width="120">
+            <template #default="{ row }">
+              <el-button type="primary" size="small" @click="handleEdit(row)">
+                编辑
+              </el-button>
+              <el-button type="danger" size="small" @click="handleDelete(row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 分页 -->
+        <el-pagination v-model:current-page="queryParams.current" v-model:page-size="queryParams.size"
+          :page-sizes="[5, 6, 7, 8]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+          @current-change="queryFoods" @size-change="queryFoods" />
+
+      </el-card>
+    </el-col>
+  </el-container>
+  <!-- 价格统计对话框 -->
+  <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow
+    @closed="chartInstance?.dispose()">
+    <div id="priceChart" style="width: 100%; height: 500px;"></div>
+  </el-dialog>
+
+  <!-- 创建/编辑对话框 -->
+  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" @closed="formRef?.resetFields()"
+    draggable overflow>
+    <el-form :model="foodForm" :rules="formRules" ref="formRef" label-width="80px">
+      <el-form-item prop="name" label="食品名称">
+        <el-input v-model="foodForm.name" />
+      </el-form-item>
+      <el-form-item prop="type" label="食品类型">
+        <el-select v-model="foodForm.type" :multiple="formType === 'create'" clearable placeholder="请选择">
+          <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item prop="description" label="食品描述">
+        <el-input v-model="foodForm.description" type="textarea" />
+      </el-form-item>
+      <el-form-item prop="price" label="价格">
+        <el-input-number v-model="foodForm.price" :min="0">
+          <template #suffix>
+            <span>RMB</span>
+          </template>
+        </el-input-number>
+      </el-form-item>
+      <el-form-item prop="imageUrl" label="食品图片">
+        <el-row :gutter="10" class="w-full">
+          <el-col :span="14">
+            <el-input v-model="foodForm.imageUrl" placeholder="或直接输入图片URL"
+              @change="formRef.validateField('imageUrl')" />
+          </el-col>
+
+        </el-row>
+        <el-upload :show-file-list="false" :http-request="httpRequest" :on-change="handleFileChange"
+          :crossorigin="'use-credentials'" :before-upload="beforeUpload" class="image-container">
+          <div class="image-container">
+            <template v-if="isUploading">
+              <el-icon class="is-loading" color="#409eff" :size="28">
+                <Loading />
+              </el-icon>
+            </template>
+            <img v-else-if="foodForm.imageUrl" :src="foodForm.imageUrl" class="upload-image" />
+            <div v-else class="upload-placeholder">
+              <el-icon>
+                <Plus />
+              </el-icon>
+              <span class="tip-text">点击上传图片</span>
             </div>
-          </el-upload>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确认</el-button>
-      </template>
-    </el-dialog>
-  </div>
+          </div>
+        </el-upload>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitForm">确认</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -450,10 +456,31 @@ onMounted(() => {
   gap: 10px;
 }
 
+.section-card {
+  border-radius: 12px;
+  margin-bottom: 20px;
+  margin-right: 30px;
+  padding: 16px;
+
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+}
+
 .el-table {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
 
   :deep(th) {
     background: #f8f9fa !important;

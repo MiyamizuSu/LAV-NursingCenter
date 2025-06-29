@@ -159,73 +159,77 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="nursing-container">
-    <!-- 客户列表卡片 -->
-    <el-card shadow="hover" class="main-card">
-      <div class="filter-bar">
-        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px" clearable />
-        <el-button type="primary" @click="queryCustomers">查询</el-button>
-      </div>
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
+      <!-- 客户列表卡片 -->
+      <el-card shadow="hover" class="main-card">
+        <div class="filter-bar">
+          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px" clearable />
+          <el-button type="primary" @click="queryCustomers">查询</el-button>
+        </div>
 
-      <el-table :data="customers" stripe header-row-class-name="table-header" row-class-name="table-row">
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="age" label="年龄" width="80" />
-        <el-table-column label="性别" width="80">
-          <template #default="{ row }">{{ row.gender === 1 ? '男' : '女' }}</template>
-        </el-table-column>
-        <el-table-column prop="building" label="楼栋" width="100" />
-        <el-table-column prop="roomNumber" label="房间号" width="100" />
-        <el-table-column prop="bedNumber" label="床号" width="100" />
-        <el-table-column prop="nursingLevelName" label="护理级别" width="120" />
-
-        <el-table-column label="操作" width="120">
-          <template #default="{ row }">
-            <el-link type="primary" @click="openCareDialog(row)">日常护理</el-link>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-        :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
-        @current-change="queryCustomers" @size-change="queryCustomers" />
-    </el-card>
-
-    <!-- 护理项目管理对话框 -->
-    <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog" width="70%" top="5vh">
-      <el-card shadow="hover" class="dialog-card">
-        <el-table :data="careItems" stripe header-row-class-name="dialog-table-header">
-          <el-table-column type="index" label="序号" width="60" align="center" />
-          <el-table-column prop="programCode" label="项目编号" width="120" />
-          <el-table-column prop="programName" label="项目名称" min-width="150" />
-          <el-table-column prop="programPrice" label="价格" width="120" align="right">
-            <template #default="{ row }">¥{{ row.programPrice }}</template>
+        <el-table :data="customers" style="width: 100%;" stripe header-row-class-name="table-header" :fit="true"
+          row-class-name="table-row">
+          <el-table-column align="center" type="index" label="序号" width="60" />
+          <el-table-column align="center" prop="name" label="姓名" />
+          <el-table-column align="center" prop="age" label="年龄" />
+          <el-table-column align="center" label="性别">
+            <template #default="{ row }">{{ row.gender === 1 ? '男' : '女' }}</template>
           </el-table-column>
-          <el-table-column prop="leftCount" label="余量" width="100" align="center" />
-          <el-table-column prop="expirationDate" label="到期日" width="140" />
-          <el-table-column label="状态" width="120" align="center">
+          <el-table-column align="center" prop="building" label="楼栋" />
+          <el-table-column align="center" prop="roomNumber" label="房间号" />
+          <el-table-column align="center" prop="bedNumber" label="床号" />
+          <el-table-column align="center" prop="nursingLevelName" label="护理级别" />
+
+          <el-table-column align="center" label="操作">
+
             <template #default="{ row }">
-              <el-tag :type="new Date(row.expirationDate) < new Date() ? 'danger'
-                : row.leftCount <= 0 ? 'warning' : 'success'" effect="plain">
-                {{ new Date(row.expirationDate) < new Date() ? '已过期' : row.leftCount <= 0 ? '已用完' : '可用' }} </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="140" align="center">
-            <template #default="{ row }">
-              <el-button type="primary" size="small" @click="handleOpenRecordDialog(row)"
-                :disabled="new Date(row.expirationDate) < new Date() || row.leftCount <= 0">
-                执行护理
-              </el-button>
+              <el-link type="primary" @click="openCareDialog(row)">日常护理</el-link>
             </template>
           </el-table-column>
         </el-table>
 
-        <el-pagination v-model:current-page="careItemQuery.current" v-model:page-size="careItemQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="careItemTotal"
-          @current-change="queryCareItems" @size-change="queryCareItems" class="dialog-pagination" />
+        <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
+          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
+          @current-change="queryCustomers" @size-change="queryCustomers" />
       </el-card>
-    </el-dialog>
-  </div>
+
+      <!-- 护理项目管理对话框 -->
+      <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog" width="70%" top="5vh">
+        <el-card shadow="hover" class="dialog-card">
+          <el-table :data="careItems" stripe header-row-class-name="dialog-table-header">
+            <el-table-column type="index" label="序号" width="60" align="center" />
+            <el-table-column prop="programCode" label="项目编号" width="120" />
+            <el-table-column prop="programName" label="项目名称" min-width="150" />
+            <el-table-column prop="programPrice" label="价格" width="120" align="right">
+              <template #default="{ row }">¥{{ row.programPrice }}</template>
+            </el-table-column>
+            <el-table-column prop="leftCount" label="余量" width="100" align="center" />
+            <el-table-column prop="expirationDate" label="到期日" width="140" />
+            <el-table-column label="状态" width="120" align="center">
+              <template #default="{ row }">
+                <el-tag :type="new Date(row.expirationDate) < new Date() ? 'danger'
+                  : row.leftCount <= 0 ? 'warning' : 'success'" effect="plain">
+                  {{ new Date(row.expirationDate) < new Date() ? '已过期' : row.leftCount <= 0 ? '已用完' : '可用' }} </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="140" align="center">
+              <template #default="{ row }">
+                <el-button type="primary" size="small" @click="handleOpenRecordDialog(row)"
+                  :disabled="new Date(row.expirationDate) < new Date() || row.leftCount <= 0">
+                  执行护理
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <el-pagination v-model:current-page="careItemQuery.current" v-model:page-size="careItemQuery.size"
+            :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="careItemTotal"
+            @current-change="queryCareItems" @size-change="queryCareItems" class="dialog-pagination" />
+        </el-card>
+      </el-dialog>
+    </el-col>
+  </el-container>
 
   <!-- 护理记录对话框 -->
   <el-dialog title="添加护理记录" v-model="showRecordDialog" @closed="recordForm?.resetFields()">
@@ -260,15 +264,16 @@ onMounted(() => {
 
 <style lang="css" scoped>
 .nursing-container {
-  padding: 20px;
+  padding: 0px;
   min-height: calc(100vh - 60px);
+}
 
-  .main-card {
-    border-radius: 12px;
+.main-card {
+  border-radius: 12px;
+  margin-right: 30px;
 
-    :deep(.el-card__body) {
-      padding: 20px;
-    }
+  :deep(.el-card__body) {
+    padding: 20px;
   }
 }
 
@@ -349,6 +354,29 @@ onMounted(() => {
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(28, 126, 255, 0.2);
+  }
+}
+
+.el-table {
+  flex: 1;
+
+  :deep(.el-table__inner-wrapper) {
+    height: 100% !important;
+  }
+
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
+
+  :deep(th),
+  :deep(td) {
+    padding: 8px 12px !important;
   }
 }
 </style>

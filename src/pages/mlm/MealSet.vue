@@ -203,102 +203,104 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
-    <!-- 客户查询 -->
-    <el-card shadow="hover" class="section-card" v-if="!currentCustomerId" style="max-width: 800px">
-      <div class="filter-bar">
-        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px;" clearable />
-        <el-select v-model="customerQuery.customerType" placeholder="客户类型" style="width: 200px; margin-left: 10px"
-          clearable>
-          <el-option label="自理老人" :value="0" />
-          <el-option label="护理老人" :value="1" />
-        </el-select>
-        <el-button type="primary" @click="queryCustomers">
-          <el-icon>
-            <Search />
-          </el-icon>
-          查询
-        </el-button>
-      </div>
-
-      <el-table stripe header-row-class-name="table-header" row-class-name="table-row" :data="customers">
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="name" label="客户姓名" width="120" />
-        <el-table-column prop="age" label="年龄" width="80" />
-        <el-table-column prop="gender" label="性别" width="70" :formatter="formatGender" />
-        <el-table-column prop="bedNumber" label="床位号" width="120" />
-        <el-table-column prop="phoneNumber" label="联系电话" width="150" />
-        <el-table-column label="操作" width="150">
-          <template #default="{ row }">
-            <el-link type="primary" @click="showConfigManagement(row)" :underline="false" style="padding: 0 5px">
-              管理膳食配置
-            </el-link>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 客户列表分页 -->
-      <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-        :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
-        @size-change="queryCustomers" @current-change="queryCustomers" />
-    </el-card>
-
-    <!-- 膳食配置管理部分 -->
-    <el-card v-else shadow="hover" class="section-card" style="max-width: 800px">
-      <div class="action-bar">
-        <div class="flex-container">
-          <el-button type="primary" @click="backToCustomerList">
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
+      <!-- 客户查询 -->
+      <el-card shadow="hover" class="section-card" v-if="!currentCustomerId">
+        <div class="filter-bar">
+          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px;" clearable />
+          <el-select v-model="customerQuery.customerType" placeholder="客户类型" style="width: 200px; margin-left: 10px"
+            clearable>
+            <el-option label="自理老人" :value="0" />
+            <el-option label="护理老人" :value="1" />
+          </el-select>
+          <el-button type="primary" @click="queryCustomers">
             <el-icon>
-              <ArrowLeft />
+              <Search />
             </el-icon>
-            返回
+            查询
           </el-button>
-          <el-input v-model="mealConfigQuery.name" placeholder="配置名称" style="width: 200px; margin-left: 15px"
-            clearable />
-          <div class="button-group">
-            <el-button type="primary" @click="queryMealConfigs">查询</el-button>
-            <el-button type="primary"
-              @click="dialogVisible = true; isAdding = true; mealConfigForm = { id: 0, name: '', description: '', customerId: currentCustomerId }">
-              新增配置
+        </div>
+
+        <el-table stripe header-row-class-name="table-header" :fit="true" row-class-name="table-row" :data="customers">
+          <el-table-column align="center" type="index" label="序号" :min-width="55" />
+          <el-table-column align="center" prop="name" label="客户姓名" />
+          <el-table-column align="center" prop="age" label="年龄" />
+          <el-table-column align="center" prop="gender" label="性别" :formatter="formatGender" />
+          <el-table-column align="center" prop="bedNumber" label="床位号" />
+          <el-table-column align="center" prop="phoneNumber" label="联系电话" />
+          <el-table-column align="center" label="操作" fixed="right" :min-width="90">
+            <template #default="{ row }">
+              <el-link type="primary" @click="showConfigManagement(row)" :underline="false" style="padding: 0 5px">
+                管理膳食配置
+              </el-link>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <!-- 客户列表分页 -->
+        <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
+          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
+          @size-change="queryCustomers" @current-change="queryCustomers" />
+      </el-card>
+
+      <!-- 膳食配置管理部分 -->
+      <el-card v-else shadow="hover" class="section-card" style="max-width: 800px">
+        <div class="action-bar">
+          <div class="flex-container">
+            <el-button type="primary" @click="backToCustomerList">
+              <el-icon>
+                <ArrowLeft />
+              </el-icon>
+              返回
             </el-button>
-            <el-button type="danger" :disabled="selectedConfigs.length === 0" @click="handleBatchDeleteConfig">
-              批量删除
-            </el-button>
+            <el-input v-model="mealConfigQuery.name" placeholder="配置名称" style="width: 200px; margin-left: 15px"
+              clearable />
+            <div class="button-group">
+              <el-button type="primary" @click="queryMealConfigs">查询</el-button>
+              <el-button type="primary"
+                @click="dialogVisible = true; isAdding = true; mealConfigForm = { id: 0, name: '', description: '', customerId: currentCustomerId }">
+                新增配置
+              </el-button>
+              <el-button type="danger" :disabled="selectedConfigs.length === 0" @click="handleBatchDeleteConfig">
+                批量删除
+              </el-button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <el-table stripe header-row-class-name="table-header" row-class-name="table-row" :data="mealConfigs"
-        @selection-change="(rows: any) => selectedConfigs = rows">
-        <el-table-column type="selection" width="55" />
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="name" label="配置名称" width="180" />
-        <el-table-column prop="description" label="详细描述" width="300" :show-overflow-tooltip="true" />
-        <el-table-column label="操作" width="160">
-          <template #default="{ row }">
-            <el-button type="primary" size="small"
-              @click="dialogVisible = true; isAdding = false; mealConfigForm = { ...row }">
-              <el-icon>
-                <Edit />
-              </el-icon>
-              编辑
-            </el-button>
-            <el-button type="danger" size="small" @click="handleDeleteConfig(row.id)">
-              <el-icon>
-                <Delete />
-              </el-icon>
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
+        <el-table stripe header-row-class-name="table-header" row-class-name="table-row" :fit="true" :data="mealConfigs"
+          @selection-change="(rows: any) => selectedConfigs = rows">
+          <el-table-column align="center" type="selection" />
+          <el-table-column align="center" type="index" label="序号" />
+          <el-table-column align="center" prop="name" label="配置名称" :min-width="180" />
+          <el-table-column align="center" prop="description" label="详细描述" :min-width="240" :show-overflow-tooltip="true" />
+          <el-table-column align="center" label="操作" fixed="right">
+            <template #default="{ row }">
+              <el-button type="primary" size="small"
+                @click="dialogVisible = true; isAdding = false; mealConfigForm = { ...row }">
+                <el-icon>
+                  <Edit />
+                </el-icon>
+                编辑
+              </el-button>
+              <el-button type="danger" size="small" @click="handleDeleteConfig(row.id)">
+                <el-icon>
+                  <Delete />
+                </el-icon>
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
 
-      </el-table>
+        </el-table>
 
-      <el-pagination v-model:current-page="mealConfigQuery.current" v-model:page-size="mealConfigQuery.size"
-        :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="mealConfigTotal"
-        @size-change="queryMealConfigs" @current-change="queryMealConfigs" />
-    </el-card>
-  </div>
+        <el-pagination v-model:current-page="mealConfigQuery.current" v-model:page-size="mealConfigQuery.size"
+          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="mealConfigTotal"
+          @size-change="queryMealConfigs" @current-change="queryMealConfigs" />
+      </el-card>
+    </el-col>
+  </el-container>
 
   <!-- 配置表单对话框 -->
   <el-dialog :title="isAdding ? '新增膳食配置' : '编辑膳食配置'" v-model="dialogVisible" width="500px">
@@ -321,12 +323,15 @@ onMounted(() => {
 
 <style lang="css" scoped>
 .container {
-  padding: 20px;
+  padding: 16px;
+  min-height: calc(100vh - 60px);
 }
 
 .section-card {
   border-radius: 12px;
   margin-bottom: 20px;
+  margin-right: 30px;
+  padding: 16px;
 
   :deep(.el-card__body) {
     padding: 20px;
@@ -372,6 +377,23 @@ onMounted(() => {
 
   &--danger:hover {
     box-shadow: 0 2px 6px rgba(245, 108, 108, 0.2);
+  }
+}
+
+.el-table {
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
+
+  :deep(th),
+  :deep(td) {
+    padding: 8px 12px !important;
   }
 }
 

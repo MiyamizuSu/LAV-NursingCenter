@@ -13,11 +13,15 @@ import DropdownMenuSeparator from '@/components/ui/dropdown-menu/DropdownMenuSep
 import DropdownMenuItem from '@/components/ui/dropdown-menu/DropdownMenuItem.vue';
 import DropdownMenuShortcut from '@/components/ui/dropdown-menu/DropdownMenuShortcut.vue';
 import DropdownMenuGroup from '@/components/ui/dropdown-menu/DropdownMenuGroup.vue';
+// import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
 import { onBeforeRouteUpdate, useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
 import { reactive, ref, type Reactive, type Ref } from 'vue';
+import { axiosInstance as axios } from '@/lib/core'
+
 const router = useRouter();
 const frameController = reactive({
     frameStack: ['主页'] as Key<typeof STATENAME_TAG>[],
@@ -37,7 +41,7 @@ const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
         frameController.curFrameIndex=i-1;
         console.log(frameController.curFrameIndex)
         router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
-        
+
     }
 }
 
@@ -45,7 +49,7 @@ const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
     if (frameController.frameStack.includes(frame)){
         frameController.curFrameIndex=frameController.frameStack.findIndex(f=>f===frame);
         router.push(`/main${STATENAME_TAG[frame]}`)
-        return 
+        return
     }
     frameController.frameStack.push(frame);
     frameController.curFrameIndex = frameController.frameStack.length - 1
@@ -55,6 +59,18 @@ const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
     router.push(`/main${STATENAME_TAG[frame]}`);
     frameController.curFrameIndex=index
 }
+const logout = () => {
+    axios.post("/user/logout", {}).then(res => {
+        if (res.data.status == 200) {
+            sessionStorage.removeItem("token")
+            ElMessage({message: "已退出登录", type: "info"})
+            router.push('/login')
+        } else {
+            ElMessage({message: res.data.msg, type: "error"})
+        }
+    })
+}
+
 const STATENAME_TAG = {
     主页: '',
     入住登记: '/checkIn',
@@ -140,6 +156,7 @@ const sidebarItems = [
     }
 ];
 </script>
+
 <template>
     <div class="bg-img h-full flex flex-col">
         <div class="flex backBlur w-full z-1 right-0 justify-end">
@@ -177,7 +194,7 @@ const sidebarItems = [
                                     <span>设置</span>
                                     <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem @click="logout">
                                     <span>退出</span>
                                     <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
                                 </DropdownMenuItem>

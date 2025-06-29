@@ -277,9 +277,8 @@ const handleChange = () => {
 </script>
 
 <template>
-
-  <el-container style="height: 80vh;">
-    <el-col :span="20">
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
       <!-- 查询操作栏 -->
       <el-card shadow="hover" class="section-card">
         <div class="flex-container">
@@ -304,23 +303,23 @@ const handleChange = () => {
           </div>
         </div>
 
-        <el-table title="所有膳食日历项" :data="arr" style="width: 100%" @selection-change="(rows) => selectedRows = rows">
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="weekDay" label="周期" width="80" />
-          <el-table-column prop="foodId" label="食品id" width="80" />
-          <el-table-column prop="foodName" label="食品名称" width="80" />
-          // 修改表格中的图片列
-          <el-table-column label="食品图片" width="180">
+        <el-table title="所有膳食日历项" :data="arr" style="width: 100%" :fit="true"
+          @selection-change="(rows) => selectedRows = rows">
+          <el-table-column align="center" type="selection" />
+          <el-table-column align="center" prop="weekDay" label="周期" />
+          <el-table-column align="center" prop="foodId" label="食品id" />
+          <el-table-column align="center" prop="foodName" label="食品名称" />
+          <el-table-column align="center" label="食品图片" width="180">
             <template #default="{ row }">
               <el-image :src="row.foodImageUrl" class="meal-image" :preview-src-list="[row.foodImageUrl]" />
             </template>
           </el-table-column>
 
-          <el-table-column prop="foodType" label="食品品类" width="80" />
-          <el-table-column prop="foodDescription" label="食品描述" width="250" />
-          <el-table-column prop="foodPrice" label="食品价格" width="80" />
-          <el-table-column prop="status" label="状态" width="80" :formatter="formatStatus" />
-          <el-table-column align="right" label="操作">
+          <el-table-column align="center" prop="foodType" label="食品品类" />
+          <el-table-column align="center" prop="foodDescription" label="食品描述" :min-width="180" />
+          <el-table-column align="center" prop="foodPrice" label="食品价格" />
+          <el-table-column align="center" prop="status" label="状态" :formatter="formatStatus" />
+          <el-table-column align="center" label="操作" fixed="right">
             <template #default="scope">
               <el-button size="small" @click="handleEdit(scope.$index,)">
                 编辑
@@ -403,6 +402,15 @@ const handleChange = () => {
 }
 
 .el-table {
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
 
   :deep(th),
   :deep(td) {
@@ -483,6 +491,7 @@ const handleChange = () => {
 .section-card {
   border-radius: 12px;
   margin-bottom: 16px;
+  margin-right: 30px;
   padding: 16px;
 
   :deep(.el-card__body) {

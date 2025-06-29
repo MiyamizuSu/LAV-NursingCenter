@@ -13,6 +13,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
+import { ElMessage } from 'element-plus'
 const router = useRouter()
 
 type UserMes = {
@@ -42,6 +43,25 @@ const simpleLogin= async()=>{
     //  console.log(res)
      jump()
 
+}
+
+const login = () => {
+    axios.post("/user/login", user1.value).then(response => {
+		let rb = response.data;
+		if (rb.status == 200) {
+			// 取得登录成功的用户的令牌
+			let token = rb.data;
+            // console.log('token: ', token)
+			// 把用户令牌存入前端Session中
+			sessionStorage.setItem('token', token);
+			// 登录成功
+            ElMessage({message: "登录成功！", type: "success"})
+			router.push('/main');
+		} else {
+			// 登录失败
+			ElMessage({message: rb.msg, type: "error"})
+		}
+	})
 }
 
 </script>
@@ -91,7 +111,7 @@ const simpleLogin= async()=>{
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="simpleLogin">提交</Button>
+                        <Button class=" mt-4" @Click="login">提交</Button>
                     </div>
 
                 </CardContent>

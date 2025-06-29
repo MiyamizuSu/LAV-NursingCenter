@@ -131,74 +131,88 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
-    <!-- 客户查询 -->
-    <div style="margin-bottom:20px">
-      <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable />
-      <el-button type="primary" @click="queryCustomers">查询</el-button>
-    </div>
+  <el-container style="height: 80vh; padding: 0;">
+    <el-col :span="24">
+      <!-- 客户查询 -->
+      <div style="margin-bottom:20px">
+        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable />
+        <el-button type="primary" @click="queryCustomers">查询</el-button>
+      </div>
+      <el-row :gutter="20">
+        <!-- 客户列表卡片 -->
+        <el-col :span="10">
+          <el-card shadow="hover" class="section-card">
+            <div class="section-title">客户列表</div>
+            <el-table :data="customers" height="600" :fit="true" style="width: 100%"
+              :header-cell-style="{ 'text-align': 'center' }">
+              <el-table-column align="center" type="index" label="序号" />
+              <el-table-column align="center" prop="name" label="姓名" />
+              <el-table-column align="center" prop="age" label="年龄" />
+              <el-table-column align="center" label="性别" width="52">
+                <template #default="{ row }">{{ row.gender === 1 ? '男' : '女' }}</template>
+              </el-table-column>
+              <el-table-column align="center" prop="bedNumber" label="床号" />
+              <el-table-column align="center" prop="nursingLevelName" label="护理级别" />
+              <el-table-column align="center" label="操作">
+                <template #default="{ row }">
+                  <el-link type="primary" @click="queryRecords(row.customerId, row.name)">查看</el-link>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
+              :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
+              @current-change="queryCustomers" @size-change="queryCustomers" />
+          </el-card>
+        </el-col>
 
-    <el-row :gutter="20">
-      <!-- 客户列表 -->
-      <el-col :span="8">
-        <div class="section-title">客户列表</div>
-        <el-table :data="customers" height="600" style="width: 100%" :header-cell-style="{ 'text-align': 'center' }">
-          <el-table-column type="index" label="序号" width="52" />
-          <el-table-column prop="name" label="姓名" min-width="66" />
-          <el-table-column prop="age" label="年龄" min-width="52" />
-          <el-table-column label="性别" width="52">
-            <template #default="{ row }">{{ row.gender === 1 ? '男' : '女' }}</template>
-          </el-table-column>
-          <el-table-column prop="bedNumber" label="床号" width="72" />
-          <el-table-column prop="nursingLevelName" label="护理级别" width="80" />
-          <el-table-column label="操作" width="60">
-            <template #default="{ row }">
-              <el-link type="primary" @click="queryRecords(row.customerId, row.name)">查看</el-link>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
-          @current-change="queryCustomers" @size-change="queryCustomers" />
-      </el-col>
-
-      <!-- 护理记录列表 -->
-      <el-col :span="16">
-        <div class="section-title">
-          护理记录列表 - 当前客户：{{ currentCustomerName || '请选择客户' }}
-          <el-button type="danger" size="small" style="margin-left:20px" @click="handleBatchDelete">
-            批量删除
-          </el-button>
-        </div>
-        <el-table :data="records" height="600" style="width: 100%" :header-cell-style="{ 'text-align': 'center' }"
-          @selection-change="(val: NursingRecord[]) => selectedRecords = val">
-          <el-table-column type="selection" width="40" />
-          <el-table-column type="index" label="序号" width="52" />
-          <el-table-column prop="programCode" label="项目编号" min-width="98" />
-          <el-table-column prop="programName" label="项目名称" min-width="82" :show-overflow-tooltip="true" />
-          <el-table-column prop="executionCount" label="数量" width="52" />
-          <el-table-column prop="description" label="护理内容" min-width="150" :show-overflow-tooltip="true" />
-          <el-table-column prop="nurseName" label="护理人员" width="80" />
-          <el-table-column prop="nursePhone" label="联系电话" width="116" />
-          <el-table-column prop="nursingTime" label="护理时间" width="160" :show-overflow-tooltip="true" />
-          <el-table-column label="操作" width="100" align="center">
-            <template #default="{ row }">
-              <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row.id)" />
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <el-pagination v-model:current-page="recordQuery.current" v-model:page-size="recordQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="recordTotal"
-          @current-change="() => queryRecords(recordQuery.customerId, currentCustomerName)"
-          @size-change="() => queryRecords(recordQuery.customerId, currentCustomerName)" />
-      </el-col>
-    </el-row>
-  </div>
+        <!-- 护理记录卡片 -->
+        <el-col :span="14">
+          <el-card shadow="hover" class="section-card" style="margin-right: 30px;">
+            <div class="section-title">
+              护理记录列表 - 当前客户：{{ currentCustomerName || '请选择客户' }}
+              <el-button type="danger" size="small" style="margin-left:20px" @click="handleBatchDelete">
+                批量删除
+              </el-button>
+            </div>
+            <el-table :data="records" height="600" :fit="true" style="width: 100%"
+              :header-cell-style="{ 'text-align': 'center' }"
+              @selection-change="(val: NursingRecord[]) => selectedRecords = val">
+              <el-table-column align="center" type="selection" width="40" />
+              <el-table-column align="center" type="index" label="序号" />
+              <el-table-column align="center" prop="programCode" label="项目编号" />
+              <el-table-column align="center" prop="programName" label="项目名称" :show-overflow-tooltip="true" />
+              <el-table-column align="center" prop="executionCount" label="数量" />
+              <el-table-column align="center" prop="description" label="护理内容" :show-overflow-tooltip="true" />
+              <el-table-column align="center" prop="nurseName" label="护理人员" />
+              <el-table-column align="center" prop="nursePhone" label="联系电话" :show-overflow-tooltip="true"/>
+              <el-table-column align="center" prop="nursingTime" label="护理时间" :show-overflow-tooltip="true" />
+              <el-table-column align="center" label="操作">
+                <template #default="{ row }">
+                  <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row.id)" />
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-pagination v-model:current-page="recordQuery.current" v-model:page-size="recordQuery.size"
+              :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="recordTotal"
+              @current-change="() => queryRecords(recordQuery.customerId, currentCustomerName)"
+              @size-change="() => queryRecords(recordQuery.customerId, currentCustomerName)" />
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-col>
+  </el-container>
 </template>
 
 <style scoped>
+.section-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+
+  :deep(.el-card__body) {
+    padding: 20px;
+  }
+}
+
 .section-title {
   font-size: 16px;
   font-weight: bold;
@@ -206,5 +220,21 @@ onMounted(() => {
   margin-bottom: 15px;
   padding-left: 10px;
   border-left: 4px solid #409eff;
+}
+.el-table {
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
+
+  :deep(th),
+  :deep(td) {
+    padding: 8px 12px !important;
+  }
 }
 </style>
