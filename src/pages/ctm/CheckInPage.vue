@@ -60,7 +60,7 @@ const fetchCustomers = async () => {
     } else {
       customerType.value = 0
     }
-    axios.post('http://10.25.41.129:9000/customer/page', {
+    axios.post('/customer/page', {
       current: pages.value.currentPage,
       size: pages.value.pageSize,
       customerType: customerType.value,

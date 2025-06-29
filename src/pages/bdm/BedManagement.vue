@@ -15,10 +15,18 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useVueTable,
-} from '@tanstack/vue-table' 
+} from '@tanstack/vue-table'
 import { fakerZH_CN as faker } from '@faker-js/faker';
 import { h, onMounted, ref, type Ref } from 'vue'
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
     Table,
     TableBody,
@@ -34,7 +42,13 @@ import { axiosInstance as axios } from '@/lib/core';
 import { cn } from '@/lib/utils'
 import Switcher from '@/components/custom/Switcher.vue';
 import DynamicButton from '@/components/custom/DynamicButton.vue';
+import { DialogRoot } from 'reka-ui';
 const bdmStore = useBedManagementStore();
+const diglogOpen=ref<boolean>(false)
+
+function openDialog(){
+
+}
 function _mockDataGenerator(mockData: BedUser[], times: number = 10, seed: number = 520) {
     for (let i = 0; i < times; i++) {
         const singleMock: BedUser = {
@@ -49,30 +63,30 @@ function _mockDataGenerator(mockData: BedUser[], times: number = 10, seed: numbe
     }
 }
 
-async function xhrBedMessage(){
-    const res =(await axios.post('/bedUsageRecord/listAll')).data
+async function xhrBedMessage() {
+    const res = (await axios.post('/bedUsageRecord/listAll')).data
     return res.data as any[]
 }
-function responseAdaptor(adapted:BedUser[],sources:any[]){
-    for(let i=0;i<sources.length;i++){
-        const source=sources[i];
-        const b:BedUser={
-            Id:i+1,
-            Name:source.customerName,
-            gender:source.customerGender?'男':'女',
-            bedMes:source.bedNumber,
-            startUsedTime:source.startDate,
-            endUsedTime:source.endDate||'没有结束'
+function responseAdaptor(adapted: BedUser[], sources: any[]) {
+    for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
+        const b: BedUser = {
+            Id: i + 1,
+            Name: source.customerName,
+            gender: source.customerGender ? '男' : '女',
+            bedMes: source.bedNumber,
+            startUsedTime: source.startDate,
+            endUsedTime: source.endDate || '没有结束'
         }
-        adapted[i]=b;
+        adapted[i] = b;
     }
 }
 
-onMounted( async () => {
+onMounted(async () => {
     // const mockData: BedUser[] = []
     // _mockDataGenerator(mockData);
-    const bedData=[] as BedUser[]
-    responseAdaptor(bedData,await xhrBedMessage())
+    const bedData = [] as BedUser[]
+    responseAdaptor(bedData, await xhrBedMessage())
     bdmStore.setUsingBeds(bedData);
     console.log(bedData)
 })
@@ -119,6 +133,7 @@ const columns: ColumnDef<BedUser>[] = [
         cell: () => h('div', { class: 'flex-row flex ' }, [
             h(DynamicButton, {
                 class: '',
+                onclick:openDialog
             }, '床位调换'
             ),
             h(DynamicButton, {
@@ -209,6 +224,19 @@ const datatable = useVueTable({
                 </TableBody>
             </Table>
         </div>
+        <DialogRoot v-model:open="diglogOpen" default-open>
+            <DialogHeader>
+                Hello
+            </DialogHeader>
+            <DialogTrigger :data-state="diglogOpen">
+
+
+            </DialogTrigger>
+            <DialogContent>
+                11123211
+            </DialogContent>
+
+        </DialogRoot>
     </div>
 
 </template>

@@ -16,11 +16,6 @@ router.push('/login')
 <template>
   <div class="w-screen h-screen ">
     <RouterView></RouterView>
-    <!-- <CheckIn></Checkin> -->
-    <!-- <SidebarProvider>
-      <AppSideBar></AppSideBar>
-      <SidebarTrigger></SidebarTrigger>
-    </SidebarProvider> -->
   </div>
 </template>
 

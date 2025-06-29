@@ -70,7 +70,7 @@ const STATENAME_TAG = {
     膳食配置: '/mealSet',
     设置服务对象: '/serviceObjectSetting',
     服务关注: '/serviceFocus',
-    基础信息维护: '/basicInfromationMaintain'
+    基础信息维护: '/basicInformationMaintain'
 } as const
 
 const sidebarItems = [

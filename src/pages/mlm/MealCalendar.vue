@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 膳食日历 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core';
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox, ElTable, ElButton, ElInput, ElForm, ElDialog, ElContainer } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
@@ -133,7 +133,7 @@ const handleBatchDelete = () => {
     type: 'warning'
   }).then(() => {
     const ids = selectedRows.value.map(item => item.id);
-    let url = `http://localhost:9000/mealItem/deleteBatch`;
+    let url = `/mealItem/deleteBatch`;
 
     axios.post(url, { ids }).then(response => {
       let pr = response.data;
@@ -184,7 +184,7 @@ const handleCurrentChange = (val: number) => {
 }
 
 const query = () => {
-  let url = `http://localhost:9000/mealItem/page`
+  let url = `/mealItem/page`
 
   axios.post(url, queryEntity.value).then(response => {
     let pr = response.data
@@ -195,7 +195,7 @@ const query = () => {
 
 const add = () => {
   dialogVisible.value = true
-  let url = `http://localhost:9000/mealItem/add`
+  let url = `/mealItem/add`
   axios.post(url, mealItem.value).then(response => {
     let pr = response.data
     if (pr.status == 200) {
@@ -209,7 +209,7 @@ const add = () => {
 }
 
 const update = () => {
-  let url = `http://localhost:9000/mealItem/update`
+  let url = `/mealItem/update`
   axios.post(url, mealItem.value).then(response => {
     let pr = response.data
     if (pr.status == 200) {
@@ -223,7 +223,7 @@ const update = () => {
 }
 
 const listFoodByType = () => {
-  let url = `http://localhost:9000/food/listByType`
+  let url = `/food/listByType`
   axios.post(url, mealItem.value).then(response => {
     let pr = response.data
     if (pr.status == 200) {
@@ -240,7 +240,7 @@ const remove = (id: number) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    let url = `http://localhost:9000/mealItem/delete`
+    let url = `/mealItem/delete`
     axios.post(url, { id: id }).then(response => {
       let pr = response.data
       if (pr.status == 200) {

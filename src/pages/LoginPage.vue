@@ -38,8 +38,8 @@ const jump = () => {
 }
 
 const simpleLogin= async()=>{
-     const res= await axios.post("/user/login",user1.value)
-     console.log(res)
+    //  const res= await axios.post("/user/login",user1.value)
+    //  console.log(res)
      jump()
 
 }

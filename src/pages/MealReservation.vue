@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core';
 import { ref, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElTabs, ElTabPane } from 'element-plus'
 
@@ -65,7 +65,7 @@ onMounted(async () => {
     const weekDayNumber = new Date().getDay()
     const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const weekday = weekDays[weekDayNumber]
-    const { data: pr } = await axios.post('http://localhost:9000/mealItem/listByWeekday', { weekday })
+    const { data: pr } = await axios.post('/mealItem/listByWeekday', { weekday })
     if (pr.status === 200) {
       mealData.value = pr.data.reduce((acc: Record<string, MealItem[]>, item: MealItem) => {
         if (!acc[item.foodType]) acc[item.foodType] = []
@@ -127,7 +127,7 @@ const submitOrder = async () => {
   }
 
   try {
-    await axios.post('http://localhost:9000/mealReservation/add', {
+    await axios.post('/mealReservation/add', {
       mealItemIds: cart.value.map(c => c.mealItemId),
       purchaseCounts: cart.value.map(c => c.purchaseCount),
       purchaseTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -146,13 +146,13 @@ const submitOrder = async () => {
 // 获取订单数据
 const fetchOrders = async () => {
   try {
-    const { data } = await axios.post('http://localhost:9000/mealReservation/getByCustomerId', {
+    const { data } = await axios.post('/mealReservation/getByCustomerId', {
       customerId: 1
     })
     if (data.status === 200) {
       const ordersWithDetails = await Promise.all(
         data.data.map(async (order: OrderItem) => {
-          const { data: itemData } = await axios.post('http://localhost:9000/mealItem/getById', {
+          const { data: itemData } = await axios.post('/mealItem/getById', {
             id: order.mealItemId
           })
           return { ...order, mealItemDetail: itemData.data }
