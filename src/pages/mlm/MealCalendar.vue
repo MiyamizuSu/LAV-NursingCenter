@@ -1,9 +1,10 @@
 <!-- 系统管理员端 膳食管理 膳食日历 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox, ElTable, ElButton, ElInput, ElForm, ElDialog, ElContainer } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
+import type { User } from '@/lib/type'
 
 export interface Food {
   id: number,
@@ -58,6 +59,8 @@ let queryEntity = ref({
   current: 1,
   size: 5
 })
+
+let currentUser = ref({} as User)
 
 let mealItem = ref({
   weekDay: '',
@@ -258,6 +261,11 @@ const init = () => {
 }
 
 onMounted(() => {
+  let user = sessionStorage.getItem('user')
+  if (user) {
+    currentUser.value = JSON.parse(user)
+    console.log(currentUser.value)
+  }
   init()
 })
 
@@ -319,7 +327,7 @@ const handleChange = () => {
           <el-table-column align="center" prop="foodDescription" label="食品描述" :min-width="180" />
           <el-table-column align="center" prop="foodPrice" label="食品价格" />
           <el-table-column align="center" prop="status" label="状态" :formatter="formatStatus" />
-          <el-table-column align="center" label="操作" fixed="right">
+          <el-table-column align="center" label="操作" fixed="right" min-width="120">
             <template #default="scope">
               <el-button size="small" @click="handleEdit(scope.$index,)">
                 编辑

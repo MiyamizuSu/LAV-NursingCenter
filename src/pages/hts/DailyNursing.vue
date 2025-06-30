@@ -1,6 +1,6 @@
 <!-- 健康管家端 日常护理 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 

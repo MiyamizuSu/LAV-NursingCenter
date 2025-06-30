@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 食物管理 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import * as echarts from 'echarts';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, type UploadRequestOptions } from 'element-plus'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Check } from '@element-plus/icons-vue'

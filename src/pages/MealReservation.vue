@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElTabs, ElTabPane } from 'element-plus'
 
