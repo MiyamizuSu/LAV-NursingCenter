@@ -28,12 +28,12 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import type { CheckoutRegistration, Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
 import dayjs from 'dayjs'
 import { debounce } from '@/lib/utils'
+import { axiosInstance as axios } from '@/lib/core'
 
 
 const searchName = ref('')
@@ -263,7 +263,7 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('/customer/page', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
         name: searchName.value
@@ -277,7 +277,7 @@ const loadCustomers = async () => {
 }
 // 获取分页退住审批数据
 const loadCheckoutRegistrations = async () => {
-    const res = await axios.post('http://localhost:9000/checkoutRegistration/page', {
+    const res = await axios.post('/checkoutRegistration/page', {
         current: checkoutPages.value.currentPage,
         size: checkoutPages.value.pageSize,
         name: searchName.value
@@ -286,20 +286,6 @@ const loadCheckoutRegistrations = async () => {
     if (res.data.status === 200) {
         ctmStore.setCheckoutList(res.data.data)
         checkoutPages.value.totalCheckout = res.data.total
-        // ctmStore.getCheckoutList.value = res.data.data.map((item: any) => ({
-        //     ...item,
-        //     checkinDate: '',  // 补字段
-        //     bedNumber: ''
-        // }))
-        
-        // ctmStore.getCheckoutList.value.forEach(checkout => {
-        //     const customer = ctmStore.getCustomerList.value.find(c => c.customerId === checkout.customerId)
-        //     console.log("要找的客户信息", customer)
-        //     if (customer) {
-        //         checkout.checkinDate = customer.checkinDate
-        //         checkout.bedNumber = customer.bedNumber
-        //     }
-        // })
     } else {
         ctmStore.getCheckoutList.value = []
     }
@@ -356,10 +342,9 @@ const cancelApprove = () => {   // 取消审批
 const checkUpdateForm = () => {
     formRef.value?.validate((valid: boolean) => {
         if (valid) {
-            console.log('校验通过，提交数据', approvalForm)
             submitApprovalVisible.value = true
         } else {
-            console.warn('校验失败')
+            ElMessage.error('请填写完整信息')
         }
     })
 }
@@ -380,7 +365,7 @@ const submitApprovalVisible = ref(false)  // 确认提交审批结果表单的�
 const updateApproval = async () => {  // 提交审批
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss')  // 获取当前审批时间
     approvalForm.reviewTime = currentTime
-    const res = await axios.post('http://localhost:9000/checkoutRegistration/update', approvalForm)
+    const res = await axios.post('/checkoutRegistration/update', approvalForm)
     if (res.data.status === 200) {
         ElMessage.success('提交审批成功')
         submitApprovalVisible.value = false

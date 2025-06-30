@@ -7,6 +7,7 @@ import type {
   SortingState,
   VisibilityState,
 } from '@tanstack/vue-table'
+import { axiosInstance as axios } from '@/lib/core'
 import {
   createColumnHelper,
   FlexRender,
@@ -18,7 +19,6 @@ import {
   useVueTable,
 } from '@tanstack/vue-table'
 import { h, reactive, ref, onMounted, watch } from 'vue'
-import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { cn, debounce } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -167,7 +167,6 @@ const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
 const rowSelection = ref({})
 const expanded = ref<ExpandedState>({})
-// dd
 const table = useVueTable({
   get data() {
     return ctmStore.getCustomerList.value
@@ -214,7 +213,7 @@ const loadCustomers = async () => {
   } else {
     customerType.value = 0
   }
-  const res = await axios.post('http://localhost:9000/customer/page', {
+  const res = await axios.post('/customer/page', {
     current: pages.value.currentPage,
     size: pages.value.pageSize,
     customerType: customerType.value,
@@ -229,13 +228,33 @@ const loadCustomers = async () => {
 }
 // 获取所有客户数据
 const loadAllCustomers = async () => {
-  const res = await axios.post('http://localhost:9000/customer/listAll')
+  const res = await axios.post('/customer/listAll')
   if (res.data.status === 200) {
     ctmStore.setAllCustomerList(res.data.data)
   } else {
-    console.log('查询失败')
+    ctmStore.getAllCustomerList.value = []
   }
 }
+// 获取房间信息
+const loadRooms = async () => {
+  const res = await axios.post('/room/listAll')
+  if (res.data.status === 200) {
+    ctmStore.setRoomList(res.data.data)
+  } else {
+    ctmStore.setRoomList([])
+  }
+}
+// 获取空闲床位信息
+const loadSpareBeds = async () => {
+  const res = await axios.post('/bed/listSpareByRoomNumber', { roomNumber: form.roomNumber })
+  if (res.data.status === 200) {
+    ctmStore.setSpareBedList(res.data.data)
+  } else {
+    ElMessage.warning('该房间无可用床位')
+    ctmStore.setSpareBedList([])
+  }
+}
+
 const formRef = ref<FormInstance>()
 // 配置表单校验规则
 const rules: FormRules = {
@@ -286,9 +305,6 @@ const rules: FormRules = {
       trigger: 'blur'
     }
   ],
-  building: [
-    { required: true, message: '请输入楼栋', trigger: 'blur' }
-  ],
   roomNumber: [
     { required: true, message: '请输入房间号', trigger: 'blur' }
   ],
@@ -325,15 +341,15 @@ const showForm = ref(false)
 const form = reactive({
   name: '',
   age: '' as string | number,
-  gender: 1,
+  gender: '' as string | number,
   idCard: '',
   bloodType: '',
   relative: '',
   phoneNumber: '',
-  building: '',
+  building: 606,
   roomNumber: '',
   bedNumber: '',
-  customerType: 0,
+  customerType: '' as string | number,
   checkinDate: '',
   expirationDate: '',
 })
@@ -342,10 +358,9 @@ const addCustomerVisible = ref(false)
 const checkAddForm = () => {
   formRef.value?.validate((valid: boolean) => {
     if (valid) {
-      console.log('表单数据:', form)
       addCustomerVisible.value = true
     } else {
-      console.log('表单验证失败')
+      ElMessage.error('请填写完整信息')
     }
   })
 }
@@ -353,29 +368,52 @@ const checkAddForm = () => {
 const cancelSubmit = () => {
   formRef.value?.resetFields()
   showForm.value = false
+  selectedRoom.value = ''
+  selectedBed.value = ''
+  ctmStore.setSpareBedList([])
   clearForm()
 }
 // 清空表单
 const clearForm = () => {
   form.name = ''
   form.age = ''
-  form.gender = 1
+  form.gender = ''
   form.idCard = ''
   form.bloodType = ''
   form.relative = ''
   form.phoneNumber = ''
-  form.building = ''
+  form.building = 606
   form.roomNumber = ''
   form.bedNumber = ''
-  form.customerType = 0
+  form.customerType = ''
   form.checkinDate = ''
   form.expirationDate = ''
 }
+const selectedRoom = ref('')  // 现在选择的房间
+const selectedBed = ref('')   // 已选中的床位
+const onRoomChange = (id: number) => {
+  const room = ctmStore.getRoomList.value.find(c => c.id === id)
+  if (room) {
+    form.roomNumber = room.roomNumber
+  } else {
+    form.roomNumber = ''
+  }
+  form.bedNumber = ''
+  selectedBed.value = ''
+  loadSpareBeds()
+}
+const onBedChange = (id: number) => {
+  const bed = ctmStore.getSpareBedList.value.find(c => c.id === id)
+  if (bed) {
+    form.bedNumber = bed.bedNumber
+  } else {
+    form.bedNumber = ''
+  }
+}
 // 提交客户信息
 const onSubmit = async () => {
-  console.log('提交外出申请', form)
   form.age = Number(form.age)
-  const res = await axios.post('http://localhost:9000/customer/add', form)
+  const res = await axios.post('/customer/add', form)
   if (res.data.status === 200) {
     ElMessage.success('添加成功')
     addCustomerVisible.value = false
@@ -396,10 +434,9 @@ const openUpdateForm = (customer: Customer) => {  // 打开修改界面
 const checkUpdateForm = () => {
   formRef.value?.validate((valid: boolean) => {
     if (valid) {
-      console.log('表单数据:', form)
       updateCustomerVisible.value = true
     } else {
-      console.log('表单验证失败')
+      ElMessage.error('请填写完整信息')
     }
   })
 }
@@ -409,7 +446,7 @@ const cancelUpdate = () => {
   clearForm()
 }
 const updateForm = async () => {
-  const res = await axios.post('http://localhost:9000/customer/update', form)
+  const res = await axios.post('/customer/update', form)
   if (res.data.status === 200) {
     ElMessage.success('修改成功')
     updateCustomerVisible.value = false
@@ -434,7 +471,7 @@ const openDeleteForm = async (customer: Customer) => {
     }
   )
     .then(async () => {
-      const res = await axios.post("http://localhost:9000/customer/delete", { customerId: customer.customerId })
+      const res = await axios.post("/customer/delete", { customerId: customer.customerId })
       if (res.data.status === 200) {
         ElMessage({
           type: 'success',
@@ -455,6 +492,51 @@ const openDeleteForm = async (customer: Customer) => {
       })
     })
 }
+// 批量删除客户信息
+const batchDeleteCustomer = async () => {
+  const selectedCustomers = table.getSelectedRowModel().rows.map(row => row.original)
+  if (selectedCustomers.length === 0) {
+    ElMessage.warning('请先选择要删除的客户')
+    return
+  }
+  ElMessageBox.confirm(
+    `确定要删除选中的 ${selectedCustomers.length} 条客户信息吗？`,
+    '批量删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      // 并发执行每条删除请求
+      const results = await Promise.allSettled(
+        selectedCustomers.map(customer =>
+          axios.post('/customer/delete', {
+            customerId: customer.customerId,
+          })
+        )
+      )
+      const successCount = results.filter(
+        r => r.status === 'fulfilled' && r.value?.data?.status === 200
+      ).length
+      const failCount = results.length - successCount
+      if (successCount > 0) {
+        ElMessage.success(`成功删除 ${successCount} 条记录`)
+      }
+      if (failCount > 0) {
+        ElMessage.error(`删除失败 ${failCount} 条记录`)
+      }
+      table.resetRowSelection() // 清空选择
+      loadCustomers() // 重新加载数据
+    } catch (error) {
+      ElMessage.error('批量删除失败')
+    }
+  })
+    .catch(() => {
+      ElMessage.info('已取消批量删除')
+    })
+}
 
 const selectedCustomerType = ref('自理老人')
 watch(selectedCustomerType, (newType: any) => {
@@ -464,6 +546,7 @@ watch(selectedCustomerType, (newType: any) => {
 onMounted(async () => {
   await loadCustomers()
   await loadAllCustomers()
+  await loadRooms()
 })
 function change(e: string) {
   selectedCustomerType.value = e
@@ -493,14 +576,42 @@ function change(e: string) {
           </InteractiveHoverButton>
         </div>
       </div>
-      <div class="grid place-content-center p-8 justify-end">
-        <RippleButton @click="showForm = true"> 登记 </RippleButton>
+      <div class="ml-auto">
+        <InteractiveHoverButton @click="showForm = true" text="登记" text-before-color="#71C9CE"
+          text-after-color="#CBF1F5" before-color="#CBF1F5" after-color="#71C9CE">
+          <template #svgIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-circle-plus-icon lucide-circle-plus">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 12h8" />
+              <path d="M12 8v8" />
+            </svg>
+          </template>
+        </InteractiveHoverButton>
       </div>
     </div>
-    <div class="mb-5">
+    <div class="mb-5 flex items-center gap-4">
       <Switcher left-value="自理老人" right-value="护理老人" @select-value-change="change">
       </Switcher>
+      <div class="ml-auto">
+        <InteractiveHoverButton @click="batchDeleteCustomer" text="批量删除" text-before-color="#FF4F0F"
+          text-after-color="#FFE3BB" before-color="#FFE3BB" after-color="#FF4F0F">
+          <template #svgIcon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-trash2-icon lucide-trash-2">
+              <path d="M3 6h18" />
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              <line x1="10" x2="10" y1="11" y2="17" />
+              <line x1="14" x2="14" y1="11" y2="17" />
+            </svg>
+          </template>
+        </InteractiveHoverButton>
+      </div>
     </div>
+
     <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
       客户信息
     </div>
@@ -622,19 +733,28 @@ function change(e: string) {
           </el-col>
           <el-col :span="12">
             <el-form-item label="楼栋：" prop="building">
-              <el-input v-model="form.building" />
+              <el-input v-model="form.building" disabled />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="房间号：" prop="roomNumber">
-              <el-input v-model="form.roomNumber" />
+              <!-- <el-input v-model="form.roomNumber" /> -->
+              <el-select v-model="selectedRoom" placeholder="请选择房间" filterable style="width: 100%"
+                @change="onRoomChange">
+                <el-option v-for="room in ctmStore.getRoomList.value" :key="room.id" :label="room.roomNumber"
+                  :value="room.id" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="床位号：" prop="bedNumber">
-              <el-input v-model="form.bedNumber" />
+              <!-- <el-input v-model="form.bedNumber" /> -->
+              <el-select v-model="selectedBed" placeholder="请选择床位" filterable style="width: 100%" @change="onBedChange">
+                <el-option v-for="bed in ctmStore.getSpareBedList.value" :key="bed.id" :label="bed.bedNumber"
+                  :value="bed.id" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
