@@ -265,10 +265,11 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('customer/pageByNurseId', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
         ctsStore.setCustomerList(res.data.data)
@@ -279,7 +280,9 @@ const loadCustomers = async () => {
 }
 // 获取所有客户数据
 const loadAllCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/listAll')
+    const res = await axios.post('/customer/listByNurseId', {
+        nurseId: ctsStore.getCurrentNurseId.value
+    })
     if (res.data.status === 200) {
         ctsStore.setAllCustomerList(res.data.data)
     } else {
@@ -289,10 +292,11 @@ const loadAllCustomers = async () => {
 
 // 获取分页外出审批数据
 const loadOutingRegistrations = async () => {
-    const res = await axios.post('http://localhost:9000/outingRegistration/page', {
+    const res = await axios.post('/outingRegistration/page', {
         current: outingPages.value.currentPage,
         size: outingPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
         ctsStore.setOutingList(res.data.data)
@@ -445,7 +449,7 @@ const clearOutingForm = () => {
 }
 const addOutingRegistration = async () => {
     console.log('提交外出申请', addOutingForm)
-    const res = await axios.post('http://localhost:9000/outingRegistration/add', addOutingForm)
+    const res = await axios.post('/outingRegistration/add', addOutingForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
         submitOutingFormVisible.value = false
@@ -468,7 +472,7 @@ const deleteOutingRegistration = async (outing: OutingRegistration) => {
             type: 'warning',
         }
     ).then(async () => {
-        const res = await axios.post("http://localhost:9000/outingRegistration/delete", { id: outing.id })
+        const res = await axios.post('/outingRegistration/delete', { id: outing.id })
         if (res.data.status === 200) {
             ElMessage.success('撤销成功')
             loadOutingRegistrations()
@@ -533,7 +537,7 @@ const checkUpdateActualReturnDate = () => {
 }
 const updateActualReturnDate = async () => {
     console.log('提交回院时间', updateReturnDateForm)
-    const res = await axios.post('http://localhost:9000/outingRegistration/update', updateReturnDateForm)
+    const res = await axios.post('/outingRegistration/update', updateReturnDateForm)
     if (res.data.status === 200) {
         ElMessage.success('登记成功')
         updateReturnDateConfirmVisible.value = false
@@ -546,6 +550,7 @@ const updateActualReturnDate = async () => {
 }
 
 onMounted(async () => {
+    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()

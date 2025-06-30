@@ -263,10 +263,11 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('/customer/pageByNurseId', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
         ctsStore.setCustomerList(res.data.data)
@@ -277,7 +278,9 @@ const loadCustomers = async () => {
 }
 // 获取所有客户数据
 const loadAllCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/listAll')
+    const res = await axios.post('/customer/listByNurseId', {
+        nurseId: ctsStore.getCurrentNurseId.value
+    })
     if (res.data.status === 200) {
         console.log('所有客户数据', res.data.data)
         ctsStore.setAllCustomerList(res.data.data)
@@ -286,10 +289,11 @@ const loadAllCustomers = async () => {
     }
 }
 const loadCheckoutRegistrations = async () => {
-    const res = await axios.post('http://localhost:9000/checkoutRegistration/page', {
+    const res = await axios.post('/checkoutRegistration/page', {
         current: checkoutPages.value.currentPage,
         size: checkoutPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
         ctsStore.setCheckoutList(res.data.data)
@@ -388,7 +392,7 @@ const clearCheckoutForm = () => {  // 清空退住申请表单
     addCheckoutForm.bedNumber = ''
 }
 const addCheckoutRegistration = async () => {
-    const res = await axios.post('http://localhost:9000/checkoutRegistration/add', addCheckoutForm)
+    const res = await axios.post('/checkoutRegistration/add', addCheckoutForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
         submitCheckoutFormVisible.value = false
@@ -410,7 +414,7 @@ const deleteCheckoutRegistration = async (checkout: CheckoutRegistration) => {
             type: 'warning',
         }
     ).then(async () => {
-        const res = await axios.post('http://localhost:9000/checkoutRegistration/delete', { id: checkout.id })
+        const res = await axios.post('/checkoutRegistration/delete', { id: checkout.id })
         if (res.data.status === 200) {
             ElMessage.success('撤销成功')
             loadCheckoutRegistrations()
@@ -424,6 +428,7 @@ const deleteCheckoutRegistration = async (checkout: CheckoutRegistration) => {
 }
 
 onMounted(async () => {
+    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
     await loadCustomers()
     await loadAllCustomers()
     await loadCheckoutRegistrations()
