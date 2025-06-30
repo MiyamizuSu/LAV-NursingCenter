@@ -23,97 +23,107 @@ import DailyNursing from '@/pages/hts/DailyNursing.vue'
 import FoodManage from '@/pages/mlm/FoodManage.vue'
 import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
-export const routes:RouteRecordRaw[]=[
+import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
+import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
+import type { User } from './type'
+export const routes: RouteRecordRaw[] = [
     {
-        path:'/login',component:LoginPage
+        path: '/login', component: LoginPage
     },
     {
-        path:'/main',component:MainPage,
-        children:[{
-            path:'checkIn',
-            component:CheckInPage,
-
+        path: '/main', component: MainPage,
+        children: [{
+            path: 'checkIn',
+            component: CheckInPage,
         },
         {
-            path:'bedLayoutDiagram',
-            component:BedLayoutDiagram
+            path: 'bedLayoutDiagram',
+            component: BedLayoutDiagram
         },
         {
-            path:'bedManagement',
-            component:BedManagement
+            path: 'bedManagement',
+            component: BedManagement
         },
         {
-            path:'checkOut',
-            component:CheckOutPage,
+            path: 'checkOut',
+            component: CheckOutPage,
         },
         {
-            path:'goOut',
-            component:GoOutPage
+            path: 'goOut',
+            component: GoOutPage
         },
         {
-            path:'serviceFocus',
-            component:ServiceFocus,
+            path: 'serviceFocus',
+            component: ServiceFocus,
         },
         {
             path: 'manageCustomerPrograms',
             component: ManageCustomerPrograms
         },
         {
-            path:'serviceObjectSetting',
-            component:ServiceObjectSetting,
+            path: 'serviceObjectSetting',
+            component: ServiceObjectSetting,
         },
         {
             path: 'manageNursingCustomers',
             component: ManageNursingCustomers
         },
         {
-            path:'mealCalendar',
-            component:MealCalendar,
+            path: 'mealCalendar',
+            component: MealCalendar,
         },
         {
-            path:'mealSet',
-            component:MealSet,
+            path: 'mealSet',
+            component: MealSet,
         },
         {
-            path:'customerNursingSet',
-            component:CustomerNursingSet,
+            path: 'customerNursingSet',
+            component: CustomerNursingSet,
         },
         {
-            path:'nursingLevel',
-            component:NursingLevel,
+            path: 'nursingLevel',
+            component: NursingLevel,
         },
         {
             path: 'levelManagePrograms',
             component: LevelManagePrograms
         },
         {
-            path:'nursingPrograms',
-            component:NursingPrograms,
+            path: 'nursingPrograms',
+            component: NursingPrograms,
         },
         {
-            path:'nursingRecord',
-            component:NursingRecord,
+            path: 'nursingRecord',
+            component: NursingRecord,
         },
         {
-            path:'basicInformationMaintain',
-            component:BasicInformationMaintain
+            path: 'basicInformationMaintain',
+            component: BasicInformationMaintain
         },
         {
-            path:'nursingRecord2',
-            component:NursingRecord2
+            path: 'nursingRecord2',
+            component: NursingRecord2
         },
         {
-            path:'dailyNursing',
-            component:DailyNursing
+            path: 'dailyNursing',
+            component: DailyNursing
         },
         {
-            path:'foodManage',
-            component:FoodManage
+            path: 'foodManage',
+            component: FoodManage
         },
         {
-            path:'mealReservationManage',
-            component:MealReservationManage
-        }
+            path: 'mealReservationManage',
+            component: MealReservationManage
+        },
+        {
+            path: 'goOutApplication',
+            component: GoOutApplication
+        },
+        {
+            path: 'checkOutApplication',
+            component: CheckOutApplication
+        },
         ]
     },
     {
@@ -121,8 +131,48 @@ export const routes:RouteRecordRaw[]=[
         component: ErrorPage
     },
 ]
-export const router=createRouter({
+export const router = createRouter({
     // history:createMemoryHistory(),
-    history:createWebHistory(),
+    history: createWebHistory(),
     routes
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+    // 管理员专属路径
+    const adminPaths = ['/checkIn', '/checkOut', '/goOut', '/bedLayoutDiagram',
+        '/bedManagement', '/nursingLevel', '/nursingPrograms', '/customerNursingSet',
+        '/nursingRecord', '/mealCalendar', '/mealSet', '/serviceObjectSetting',
+        '/serviceFocus', '/basicInformationMaintain', '/foodManage',
+        '/mealReservationManage']
+
+    // 护工专属路径
+    const nursePaths = ['/dailyNursing', '/checkOutApplication',
+        '/goOutApplication', '/nursingRecord2']
+
+    const nextRoute = ['/login', '/errorPage'];
+
+    if (nextRoute.indexOf(to.path) == -1) {
+        let userJson = sessionStorage.getItem('user')
+        if (userJson == null || userJson == undefined) {
+            router.push('/login')
+        }
+        else {
+            let user = JSON.parse(userJson!) as User
+            // 权限路径校验逻辑
+            let isAdmin = user.userType === 0
+            let fullPath = to.fullPath
+
+            // 精确匹配路径
+            let isAdminPath = adminPaths.some(p => fullPath === `/main${p}`)
+            let isNursePath = nursePaths.some(p => fullPath === `/main${p}`)
+
+            if (isAdmin && isNursePath) {
+                router.push('/errorPage')
+            } else if (!isAdmin && isAdminPath) {
+                router.push('/errorPage')
+            }
+        }
+    }
+    next()
 })

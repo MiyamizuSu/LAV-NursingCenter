@@ -19,15 +19,26 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { reactive, ref, type Reactive, type Ref } from 'vue';
+import { computed, onMounted, reactive, ref, type Reactive, type Ref } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
+
+const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
+const userType = ref(0) // 0-系统管理员 1-护工
+type StateNameTag = {
+    主页: string;
+    [key: string]: string;
+}
+
+onMounted(() => {
+    userType.value = userData.userType || 0
+})
 
 const router = useRouter();
 const frameController = reactive({
-    frameStack: ['主页'] as Key<typeof STATENAME_TAG>[],
+    frameStack: ['主页'] as Array<keyof StateNameTag>,
     curFrameIndex: 0
 })
-const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
+const handleStateCancel = (stateName: keyof StateNameTag) => {
     const frameStack = frameController.frameStack
     let i = 0;
     for (; i < frameStack.length; i++) {
@@ -38,58 +49,69 @@ const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
         }
     }
     if (frameController.curFrameIndex === i) {
-        frameController.curFrameIndex=i-1;
-        console.log(frameController.curFrameIndex)
-        router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
-
+        frameController.curFrameIndex = i - 1;
+        router.push(`/main${STATENAME_TAG.value[frameController.frameStack[frameController.curFrameIndex]]}`);
     }
 }
 
-const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
-    if (frameController.frameStack.includes(frame)){
-        frameController.curFrameIndex=frameController.frameStack.findIndex(f=>f===frame);
-        router.push(`/main${STATENAME_TAG[frame]}`)
+const handleStatePlus = (frame: keyof StateNameTag) => {
+    if (frameController.frameStack.includes(frame)) {
+        frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
+        router.push(`/main${STATENAME_TAG.value[frame]}`)
         return
     }
     frameController.frameStack.push(frame);
     frameController.curFrameIndex = frameController.frameStack.length - 1
-    router.push(`/main${STATENAME_TAG[frame]}`)
+    router.push(`/main${STATENAME_TAG.value[frame]}`);
 }
-const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
-    router.push(`/main${STATENAME_TAG[frame]}`);
-    frameController.curFrameIndex=index
+const handleQuickTap = (frame: keyof StateNameTag, index: number) => {
+    router.push(`/main${STATENAME_TAG.value[frame]}`);
+    frameController.curFrameIndex = index
 }
 const logout = () => {
+    sessionStorage.removeItem("token")
+    sessionStorage.removeItem("user")
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
-            sessionStorage.removeItem("token")
-            ElMessage({message: "已退出登录", type: "info"})
+            ElMessage({ message: "已退出登录", type: "info" })
             router.push('/login')
         } else {
-            ElMessage({message: res.data.msg, type: "error"})
+            ElMessage({ message: res.data.msg, type: "error" })
         }
     })
 }
 
-const STATENAME_TAG = {
+const STATENAME_TAG = computed<StateNameTag>(() => ({
     主页: '',
-    入住登记: '/checkIn',
-    退住登记: '/checkOut',
-    外出登记: '/goOut',
-    床位示意图: '/bedLayoutDiagram',
-    床位管理: '/bedManagement',
-    护理级别: '/nursingLevel',
-    护理项目: '/nursingPrograms',
-    客户护理设置: '/customerNursingSet',
-    护理记录: '/nursingRecord',
-    膳食日历: '/mealCalendar',
-    膳食配置: '/mealSet',
-    设置服务对象: '/serviceObjectSetting',
-    服务关注: '/serviceFocus',
-    基础信息维护: '/basicInfromationMaintain'
-} as const
+    ...(userType.value === 0 ? {
+        入住登记: '/checkIn',
+        退住登记: '/checkOut',
+        外出登记: '/goOut',
+        床位示意图: '/bedLayoutDiagram',
+        床位管理: '/bedManagement',
+        护理级别: '/nursingLevel',
+        护理项目: '/nursingPrograms',
+        客户护理设置: '/customerNursingSet',
+        护理记录: '/nursingRecord',
+        膳食日历: '/mealCalendar',
+        膳食配置: '/mealSet',
+        膳食预约管理: '/mealReservationManage',
+        食品管理: '/foodManage',
+        设置服务对象: '/serviceObjectSetting',
+        服务关注: '/serviceFocus',
+        基础信息维护: '/basicInfromationMaintain'
+    } : {
+        日常护理: '/dailyNursing',
+        护理记录: '/nursingRecord2',
+        退住申请: '/checkOutApplication',
+        外出申请: '/goOutApplication'
+    })
 
-const sidebarItems = [
+
+}))
+
+// 管理员侧边栏
+const adminSidebarItems = [
     { title: "首页" },
     {
         title: "客户管理",
@@ -136,6 +158,10 @@ const sidebarItems = [
             title: "膳食日历"
         }, {
             title: "膳食配置"
+        }, {
+            title: "食品管理"
+        }, {
+            title: "膳食预约管理"
         }]
     },
     {
@@ -155,6 +181,26 @@ const sidebarItems = [
         }]
     }
 ];
+
+// 护工侧边栏
+const nurseSidebarItems = [
+    {
+        title: "客户管理",
+        icon: ShieldUser,
+        children: [
+            { title: "外出申请" },
+            { title: "退住申请" },
+        ]
+    },
+    {
+        title: "健康管理",
+        icon: HeartPlus,
+        children: [
+            { title: "日常护理" },
+            { title: "护理记录" },
+        ]
+    }
+]
 </script>
 
 <template>
@@ -164,10 +210,10 @@ const sidebarItems = [
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
                         <div class="translate-x-1/4 flex-1 space-x-4 flex">
-                            <template v-for="(frame,index) in frameController.frameStack">
+                            <template v-for="(frame, index) in frameController.frameStack">
                                 <AvgTag :tag-name="frame"
-                                    @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
-                                    @tap-to-page="handleQuickTap(frame,index)" v-if="frame !== '主页'" />
+                                    @memory-cancel="handleStateCancel(frame as keyof StateNameTag)" :id="frame"
+                                    @tap-to-page="handleQuickTap(frame, index)" v-if="frame !== '主页'" />
                             </template>
 
                         </div>
@@ -207,7 +253,11 @@ const sidebarItems = [
         <div class="flex z-10 flex-1">
             <div>
                 <SidebarProvider :default-open="false">
-                    <AppSideBar @memory-plus="handleStatePlus" :sidebar-items="sidebarItems" application-name="东软颐养" />
+                    <!-- 根据用户类型显示不同侧边栏 -->
+                    <AppSideBar v-if="userType === 0" :sidebar-items="adminSidebarItems" application-name="东软颐养-系统管理"
+                        @memory-plus="handleStatePlus" />
+                    <AppSideBar v-else :sidebar-items="nurseSidebarItems" application-name="东软颐养-护理中心"
+                        @memory-plus="handleStatePlus" />
                     <main class="h-[30px]">
                         <SidebarTrigger></SidebarTrigger>
                     </main>

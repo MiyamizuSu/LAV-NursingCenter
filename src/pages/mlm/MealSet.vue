@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 膳食配置 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Delete, Search, Edit } from '@element-plus/icons-vue'
@@ -27,7 +27,7 @@ interface MealConfig {
 const customers = ref<Customer[]>([])
 const customerQuery = ref({
   name: '',
-  customerType: 1,
+  customerType: undefined,
   current: 1,
   size: 5
 })
@@ -229,7 +229,7 @@ onMounted(() => {
           <el-table-column align="center" prop="gender" label="性别" :formatter="formatGender" />
           <el-table-column align="center" prop="bedNumber" label="床位号" />
           <el-table-column align="center" prop="phoneNumber" label="联系电话" />
-          <el-table-column align="center" label="操作" fixed="right" :min-width="90">
+          <el-table-column align="center" label="操作" fixed="right" :min-width="120">
             <template #default="{ row }">
               <el-link type="primary" @click="showConfigManagement(row)" :underline="false" style="padding: 0 5px">
                 管理膳食配置
@@ -245,7 +245,7 @@ onMounted(() => {
       </el-card>
 
       <!-- 膳食配置管理部分 -->
-      <el-card v-else shadow="hover" class="section-card" style="max-width: 800px">
+      <el-card v-else shadow="hover" class="section-card" >
         <div class="action-bar">
           <div class="flex-container">
             <el-button type="primary" @click="backToCustomerList">
