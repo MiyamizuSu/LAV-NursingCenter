@@ -11,7 +11,7 @@ onMounted(() => {
 })
 
 // 分页数据
-let nursingCustomers = ref([] as Customer[])
+let nursingCustomers = ref<Customer[]>([])
 let selectedCustomer = ref({} as Customer)
 
 let currentRecords = ref([] as NursingRecord[])

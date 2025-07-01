@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 膳食配置 -->
 <script setup lang="ts">
-import { axiosInstance as axios } from '@/lib/core'
+import { axiosInstance as axios } from '@/lib/core';
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Delete, Search, Edit } from '@element-plus/icons-vue'
@@ -38,7 +38,7 @@ const handleDeleteConfig = (id: number) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    axios.post('http://localhost:9000/dietConfigItem/delete', { id }).then(res => {
+    axios.post('/dietConfigItem/delete', { id }).then(res => {
       let pr = res.data
       if (pr.status === 200) {
         ElMessage.success('删除成功')
@@ -92,7 +92,7 @@ const rules = {
 
 // 客户列表查询
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/page', customerQuery.value)
+  axios.post('/customer/page', customerQuery.value)
     .then(res => {
       let pr = res.data
       if (pr.status === 200) {
@@ -111,7 +111,7 @@ const queryCustomers = () => {
 const queryMealConfigs = () => {
   if (!currentCustomerId.value) return
 
-  axios.post('http://localhost:9000/dietConfigItem/page', {
+  axios.post('/dietConfigItem/page', {
     ...mealConfigQuery.value,
     customerId: currentCustomerId.value
   }).then(res => {
@@ -137,8 +137,8 @@ const handleSubmit = () => {
         customerId: currentCustomerId.value
       }
 
-      const url = isAdding.value ? 'http://localhost:9000/dietConfigItem/add'
-        : 'http://localhost:9000/dietConfigItem/update'
+      const url = isAdding.value ? '/dietConfigItem/add'
+        : '/dietConfigItem/update'
       axios.post(url, config).then(res => {
         let pr = res.data
         if (pr.status === 200) {
@@ -166,7 +166,7 @@ const handleBatchDeleteConfig = () => {
     type: 'warning'
   }).then(() => {
     const ids = selectedConfigs.value.map(c => c.id)
-    axios.post('http://localhost:9000/dietConfigItem/deleteBatch', { ids })
+    axios.post('/dietConfigItem/deleteBatch', { ids })
       .then(res => {
         let pr = res.data
         if (pr.status === 200) {

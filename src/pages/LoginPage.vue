@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
+import DynamicButton from '@/components/custom/DynamicButton.vue'
 import { json } from 'stream/consumers'
 import type { User } from '@/lib/type'
 const router = useRouter()
@@ -36,17 +37,6 @@ const user1 = ref<UserMes>({
     password: ''
 })
 
-const jump = () => {
-    router.push('/main')
-}
-
-const simpleLogin= async()=>{
-     const res= await axios.post("/user/login",user1.value)
-     console.log(res)
-     jump()
-
-}
-
 const login = () => {
     axios.post("/user/login", user1.value).then(response => {
 		let rb = response.data;
@@ -55,21 +45,16 @@ const login = () => {
 			let token = rb.data;
             // console.log('token: ', token)
 			// 把用户令牌存入前端Session中
-			localStorage.setItem('token', token);  
-            let currentUser = {} as User
+			sessionStorage.setItem('token', token);
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
-                    currentUser = res.data.data
-                    // 将登录的user对象存入localStorage中，供其他页面使用
-                    localStorage.setItem("user", JSON.stringify(currentUser))
-                    if (currentUser.userType == 0) { //管理员
-                        ElMessage({message: "登录成功！", type: "success"})
-                        router.push('/main');
-                    } else if (currentUser.userType == 1) {
-                        // 跳转至护工的主页
-                    }
+                    sessionStorage.setItem("user", JSON.stringify(res.data.data))
+                    // 登录成功
+                    ElMessage({message: "登录成功！", type: "success"})
+                    router.push('/main');
                 }
             })
+
 		} else {
 			// 登录失败
 			ElMessage({message: rb.msg, type: "error"})
@@ -124,7 +109,7 @@ const login = () => {
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="login">提交</Button>
+                        <DynamicButton class=" mt-4" @Click="login">提交</DynamicButton>
                     </div>
 
                 </CardContent>

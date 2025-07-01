@@ -16,18 +16,8 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown } from 'lucide-vue-next'
 import { computed, h, onMounted, reactive, ref, watch } from 'vue'
-import { cn } from '@/lib/utils'
-
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
     Table,
@@ -38,28 +28,27 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { axiosInstance as axios } from '@/lib/core'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import type { CheckoutRegistration, Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
-import  dayjs  from 'dayjs'
+import dayjs from 'dayjs'
+import { debounce } from '@/lib/utils'
+import { axiosInstance as axios } from '@/lib/core'
 
 
 const searchName = ref('')
 const customerPages = ref({
     currentPage: 1,
-    pageSize: 10
+    pageSize: 10,
+    totalCustomer: 0
 })
 const checkoutPages = ref({
     currentPage: 1,
-    pageSize: 10
+    pageSize: 10,
+    totalCheckout: 0
 })
-const totalCustomer = ref(0)
-const totalCheckout = ref(0)
-
-//const ctmStore.getCheckoutList = ctmStore
 const ctmStore = usecustomerManagementStore()
-//const ctmStore.getCustomerList 
+
 const customerColumns: ColumnDef<Customer>[] = [
     {
         accessorKey: 'index',
@@ -168,7 +157,7 @@ const checkoutColumns: ColumnDef<CheckoutRegistration>[] = [
                 displayReviewStatus = '已通过'
                 color = '#67C23A'
             }
-            return h('div', {style: { color,class: 'capitalize' }}, displayReviewStatus)
+            return h('div', { style: { color, class: 'capitalize' } }, displayReviewStatus)
         }
     },
     {
@@ -261,76 +250,67 @@ const changeCheckoutPage = (page: number) => {
     checkoutPages.value.currentPage = page
     loadCheckoutRegistrations()
 }
-
-// 获取分页客户数据
-const loadCustomers = async () => {
-    axios.post('/customer/pageAll', {
-        current: customerPages.value.currentPage,
-        size: customerPages.value.pageSize,
-    }).then((res) => {
-        if (res.data.status === 200) {
-            // ctmStore.getCustomerList.value = res.data.data
-            ctmStore.setNewList(res.data.data)
-            totalCustomer.value = res.data.total
-            updateCustomerTable(ctmStore.getCustomerList.value)
-        } else {
-            ctmStore.getCustomerList.value = []
-        }
-    })
-    // searchName.value = ''
-}
-// 获取分页退住审批数据
-const loadCheckoutRegistrations = async () => {
-    axios.post('/checkoutRegistration/page', {
-        current: checkoutPages.value.currentPage,
-        size: checkoutPages.value.pageSize,
-        name: ""
-    }).then((res) => {
-        console.log(res.data)
-        if (res.data.status === 200) {
-            totalCheckout.value = res.data.total
-            ctmStore.getCheckoutList.value = res.data.data.map((item: any) => ({
-                ...item,
-                checkinDate: '',  // 补字段
-                bedNumber: ''
-            }))
-            ctmStore.getCheckoutList.value.forEach(checkout => {
-                console.log("客户信息", ctmStore.getCustomerList)
-                const customer = ctmStore.getCustomerList.value.find(c => c.customerId === checkout.customerId)
-                console.log("要找的客户信息", customer)
-                if (customer) {
-                    checkout.checkinDate = customer.checkinDate
-                    checkout.bedNumber = customer.bedNumber
-                }
-            })
-            updateCheckoutTable(ctmStore.getCheckoutList.value)
-        } else {
-            ctmStore.getCheckoutList.value = []
-        }
-    })
+const resetCustomers = () => {
     searchName.value = ''
-}
-// 重新加载表格
-const handleSearch = () => {
     loadCustomers()
     loadCheckoutRegistrations()
 }
+const onInput = async (event: Event) => {
+    const deLoad = debounce(loadCustomers)
+    const deLoad1 = debounce(loadCheckoutRegistrations)
+    deLoad()
+    deLoad1()
+}
+// 获取分页客户数据
+const loadCustomers = async () => {
+    const res = await axios.post('/customer/page', {
+        current: customerPages.value.currentPage,
+        size: customerPages.value.pageSize,
+        name: searchName.value
+    })
+    if (res.data.status === 200) {
+        ctmStore.setNewList(res.data.data)
+        customerPages.value.totalCustomer = res.data.total
+    } else {
+        ctmStore.getCustomerList.value = []
+    }
+}
+// 获取分页退住审批数据
+const loadCheckoutRegistrations = async () => {
+    const res = await axios.post('/checkoutRegistration/page', {
+        current: checkoutPages.value.currentPage,
+        size: checkoutPages.value.pageSize,
+        name: searchName.value
+    })
 
-// 更新客户信息列表
-const updateCustomerTable = (rows: any[]) => {
-    customerTable.setOptions(prev => ({
-        ...prev,
-        data: rows
-    }))
+    if (res.data.status === 200) {
+        ctmStore.setCheckoutList(res.data.data)
+        checkoutPages.value.totalCheckout = res.data.total
+    } else {
+        ctmStore.getCheckoutList.value = []
+    }
 }
-// 更新退住审批列表
-const updateCheckoutTable = (rows: any[]) => {
-    checkoutTable.setOptions(prev => ({
-        ...prev,
-        data: rows
-    }))
+
+const formRef = ref<FormInstance>()
+const isPassed = ref(false)
+const rules: FormRules = {
+    reviewStatus: [
+        { required: true, message: '请选择审批结果', trigger: 'blur' }
+    ],
+    rejectReason: [
+        {
+            validator: (rule, value, callback) => {
+                if (approvalForm.reviewStatus === '1' && !value) {
+                    callback(new Error('请填写拒绝原因'))
+                } else {
+                    callback()
+                }
+            },
+            trigger: 'blur'
+        }
+    ]
 }
- 
+// 配置表单校验规则
 const checkOutApprovalVisible = ref(false) // 退住审批表单可见性
 const approvalForm = reactive({ // 暂存审批信息
     id: '',
@@ -342,11 +322,11 @@ const approvalForm = reactive({ // 暂存审批信息
     rejectReason: '',
     reviewTime: ''
 })
-const openApprovalForm = (checkout: CheckoutRegistration) =>{  // 打开审批界面
+const openApprovalForm = (checkout: CheckoutRegistration) => {  // 打开审批界面
     Object.assign(approvalForm, checkout)
     checkOutApprovalVisible.value = true
 }
-const cancelApprove = () =>{   // 取消审批
+const cancelApprove = () => {   // 取消审批
     checkOutApprovalVisible.value = false
     approvalForm.id = ''
     approvalForm.customerName = ''
@@ -357,209 +337,198 @@ const cancelApprove = () =>{   // 取消审批
     approvalForm.rejectReason = ''
     approvalForm.reviewTime = ''
 }
-// 配置表单校验规则
-const formRef = ref<FormInstance>()
-const isPassed = ref(false)
-const rules: FormRules = {
-  reviewStatus: [
-    { required: true, message: '请选择审批结果', trigger: 'blur' }
-  ],
-  rejectReason: [
-    {
-      validator: (rule, value, callback) => {
-        if (approvalForm.reviewStatus === '1' && !value) {
-          callback(new Error('请填写拒绝原因'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    }
-  ]
-}
+
 // 检查用户输入
 const checkUpdateForm = () => {
     formRef.value?.validate((valid: boolean) => {
-    if (valid) {
-      console.log('校验通过，提交数据', approvalForm)
-      submitApprovalVisible.value = true
-    } else {
-      console.warn('校验失败')
-    }
-  })
+        if (valid) {
+            submitApprovalVisible.value = true
+        } else {
+            ElMessage.error('请填写完整信息')
+        }
+    })
 }
-
 const checkoutTypeLabel = computed(() => {
-  switch (Number(approvalForm.checkoutType)) {
-    case 0:
-      return '正常退住'
-    case 1:
-      return '死亡退住'
-    case 2:
-      return '保留床位'
-    default:
-      return '未知'
-  }
+    switch (Number(approvalForm.checkoutType)) {
+        case 0:
+            return '正常退住'
+        case 1:
+            return '死亡退住'
+        case 2:
+            return '保留床位'
+        default:
+            return '未知'
+    }
 })
 
 const submitApprovalVisible = ref(false)  // 确认提交审批结果表单的可见性
-const updateApproval = () => {  // 提交审批
+const updateApproval = async () => {  // 提交审批
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss')  // 获取当前审批时间
     approvalForm.reviewTime = currentTime
-    axios.post('/checkoutRegistration/update', approvalForm).then((res) => {
-        if (res.data.status === 200) {
-            console.log('提交审批成功')
-            loadCheckoutRegistrations()
-        } else {
-           console.log('提交审批失败')
-        }
-    })
-    submitApprovalVisible.value = false
-    cancelApprove()
+    const res = await axios.post('/checkoutRegistration/update', approvalForm)
+    if (res.data.status === 200) {
+        ElMessage.success('提交审批成功')
+        submitApprovalVisible.value = false
+        cancelApprove()
+        await loadCheckoutRegistrations()
+    } else {
+        ElMessage.error('提交审批失败')
+    }
 }
 
-watch(() => approvalForm.reviewStatus, (newVal) =>{
-    if(newVal === '1'){
+watch(() => approvalForm.reviewStatus, (newVal: string) => {
+    if (newVal === '1') {
         isPassed.value = false
-    }else if(newVal === '2'){
+    } else if (newVal === '2') {
         isPassed.value = true
     }
 })
 
-onMounted(async() => {
+onMounted(async () => {
     await loadCustomers() // 加载客户数据
     await loadCheckoutRegistrations() // 加载退住申请数据
 })
 </script>
 
 <template>
-    <div class="w-full flex gap-4 flex-row items-start">
-        <!-- 左侧：客户信息列表 -->
-        <div class="w-1/3">
-            <div class="flex items-center py-4">
-                <Input class="max-w-sm" placeholder="客户姓名" v-model="searchName" @update:model-value="val => {
-                    customerTable.getColumn('name')?.setFilterValue(val)
-                    checkoutTable.getColumn('customerName')?.setFilterValue(val)
-                }" />
-            </div>
-
-            <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
-                客户信息
-            </div>
-            <div class="rounded-b-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
-                            <TableHead v-for="header in headerGroup.headers" :key="header.id">
-                                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                                    :props="header.getContext()" />
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <template v-if="customerTable.getRowModel().rows?.length">
-                            <template v-for="row in customerTable.getRowModel().rows" :key="row.id">
-                                <TableRow :data-state="row.getIsSelected() && 'selected'">
-                                    <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                                        <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow v-if="row.getIsExpanded()">
-                                    <TableCell :colspan="row.getAllCells().length">
-                                        {{ JSON.stringify(row.original) }}
-                                    </TableCell>
-                                </TableRow>
-                            </template>
-                        </template>
-
-                        <TableRow v-else>
-                            <TableCell :colspan="customerColumns.length" class="h-24 text-center">
-                                查无此人
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
-            <div class="flex items-center justify-end space-x-2 py-4">
-                <div class="flex-1 text-sm text-muted-foreground">
-                    共
-                    {{ customerTable.getFilteredRowModel().rows.length }}
-                    行
+    <div class="w-full flex flex-col gap-4">
+        <div>
+            <div class="flex items-center py-10 gap-4">
+                <div>
+                    <Input class="w-96" placeholder="客户姓名" v-model="searchName" @input="onInput" />
                 </div>
-                <div class="space-x-2">
-                    <Button variant="outline" size="sm" :disabled="customerPages.currentPage <= 1"
-                        @click="changeCustomerPage(customerPages.currentPage - 1)">
-                        前一页
-                    </Button>
-                    <Button variant="outline" size="sm"
-                        :disabled="customerPages.currentPage * customerPages.pageSize >= totalCustomer"
-                        @click="changeCustomerPage(customerPages.currentPage + 1)">
-                        后一页
-                    </Button>
+                <div>
+                    <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
+                        text-after-color="#eaffd0" before-color="#eaffd0" after-color="#95e1d3">
+                        <template #svgIcon>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                            </svg>
+                        </template>
+                    </InteractiveHoverButton>
                 </div>
             </div>
         </div>
-        <!-- 右侧：退住审批表格 -->
-        <div class="w-2/3">
-            <!-- 占位搜索框（invisible 保持布局但不显示） -->
-            <div class="flex items-center py-4 invisible">
-                <Input class="max-w-sm" placeholder="占位"
-                    :model-value="checkoutTable.getColumn('customerName')?.getFilterValue() as string"
-                    @update:model-value=" checkoutTable.getColumn('customerName')?.setFilterValue($event)" />
-            </div>
-            <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
-                退住申请审批
-            </div>
-            <div class="rounded-b-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow v-for="headerGroup in checkoutTable.getHeaderGroups()" :key="headerGroup.id">
-                            <TableHead v-for="header in headerGroup.headers" :key="header.id">
-                                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                                    :props="header.getContext()" />
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <template v-if="checkoutTable.getRowModel().rows?.length">
-                            <template v-for="row in checkoutTable.getRowModel().rows" :key="row.id">
-                                <TableRow :data-state="row.getIsSelected() && 'selected'">
-                                    <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                                        <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow v-if="row.getIsExpanded()">
-                                    <TableCell :colspan="row.getAllCells().length">
-                                        {{ JSON.stringify(row.original) }}
-                                    </TableCell>
-                                </TableRow>
-                            </template>
-                        </template>
-
-                        <TableRow v-else>
-                            <TableCell :colspan="checkoutColumns.length" class="h-24 text-center">
-                                暂无审批信息
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
-            <div class="flex items-center justify-end space-x-2 py-4">
-                <div class="flex-1 text-sm text-muted-foreground">
-                    共
-                    {{ checkoutTable.getFilteredRowModel().rows.length }}
-                    行
+        <div class="flex gap-4 flex-row items-start w-full">
+            <!-- 左侧：客户信息列表 -->
+            <div class="w-1/3">
+                <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
+                    客户信息
                 </div>
-                <div class="space-x-2">
-                    <Button variant="outline" size="sm" :disabled="checkoutPages.currentPage <= 1"
-                        @click="changeCheckoutPage(checkoutPages.currentPage - 1)">
-                        前一页
-                    </Button>
-                    <Button variant="outline" size="sm"
-                        :disabled="checkoutPages.currentPage * checkoutPages.pageSize >= totalCheckout"
-                        @click="changeCheckoutPage(checkoutPages.currentPage + 1)">
-                        后一页
-                    </Button>
+                <div class="rounded-b-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
+                                <TableHead v-for="header in headerGroup.headers" :key="header.id">
+                                    <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                                        :props="header.getContext()" />
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <template v-if="customerTable.getRowModel().rows?.length">
+                                <template v-for="row in customerTable.getRowModel().rows" :key="row.id">
+                                    <TableRow :data-state="row.getIsSelected() && 'selected'">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                                            <FlexRender :render="cell.column.columnDef.cell"
+                                                :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow v-if="row.getIsExpanded()">
+                                        <TableCell :colspan="row.getAllCells().length">
+                                            {{ JSON.stringify(row.original) }}
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                            </template>
+
+                            <TableRow v-else>
+                                <TableCell :colspan="customerColumns.length" class="h-24 text-center">
+                                    查无此人
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+                <div class="flex items-center justify-end space-x-2 py-4">
+                    <div class="flex-1 text-sm text-muted-foreground">
+                        共
+                        {{ customerTable.getFilteredRowModel().rows.length }}
+                        行
+                    </div>
+                    <div class="space-x-2">
+                        <Button variant="outline" size="sm" :disabled="customerPages.currentPage <= 1"
+                            @click="changeCustomerPage(customerPages.currentPage - 1)">
+                            前一页
+                        </Button>
+                        <Button variant="outline" size="sm"
+                            :disabled="customerPages.currentPage * customerPages.pageSize >= customerPages.totalCustomer"
+                            @click="changeCustomerPage(customerPages.currentPage + 1)">
+                            后一页
+                        </Button>
+                    </div>
+                </div>
+            </div>
+            <!-- 右侧：退住审批表格 -->
+            <div class="w-2/3 pr-6">
+                <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
+                    退住申请审批
+                </div>
+                <div class="rounded-b-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow v-for="headerGroup in checkoutTable.getHeaderGroups()" :key="headerGroup.id">
+                                <TableHead v-for="header in headerGroup.headers" :key="header.id">
+                                    <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                                        :props="header.getContext()" />
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <template v-if="checkoutTable.getRowModel().rows?.length">
+                                <template v-for="row in checkoutTable.getRowModel().rows" :key="row.id">
+                                    <TableRow :data-state="row.getIsSelected() && 'selected'">
+                                        <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                                            <FlexRender :render="cell.column.columnDef.cell"
+                                                :props="cell.getContext()" />
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow v-if="row.getIsExpanded()">
+                                        <TableCell :colspan="row.getAllCells().length">
+                                            {{ JSON.stringify(row.original) }}
+                                        </TableCell>
+                                    </TableRow>
+                                </template>
+                            </template>
+
+                            <TableRow v-else>
+                                <TableCell :colspan="checkoutColumns.length" class="h-24 text-center">
+                                    暂无审批信息
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+                <div class="flex items-center justify-end space-x-2 py-4">
+                    <div class="flex-1 text-sm text-muted-foreground">
+                        共
+                        {{ checkoutTable.getFilteredRowModel().rows.length }}
+                        行
+                    </div>
+                    <div class="space-x-2">
+                        <Button variant="outline" size="sm" :disabled="checkoutPages.currentPage <= 1"
+                            @click="changeCheckoutPage(checkoutPages.currentPage - 1)">
+                            前一页
+                        </Button>
+                        <Button variant="outline" size="sm"
+                            :disabled="checkoutPages.currentPage * checkoutPages.pageSize >= checkoutPages.totalCheckout"
+                            @click="changeCheckoutPage(checkoutPages.currentPage + 1)">
+                            后一页
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -610,7 +579,7 @@ onMounted(async() => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh">
+        <el-dialog v-model="submitApprovalVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
             <span>确定提交对该客户退住申请的审批吗？</span>
             <template #footer>
                 <div class="dialog-footer">

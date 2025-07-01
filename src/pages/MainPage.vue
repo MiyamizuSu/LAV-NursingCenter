@@ -55,6 +55,7 @@ const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
     frameController.curFrameIndex = frameController.frameStack.length - 1
     router.push(`/main${STATENAME_TAG[frame]}`)
 }
+//To-do customerNursingSet遮挡了顶部状态栏
 const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
     router.push(`/main${STATENAME_TAG[frame]}`);
     frameController.curFrameIndex=index
@@ -87,7 +88,7 @@ const STATENAME_TAG = {
     膳食配置: '/mealSet',
     设置服务对象: '/serviceObjectSetting',
     服务关注: '/serviceFocus',
-    基础信息维护: '/basicInfromationMaintain'
+    基础信息维护: '/basicInformationMaintain'
 } as const
 
 const sidebarItems = [
@@ -164,9 +165,9 @@ const sidebarItems = [
             <div class="z-0 flex w-3/4 justify-end">
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
-                        <div class="translate-x-1/4 flex-1 space-x-4 flex">
+                        <div class=" flex-1 space-x-4 flex">
                             <template v-for="(frame,index) in frameController.frameStack">
-                                <AvgTag :tag-name="frame"
+                                <AvgTag :tag-name="frame" :is-active="index===frameController.curFrameIndex"
                                     @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
                                     @tap-to-page="handleQuickTap(frame,index)" v-if="frame !== '主页'" />
                             </template>

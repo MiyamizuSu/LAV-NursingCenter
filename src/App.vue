@@ -8,19 +8,14 @@ import Button from './components/ui/button/Button.vue';
 import 'element-plus/dist/index.css'
 
 const router=useRouter()
-// router.push('/main/nursingLevel')
 router.push('/main')
+// router.push('/main')
 
 </script>
 
 <template>
   <div class="w-screen h-screen ">
     <RouterView></RouterView>
-    <!-- <CheckIn></Checkin> -->
-    <!-- <SidebarProvider>
-      <AppSideBar></AppSideBar>
-      <SidebarTrigger></SidebarTrigger>
-    </SidebarProvider> -->
   </div>
 </template>
 

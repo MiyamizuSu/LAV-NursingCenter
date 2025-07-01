@@ -84,4 +84,5 @@ export type BedUser={
     bedMes:string,
     startUsedTime:StrictDate,
     endUsedTime:StrictDate,
+    customerId:number
 }

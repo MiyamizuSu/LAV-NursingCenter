@@ -18,7 +18,6 @@ import Collapsible from "../ui/collapsible/Collapsible.vue";
 import CollapsibleTrigger from "../ui/collapsible/CollapsibleTrigger.vue";
 import CollapsibleContent from "../ui/collapsible/CollapsibleContent.vue";
 import Separator from "../ui/separator/Separator.vue";
-import { useAppState } from "@/lib/store";
 import type { sidebarItem } from "./type";
 
 const emits = defineEmits(['memoryPlus'])

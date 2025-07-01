@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 膳食日历 -->
 <script setup lang="ts">
-import { axiosInstance as axios } from '@/lib/core'
+import { axiosInstance as axios } from '@/lib/core';
 import { onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox, ElTable, ElButton, ElInput, ElForm, ElDialog, ElContainer } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
