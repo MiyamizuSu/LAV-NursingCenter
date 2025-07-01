@@ -16,7 +16,7 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import {  h, onMounted, reactive, ref, watch, type Ref } from 'vue'
+import { h, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { cn, debounce } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,6 @@ import InteractiveHoverButton from '@/components/ui/interactive-hover-button/Int
 import type { Customer, OutingRegistration } from './type'
 
 const ctsStore = useCustomerNurseStore()
-const position = ref('bottom')  // 下拉框显示位置
 const outingPages = ref({
     currentPage: 1,
     pageSize: 8,
@@ -246,14 +245,12 @@ const changeCustomerPage = (page: number) => {
     customerPages.value.currentPage = page
     loadCustomers()
 }
-// 退住信息列表页面改变时
+// 外出信息列表页面改变时
 const changeOutingPage = (page: number) => {
     outingPages.value.currentPage = page
     loadOutingRegistrations()
 }
 const searchName = ref('')  // 搜索框输入
-const customerName = ref('')
-const tableKey = Date.now()
 // 处理重置搜索
 const resetCustomers = () => {
     searchName.value = ''
@@ -268,10 +265,11 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('customer/pageByNurseId', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
         ctsStore.setCustomerList(res.data.data)
@@ -279,13 +277,13 @@ const loadCustomers = async () => {
     } else {
         ctsStore.getCustomerList.value = []
     }
-    // searchName.value = ''
 }
 // 获取所有客户数据
 const loadAllCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/listAll')
+    const res = await axios.post('/customer/listByNurseId', {
+        nurseId: ctsStore.getCurrentNurseId.value
+    })
     if (res.data.status === 200) {
-        console.log('所有客户数据', res.data.data)
         ctsStore.setAllCustomerList(res.data.data)
     } else {
         console.log('查询失败')
@@ -294,26 +292,18 @@ const loadAllCustomers = async () => {
 
 // 获取分页外出审批数据
 const loadOutingRegistrations = async () => {
-    const res = await axios.post('http://localhost:9000/outingRegistration/page', {
+    const res = await axios.post('/outingRegistration/page', {
         current: outingPages.value.currentPage,
         size: outingPages.value.pageSize,
-        name: searchName.value
+        name: searchName.value,
+        nurseId: ctsStore.getCurrentNurseId.value
     })
-    console.log("外出审批数据：", res.data)
     if (res.data.status === 200) {
         ctsStore.setOutingList(res.data.data)
         outingPages.value.totalOuting = res.data.total
-        updateOutingTable(ctsStore.getOutingList.value)
     } else {
         ctsStore.getOutingList.value = []
     }
-    //searchName.value = ''
-}
-const updateOutingTable = (rows: any[]) => {
-    outingTable.setOptions(prev => ({
-        ...prev,
-        data: rows
-    }))
 }
 // 配置表单规则
 const ruleFormRef = ref<FormInstance>()
@@ -415,7 +405,7 @@ const addOutingForm = reactive({ // 暂存审批信息
     reviewTime: '',
     actualReturnDate: ''
 })
-const selectedCustomer = ref(null);
+const selectedCustomer = ref(null)
 const onCustomerChange = (id: number) => {
     const customer = ctsStore.getAllCustomerList.value.find(c => c.customerId === id);
     if (customer) {
@@ -440,6 +430,7 @@ const checkAddOutingForm = () => {   // 检查表单
 }
 
 const cancelAddOutingForm = () => {  // 关闭添加外出申请表单
+    ruleFormRef.value?.resetFields()
     addOutingFormVisible.value = false
     selectedCustomer.value = null
     clearOutingForm()
@@ -455,11 +446,10 @@ const clearOutingForm = () => {
     addOutingForm.reviewStatus = -1
     addOutingForm.rejectReason = ''
     addOutingForm.reviewTime = ''
-
 }
 const addOutingRegistration = async () => {
     console.log('提交外出申请', addOutingForm)
-    const res = await axios.post('http://localhost:9000/outingRegistration/add', addOutingForm)
+    const res = await axios.post('/outingRegistration/add', addOutingForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
         submitOutingFormVisible.value = false
@@ -481,27 +471,17 @@ const deleteOutingRegistration = async (outing: OutingRegistration) => {
             cancelButtonText: '取消',
             type: 'warning',
         }
-    ).then(() => {
-        axios.post("http://localhost:9000/outingRegistration/delete", { id: outing.id }).then((res: any) => {
-            if (res.data.status === 200) {
-                ElMessage({
-                    type: 'success',
-                    message: '撤销成功',
-                })
-                loadOutingRegistrations()
-            } else {
-                ElMessage({
-                    type: 'error',
-                    message: '撤销失败',
-                })
-            }
-        })
+    ).then(async () => {
+        const res = await axios.post('/outingRegistration/delete', { id: outing.id })
+        if (res.data.status === 200) {
+            ElMessage.success('撤销成功')
+            loadOutingRegistrations()
+        } else {
+            ElMessage.error('撤销失败')
+        }
     })
         .catch(() => {
-            ElMessage({
-                type: 'info',
-                message: '已取消撤销',
-            })
+            ElMessage.info('已取消撤销')
         })
 }
 
@@ -557,7 +537,7 @@ const checkUpdateActualReturnDate = () => {
 }
 const updateActualReturnDate = async () => {
     console.log('提交回院时间', updateReturnDateForm)
-    const res = await axios.post('http://localhost:9000/outingRegistration/update', updateReturnDateForm)
+    const res = await axios.post('/outingRegistration/update', updateReturnDateForm)
     if (res.data.status === 200) {
         ElMessage.success('登记成功')
         updateReturnDateConfirmVisible.value = false
@@ -569,10 +549,8 @@ const updateActualReturnDate = async () => {
     }
 }
 
-
-
-
 onMounted(async () => {
+    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()
@@ -599,7 +577,7 @@ onMounted(async () => {
                         </template>
                     </InteractiveHoverButton>
                 </div>
-                <div>
+                <div class="ml-auto pr-6">
                     <InteractiveHoverButton @click="addOutingFormVisible = true" text="添加外出申请">
                         <template #svgIcon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -786,7 +764,7 @@ onMounted(async () => {
                 </el-form>
             </el-dialog>
 
-            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh">
+            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
                 <span>确定提交该外出申请吗？</span>
                 <template #footer>
                     <div class="dialog-footer">
@@ -838,7 +816,7 @@ onMounted(async () => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh">
+        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
             <span>确定登记实际回院时间吗？</span>
             <template #footer>
                 <div class="dialog-footer">

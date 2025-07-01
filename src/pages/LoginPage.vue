@@ -44,9 +44,15 @@ const login = () => {
             // console.log('token: ', token)
 			// 把用户令牌存入前端Session中
 			sessionStorage.setItem('token', token);
-			// 登录成功
-            ElMessage({message: "登录成功！", type: "success"})
-			router.push('/main');
+            axios.post("/user/load", {}).then(res => {
+                if (res.data.status == 200) {
+                    sessionStorage.setItem("user", JSON.stringify(res.data.data))
+                    // 登录成功
+                    ElMessage({message: "登录成功！", type: "success"})
+                    router.push('/main');
+                }
+            })
+			
 		} else {
 			// 登录失败
 			ElMessage({message: rb.msg, type: "error"})

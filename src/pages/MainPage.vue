@@ -164,7 +164,7 @@ const sidebarItems = [
             <div class="z-0 flex w-3/4 justify-end">
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
-                        <div class="translate-x-1/4 flex-1 space-x-4 flex">
+                        <div class=" flex-1 space-x-4 flex">
                             <template v-for="(frame,index) in frameController.frameStack">
                                 <AvgTag :tag-name="frame" :is-active="index===frameController.curFrameIndex"
                                     @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
