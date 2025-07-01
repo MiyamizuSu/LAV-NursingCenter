@@ -346,6 +346,11 @@ const loadCurrentServices = () => {
             } else {
                 currentServices.value = res.data.data
                 currentService_total.value = res.data.total
+                // ElNotification({
+                //     title: 'Error',
+                //     message: res.data.msg,
+                //     type: 'error',
+                // })
             }
         })
 }
@@ -393,8 +398,9 @@ const loadData = () => {
 </script>
 
 <template>
-    <el-container style="align-content: center; overflow-y: auto;">
-        <el-col style="margin-left: 5%; width: 95%;">
+    <el-container style="padding: 0; overflow-y: auto;">
+        <el-col style="width: 100%;">
+        <el-card shadow="hover" class="section-card" style="width: 100%;">
             <p style="margin-bottom: 2vh; margin-top: 2vh;">
                 <label style="font-size: 18px; font-weight: bold;">客户护理项目配置 - {{ currentCustomer.name }}</label>
                 <Button @click="goBack()" style="margin-left: 5vh; font-size: 14px;">返回客户列表</Button>
@@ -411,35 +417,35 @@ const loadData = () => {
             </p>
             <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 1400px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">{{
                     currentCustomer.name }} - 已购的护理项目</label>
             </div>
-            <el-table :data="currentServices" :stripe="true" style="width: 1400px;"
+            <el-table :data="currentServices" :stripe="true" style="width: 100%;" :fit="true"
                 @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="60"></el-table-column>
-                <el-table-column type="index" label="序号" width="95" style="text-align: center;">
+                <el-table-column type="selection" align="center"></el-table-column>
+                <el-table-column type="index" label="序号" align="center">
                 </el-table-column>
-                <el-table-column property="programCode" label="项目编号" width="150">
+                <el-table-column property="programCode" label="项目编号" align="center">
                 </el-table-column>
-                <el-table-column property="programName" label="项目名称" width="155">
+                <el-table-column property="programName" label="项目名称" align="center">
                 </el-table-column>
-                <el-table-column label="单次价格" width="150">
+                <el-table-column label="单次价格" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.programPrice > 0">{{ scope.row.programPrice }}元/次</span>
                         <span v-else>免费</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="余量" width="110">
+                <el-table-column label="余量" align="center">
                     <template #default="scope">
                         <span>{{ scope.row.totalCount - scope.row.usedCount }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="purchaseDate" label="服务购买日期" width="180">
+                <el-table-column property="purchaseDate" label="服务购买日期" align="center">
                 </el-table-column>
-                <el-table-column property="expirationDate" label="服务到期日期" width="180">
+                <el-table-column property="expirationDate" label="服务到期日期" align="center">
                 </el-table-column>
-                <el-table-column label="状态" width="170">
+                <el-table-column label="状态" align="center">
                     <template #default="scope">
                         <p>
                             <Button v-if="scope.row.totalCount - scope.row.usedCount > 5"
@@ -457,7 +463,7 @@ const loadData = () => {
                         </p>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="150">
+                <el-table-column label="操作" align="center">
                     <template #default="scope">
                         <p> <el-button @click="start_deleteService(scope.row)" style="color: red; ">移除</el-button> </p>
                         <p style="margin-top: 1vh;"> <el-button @click="start_renewService(scope.row)"
@@ -471,6 +477,8 @@ const loadData = () => {
                 @update:current-page="currentService_handleCurrentChange"
                 layout="total, sizes, prev, pager, next, jumper" :total="currentService_total"
                 style="margin-top: 10vh;" />
+        </el-card>
+            
         </el-col>
 
         <!-- 添加客户护理项目服务页面弹框 -->
@@ -480,8 +488,8 @@ const loadData = () => {
                 <label style="text-align: center; color: white; font-size: 16px; font-weight: bold;">可选的护理项目</label>
             </div>
             <el-table :data="availablePrograms" :stripe="true" style="width: 100%;">
-                <!-- <el-table-column type="selection" width="50" ></el-table-column> -->
-                <el-table-column type="index" label="序号" width="110" style="text-align: center;">
+                <!-- <el-table-column type="selection" align="center" ></el-table-column> -->
+                <el-table-column type="index" label="序号" width="110" align="center">
                 </el-table-column>
                 <el-table-column property="programCode" label="项目编号" width="180">
                 </el-table-column>
@@ -615,8 +623,5 @@ const loadData = () => {
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
 </style>
+<style src="./scopedStyle.css"></style>

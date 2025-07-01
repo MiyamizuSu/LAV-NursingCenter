@@ -193,17 +193,17 @@ const loadData = () => {
 </script>
 
 <template>
-    <el-main style="align-content: center; margin-top: -10vh;">
-        <p style="margin-left: 5%; ">
+    <el-container style="padding: 0;">
+    <el-card shadow="hover" class="section-card" style="width: 100%;">
+        <p>
             <label style="font-size: 18px; font-weight: bold;">管家服务对象配置 - {{ currentNurse.name }}</label>
             <Button @click="goBack()" style="font-size: 14px; margin-left: 3vh;">返回管家列表</Button>
         </p>
 
         <br>
-
         <!-- 左右表格区域 -->
-        <el-container style="align-items: center; margin-top: 2vh; margin-left: 5%; width: 95%;">
-            <el-card style="width: 45%; height: 70vh; overflow-y: auto;">
+        <el-row style="margin-top: 2vh; width: 100%;">
+            <el-card style="width: 48%; height: 70vh; overflow-y: auto;">
                 <!-- 搜索框 -->
                 <p>
                     <el-input v-model="availableCustomer_queryEntity.name" clearable placeholder="客户姓名"
@@ -213,30 +213,30 @@ const loadData = () => {
                 <br>
 
                 <div
-                    style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
+                    style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh;">
                     <label style="text-align: center; color: white; font-size: 15px; "> 无管家的客户信息</label>
                 </div>
-                <el-table :data="availableCustomers" :border="true" :stripe="true" style="width: 100%;">
-                    <el-table-column type="index" label="序号" width="60" style="text-align: center;">
+                <el-table :data="availableCustomers" :border="true" :stripe="true" style="width: 100%;" :fit="true">
+                    <el-table-column type="index" label="序号" align="center">
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="105">
+                    <el-table-column property="name" label="姓名" align="center">
                     </el-table-column>
-                    <el-table-column property="age" label="年龄" width="75">
+                    <el-table-column property="age" label="年龄" align="center">
                     </el-table-column>
-                    <el-table-column label="性别" width="85">
+                    <el-table-column label="性别" align="center">
                         <template #default="scope">
                             <span v-if="scope.row.gender == 0">女</span>
                             <span v-else-if="scope.row.gender == 1">男</span>
                         </template>
                     </el-table-column>
-                    <el-table-column property="bedNumber" label="床位号" width="110">
+                    <el-table-column property="bedNumber" label="床位号" align="center">
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="100">
+                    <el-table-column property="nursingLevelName" label="护理级别" align="center">
                     </el-table-column>
-                    <el-table-column label="操作" width="120" style="text-align: center;">
+                    <el-table-column label="操作" align="center">
                         <template #default="scope">
-                            <Button @click="assignNurse(scope.row)" class="add-button"
-                                style="font-size: 15px; margin-left: 1vh;">添加</Button>
+                            <el-button @click="assignNurse(scope.row)" 
+                                style="color: #007bff;">添加</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -249,7 +249,7 @@ const loadData = () => {
                     style="margin-top: 10vh;" />
             </el-card>
 
-            <el-card style="width: 50%; height: 70vh; margin-left: 3%; overflow-y: auto;">
+            <el-card style="width: 48%; height: 70vh; margin-left: 4%; overflow-y: auto;">
                 <!-- 搜索框 -->
                 <p>
                     <el-input v-model="currentCustomer_queryEntity.name" clearable placeholder="客户姓名"
@@ -259,33 +259,33 @@ const loadData = () => {
                 <br>
 
                 <div
-                    style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
+                    style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh;">
                     <label style="text-align: center; color: white; font-size: 15px; "> {{ currentNurse.name }} -
                         服务中的客户</label>
                 </div>
-                <el-table :data="currentCustomers" :border="true" :stripe="true" style="width: 100%; "
+                <el-table :data="currentCustomers" :border="true" :stripe="true" :fit="true" style="width: 100%;"
                     @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="50"></el-table-column>
-                    <el-table-column type="index" label="序号" width="60" style="text-align: center;">
+                    <el-table-column type="selection" align="center"></el-table-column>
+                    <el-table-column type="index" label="序号" align="center">
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="110">
+                    <el-table-column property="name" label="姓名" align="center">
                     </el-table-column>
-                    <el-table-column property="age" label="年龄" width="75">
+                    <el-table-column property="age" label="年龄" align="center">
                     </el-table-column>
-                    <el-table-column label="性别" width="85">
+                    <el-table-column label="性别" align="center">
                         <template #default="scope">
                             <span v-if="scope.row.gender == 0">女</span>
                             <span v-else-if="scope.row.gender == 1">男</span>
                         </template>
                     </el-table-column>
-                    <el-table-column property="bedNumber" label="床位号" width="110">
+                    <el-table-column property="bedNumber" label="床位号" align="center">
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="100">
+                    <el-table-column property="nursingLevelName" label="护理级别" align="center">
                     </el-table-column>
-                    <el-table-column label="操作" width="140" style="text-align: center;">
+                    <el-table-column label="操作" align="center">
                         <template #default="scope">
-                            <Button @click="start_resetNurse(scope.row)"
-                                style="background-color: white; color: red; margin-left: 2vh;">移除</Button>
+                            <el-button @click="start_resetNurse(scope.row)"
+                                style="color: red; ">移除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -301,14 +301,12 @@ const loadData = () => {
                     style="margin-top: 10vh;" />
             </el-card>
 
-        </el-container>
+        </el-row>
+    </el-card>
 
-    </el-main>
+    </el-container>
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
 </style>
+<style src="./scopedStyle.css"></style>

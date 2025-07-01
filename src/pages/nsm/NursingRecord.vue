@@ -181,42 +181,41 @@ const loadData = () => {
 </script>
 
 <template>
-    <el-main style="align-content: center; margin-top: -10vh;">
-
-        <p style="margin-left: 5%; margin-top: -5vh;">
-            <!-- 搜索框 -->
+    <el-container style="padding: 0; width: 100%;">
+    <el-card shadow="hover" class="section-card" style="width: 100%;">
+        <p >
             <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名" style="width: 30vh;"></el-input>
             <Button @click="loadUsers" class="add-button" style="margin-left: 2vh;">查询</Button>
         </p>
         <br>
 
         <!-- 左右表格区域 -->
-        <el-container style="align-items: center; margin-top: 2vh; margin-left: 5%; width: 95%;">
-            <el-card style="width: 40%; height: 70vh; overflow-y: auto;">
+        <el-row style="width: 100%;">
+            <el-card style="width: 43%; height: 70vh; overflow-y: auto;">
                 <div
                     style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
                     <label style="text-align: center; color: white; font-size: 15px; "> 客户信息</label>
                 </div>
-                <el-table :data="nursingCustomers" :border="true" :stripe="true" style="width: 100%;">
-                    <el-table-column type="index" label="序号" width="50" style="text-align: center;">
+                <el-table :data="nursingCustomers" :border="true" :stripe="true" :fit="true">
+                    <el-table-column type="index" label="序号" align="center">
                     </el-table-column>
-                    <el-table-column property="name" label="姓名" width="100">
+                    <el-table-column property="name" label="姓名" align="center">
                     </el-table-column>
-                    <el-table-column property="age" label="年龄" width="70">
+                    <el-table-column property="age" label="年龄" align="center">
                     </el-table-column>
-                    <el-table-column label="性别" width="70">
+                    <el-table-column label="性别" align="center">
                         <template #default="scope">
                             <span v-if="scope.row.gender == 0">女</span>
                             <span v-else-if="scope.row.gender == 1">男</span>
                         </template>
                     </el-table-column>
-                    <el-table-column property="bedNumber" label="床位号" width="100">
+                    <el-table-column property="bedNumber" label="床位号" align="center">
                     </el-table-column>
-                    <el-table-column property="nursingLevelName" label="护理级别" width="88">
+                    <el-table-column property="nursingLevelName" label="护理级别" align="center">
                     </el-table-column>
-                    <el-table-column label="操作" width="100" style="text-align: center;">
+                    <el-table-column label="操作" align="center" min-width="100">
                         <template #default="scope">
-                            <label @click="start_viewRecords(scope.row)" style="color: blue; border: 2px;">查看记录</label>
+                            <el-button @click="start_viewRecords(scope.row)" type="primary">查看记录</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -227,40 +226,38 @@ const loadData = () => {
                     :total="customer_total" style="margin-top: 10vh;" />
             </el-card>
 
-            <el-card style="width: 55%; height: 70vh; margin-left: 3%; overflow-y: auto;">
-                <div
-                    style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
-                    <label style="text-align: center; color: white; font-size: 15px; "> 护理记录 - {{ selectedCustomer.name
-                    }}</label>
+            <el-card style="width: 55%; height: 70vh; margin-left: 2%; overflow-y: auto;">
+                <div style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; ">
+                    <label style="color: white; font-size: 15px; "> 护理记录 - {{ selectedCustomer.name}}</label>
                 </div>
-                <el-table :data="currentRecords" :border="true" :stripe="true" style="width: 100%; "
+                <el-table :data="currentRecords" :border="true" :stripe="true" :fit="true"
                     @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="40"></el-table-column>
-                    <el-table-column type="index" label="序号" width="40" style="text-align: center;">
+                    <el-table-column type="selection" align="center"></el-table-column>
+                    <el-table-column type="index" label="序号" align="center">
                     </el-table-column>
-                    <el-table-column property="programCode" label="护理项目编号" width="100">
+                    <el-table-column property="programCode" label="护理项目编号" align="center">
                     </el-table-column>
-                    <el-table-column property="programName" label="护理项目名称" width="90">
+                    <el-table-column property="programName" label="护理项目名称" align="center">
                     </el-table-column>
-                    <el-table-column property="executionCount" label="护理数量" width="60">
+                    <el-table-column property="executionCount" label="护理数量" align="center">
                     </el-table-column>
-                    <el-table-column property="description" label="护理内容" width="110" show-overflow-tooltip>
+                    <el-table-column property="description" label="护理内容" align="center" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column property="nurseName" label="护理人员" width="70">
+                    <el-table-column property="nurseName" label="护理人员" align="center">
                     </el-table-column>
-                    <el-table-column property="nursePhone" label="护理人员手机" width="120">
+                    <el-table-column property="nursePhone" label="护理人员手机" align="center">
                     </el-table-column>
-                    <el-table-column property="nursingTime" label="护理时间" width="110">
+                    <el-table-column property="nursingTime" label="护理时间" align="center">
                     </el-table-column>
-                    <el-table-column label="操作" width="75" style="text-align: center;">
+                    <el-table-column label="操作" align="center">
                         <template #default="scope">
-                            <label @click="start_deleteRecord(scope.row)"
-                                style="color: red; font-size: 15px;">移除</label>
+                            <el-button type="danger" @click="start_deleteRecord(scope.row)"
+                                >移除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
 
-                <Button class="delete-button" style="font-size: 15px; margin-top: 2vh;"
+                <Button class="delete-button" style="font-size: 15px; margin-top: 3vh;"
                     @click="start_deleteBatch">批量移除</Button>
 
                 <el-pagination :current-page="record_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
@@ -269,19 +266,22 @@ const loadData = () => {
                     :total="record_total" style="margin-top: 10vh;" />
             </el-card>
 
-        </el-container>
-
-    </el-main>
+        </el-row>
+    
+    </el-card>
+    </el-container>
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
-
-.delete-button {
-    background-color: red;
-    color: white;
+.section-card {
+    border-radius: 12px;
+    margin-bottom: 16px;
+    margin-right: 5px;
+    padding: 5px;
+  
+    :deep(.el-card__body) {
+      padding: 15px;
+    }
 }
 </style>
+<style src="./scopedStyle.css"></style>

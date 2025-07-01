@@ -18,7 +18,7 @@ const axiosInstance=axios.create({
 axiosInstance.interceptors.request.use(function(config) {
     // 发送请求之前的动作
 	// 利用前端Session获得令牌信息
-	let token=sessionStorage.getItem('token');
+	let token=localStorage.getItem('token');
 	// console.log(token);
 	// 把令牌加入请求的头部报文中
 	if(token){

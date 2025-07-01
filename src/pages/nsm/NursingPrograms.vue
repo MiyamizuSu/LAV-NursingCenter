@@ -282,16 +282,14 @@ const loadData = () => {
 </script>
 
 <template>
-    <!-- <p style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理项目管理</p> -->
-
     <el-container style="align-content: center; overflow-y: auto;">
-        <!-- 表格区域 -->
-        <el-col style=" align-items: center; margin-left: 5%; width: 95%;">
+        <el-col style=" align-items: center; ">
+        <el-card shadow="hover" class="section-card">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="queryEntity.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
-                <Button @click="loadData" class="add-button"
-                    style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
+                <Button @click="loadData" 
+                    style="margin-top: 2vh; font-size: 15px; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
                 <Button @click="start_addProgram" class="add-button"
                     style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">添加</Button>
             </p>
@@ -308,47 +306,43 @@ const loadData = () => {
 
             <br>
             <div
-                style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
+                style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 15px; ">护理项目列表</label>
             </div>
-            <el-table :data="allPrograms" :border="true" :stripe="true" style="width: 1300px;"
+            <el-table :data="allPrograms" :border="true" :stripe="true" style="width: 100%;" :fit="true"
                 @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="60">
+                <el-table-column type="selection" align="center">
                 </el-table-column>
-                <el-table-column type="index" label="序号" width="80" style="text-align: center;">
+                <el-table-column type="index" label="序号" width="80" align="center">
                 </el-table-column>
-                <el-table-column property="programCode" label="编号" width="130">
+                <el-table-column property="programCode" label="编号" align="center">
                 </el-table-column>
-                <el-table-column property="name" label="名称" width="130">
+                <el-table-column property="name" label="名称" align="center">
                 </el-table-column>
-                <el-table-column label="价格" width="110">
+                <el-table-column label="价格" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.price > 0">{{ scope.row.price }}元/次</span>
                         <span v-else>免费</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="executionPeriod" label="执行周期" width="120">
+                <el-table-column property="executionPeriod" label="执行周期" align="center">
                 </el-table-column>
-                <el-table-column property="executionTimes" label="执行次数" width="100" style="text-align: center;">
+                <el-table-column property="executionTimes" label="执行次数" align="center">
                 </el-table-column>
-                <el-table-column property="description" label="描述" width="260" show-overflow-tooltip>
+                <el-table-column property="description" label="描述" align="center" show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column label="状态" width="100">
+                <el-table-column label="状态" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.status == 1">启用</span>
                         <span v-else>停用</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="210" style="text-align: center;">
+                <el-table-column label="操作" align="center" min-width="100">
                     <template #default="scope">
-                        <label @click="start_updateProgram(scope.row)"
-                            style="font-size: 15px; color: #007bff; margin-left: 1vh; "><el-icon>
-                                <Edit />
-                            </el-icon> 修改</label>
-                        <label @click="start_deleteProgram(scope.row)"
-                            style="font-size: 15px; color: red; margin-left: 3vh;"><el-icon>
-                                <Delete />
-                            </el-icon> 删除</label>
+                        <el-button @click="start_updateProgram(scope.row)"
+                            style="color: #007bff; ">修改</el-button>
+                        <el-button @click="start_deleteProgram(scope.row)"
+                            style="color: red; margin-left: 3vh;">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -410,15 +404,13 @@ const loadData = () => {
             <el-pagination :current-page="queryEntity.current" :page-sizes="[1, 5, 10, 50]"
                 :default-page-size="queryEntity.size" @update:page-size="handleSizeChange"
                 @update:current-page="handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
-                :total="total" style="margin-top: 10vh;" />
+                :total="total" style="margin-top: 10vh;" />   
+        </el-card>
         </el-col>
 
     </el-container>
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
 </style>
+<style src="./scopedStyle.css"></style>

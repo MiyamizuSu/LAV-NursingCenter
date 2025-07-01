@@ -4,6 +4,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { type NursingLevel, type User } from '@/lib/type.d';
 import Switcher from '@/components/custom/Switcher.vue';
 import { ElContainer, ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElDialog, ElForm, type FormRules } from 'element-plus'
+import { Setting, Edit } from '@element-plus/icons-vue'
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
@@ -193,9 +194,11 @@ const loadData = () => {
 
 <template>
     <el-container style="align-content: center; overflow-y: auto;">
-        <el-col style="margin-left: 5%; width: 95%;">
+        <el-col style="width: 100%;">
+        <el-card shadow="hover" class="section-card">
             <p style="margin-top: 2vh; margin-bottom: 2vh;">
                 <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
+                <Button @click="router.push('/stream')">去和AI对话</Button>
             </p>
 
             <Switcher left-value="启用" right-value="停用" @select-value-change="handleChange">
@@ -203,36 +206,36 @@ const loadData = () => {
             <br>
 
             <br>
-            <div style="background-color: #007bff; margin-top: 2vh; width: 1200px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
             </div>
 
-            <el-table :data="tableData" :stripe="true" style="width: 1200px;">
-                <el-table-column type="index" label="序号" width="200" style="text-align: center;">
+            <el-table :data="tableData" :stripe="true" style="width: 100%;" :fit="true">
+                <el-table-column type="index" label="序号" align="center" min-width="80">
                 </el-table-column>
-                <el-table-column property="name" label="级别名称" width="250" style="text-align: center;">
+                <el-table-column property="name" label="级别名称" align="center">
                 </el-table-column>
-                <el-table-column label="状态" width="250">
+                <el-table-column label="状态" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.status == 1">启用</span>
                         <span v-else>停用</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="550" style="text-align: center;">
+                <el-table-column label="操作" align="center" min-width="100">
                     <template #default="scope">
                         <div v-if="queryEntity.status == 1">
-                            <label @click="start_updateLevel(scope.row)"
-                                style="font-size: 15px; color: #007bff;  "><el-icon>
+                            <el-button @click="start_updateLevel(scope.row)"
+                                style="color: #007bff;  "><el-icon>
                                     <Edit />
-                                </el-icon> 修改</label>
-                            <label @click="start_managePrograms(scope.row)"
-                                style="font-size: 15px; color: green; margin-left: 9vh;"><el-icon>
+                                </el-icon> 修改</el-button>
+                            <el-button @click="start_managePrograms(scope.row)"
+                                style="color: gray; margin-left: 7vh;"><el-icon>
                                     <Setting />
-                                </el-icon> 护理项目配置</label>
+                                </el-icon> 护理项目配置</el-button>
                         </div>
                         <div v-else>
                             <label @click="start_updateLevel(scope.row)"
-                                style="font-size: 15px; color: #007bff; "><el-icon>
+                                style="color: #007bff; "><el-icon>
                                     <Edit />
                                 </el-icon> 修改</label>
                         </div>
@@ -267,14 +270,12 @@ const loadData = () => {
                 :default-page-size="queryEntity.size" @update:page-size="handleSizeChange"
                 @update:current-page="handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
                 :total="total" style="margin-top: 10vh;" />
+        </el-card>
         </el-col>
 
     </el-container>
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
 </style>
+<style src="./scopedStyle.css"></style>

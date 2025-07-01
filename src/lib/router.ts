@@ -23,6 +23,7 @@ import DailyNursing from '@/pages/hts/DailyNursing.vue'
 import FoodManage from '@/pages/mlm/FoodManage.vue'
 import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
+import StreamPage from '@/pages/StreamPage.vue'
 export const routes:RouteRecordRaw[]=[
     {
         path:'/login',component:LoginPage
@@ -120,6 +121,10 @@ export const routes:RouteRecordRaw[]=[
         path: "/errorPage",
         component: ErrorPage
     },
+    {
+        path: "/stream",
+        component: StreamPage
+    }
 ]
 export const router=createRouter({
     // history:createMemoryHistory(),

@@ -14,6 +14,8 @@ import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
+import { json } from 'stream/consumers'
+import type { User } from '@/lib/type'
 const router = useRouter()
 
 type UserMes = {
@@ -53,10 +55,21 @@ const login = () => {
 			let token = rb.data;
             // console.log('token: ', token)
 			// 把用户令牌存入前端Session中
-			sessionStorage.setItem('token', token);
-			// 登录成功
-            ElMessage({message: "登录成功！", type: "success"})
-			router.push('/main');
+			localStorage.setItem('token', token);  
+            let currentUser = {} as User
+            axios.post("/user/load", {}).then(res => {
+                if (res.data.status == 200) {
+                    currentUser = res.data.data
+                    // 将登录的user对象存入localStorage中，供其他页面使用
+                    localStorage.setItem("user", JSON.stringify(currentUser))
+                    if (currentUser.userType == 0) { //管理员
+                        ElMessage({message: "登录成功！", type: "success"})
+                        router.push('/main');
+                    } else if (currentUser.userType == 1) {
+                        // 跳转至护工的主页
+                    }
+                }
+            })
 		} else {
 			// 登录失败
 			ElMessage({message: rb.msg, type: "error"})
@@ -78,7 +91,7 @@ const login = () => {
             type: 'spring'
         }" class="absolute  -translate-x-1/4 z-1">
             <Card class="h-[50vh] w-[30vw]">
-                1
+                东软颐养中心
             </Card>
         </motion.div>
         <motion.div 

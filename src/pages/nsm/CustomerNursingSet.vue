@@ -299,57 +299,63 @@ const loadData = () => {
 </script>
 
 <template>
-    <el-main style="width: 100%; margin-top: -5vh; overflow-y: auto;">
-        <div style="margin-top: 3vh; margin-left: 5%; align-items: center;">
+    <el-main style="width: 100%; margin-top: 1vh; overflow-y: auto;">
+        <el-col style="width: 100%;">
+        <el-card shadow="hover" class="section-card" style="width: 100%;">
             <p>
                 <!-- 搜索框 -->
                 <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名"
                     style="width: 30vh;"></el-input>
-                <Button @click="loadUsers" class="add-button"
-                    style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
+                <Button @click="loadUsers" 
+                    style="font-size: 15px; margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
             </p>
 
             <br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
+            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 16px; font-weight: bold;">客户信息列表</label>
             </div>
-            <el-table :data="nursingCustomers" :border="true" :stripe="true" style="width: 1300px;">
-                <el-table-column type="index" label="序号" width="80" style="text-align: center;">
+            <el-table :data="nursingCustomers" :border="true" :stripe="true" style="width: 100%;">
+                <el-table-column type="index" label="序号" align="center" min-width="50">
                 </el-table-column>
-                <el-table-column property="name" label="客户姓名" width="150">
+                <el-table-column property="name" label="客户姓名" align="center">
                 </el-table-column>
-                <el-table-column property="age" label="年龄" width="100">
+                <el-table-column property="age" label="年龄" align="center" width="100">
                 </el-table-column>
-                <el-table-column label="性别" width="110">
+                <el-table-column label="性别" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.gender == 0">女</span>
                         <span v-else-if="scope.row.gender == 1">男</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="roomNumber" label="房间号" width="110">
+                <el-table-column property="roomNumber" label="房间号" align="center">
                 </el-table-column>
-                <el-table-column property="bedNumber" label="床位号" width="140">
+                <el-table-column property="bedNumber" label="床位号" align="center">
                 </el-table-column>
-                <el-table-column property="building" label="所属楼栋" width="100">
+                <el-table-column property="building" label="所属楼栋" align="center">
                 </el-table-column>
-                <el-table-column property="phoneNumber" label="联系电话" width="155">
+                <el-table-column property="phoneNumber" label="联系电话" align="center">
                 </el-table-column>
-                <el-table-column property="nursingLevelName" label="护理级别" width="110">
+                <el-table-column property="nursingLevelName" label="护理级别" align="center">
                 </el-table-column>
-                <el-table-column label="操作" width="240" style="text-align: center;">
+                <el-table-column label="操作" align="center" min-width="100">
                     <template #default="scope">
                         <div v-if="scope.row.nursingLevelName.length > 0" style="margin-left: 3vh;">
-                            <Button @click="start_resetLevel(scope.row)"
-                                style="background-color: white; color: red; border: 2px;">移除护理级别</Button>
+                            <el-button @click="start_resetLevel(scope.row)"
+                                style="color: red; ">移除护理级别</el-button>
                         </div>
                         <div v-else style="margin-left: 3vh;">
-                            <Button @click="start_setService(scope.row)"
-                                style="background-color: white; color: blue; border: 2px;">设置护理级别</Button>
+                            <el-button @click="start_setService(scope.row)"
+                                style=" color: blue; ">设置护理级别</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
+
+            <el-pagination :current-page="customer_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
+                :default-page-size="customer_queryEntity.size" @update:page-size="customer_handleSizeChange"
+                @update:current-page="customer_handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
+                :total="customer_total" style="margin-top: 10vh;" />
 
             <!-- 客户护理项目服务页面弹框 -->
             <el-dialog v-model="dialogControl.isVisible" :title="dialogControl.title"
@@ -410,19 +416,12 @@ const loadData = () => {
                     <el-button @click="cancel_commit">取消</el-button>
                 </div>
             </el-dialog>
-
-            <el-pagination :current-page="customer_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
-                :default-page-size="customer_queryEntity.size" @update:page-size="customer_handleSizeChange"
-                @update:current-page="customer_handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
-                :total="customer_total" style="margin-top: 10vh;" />
-        </div>
+        </el-card>
+        </el-col>
 
     </el-main>
 </template>
 
 <style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
 </style>
+<style src="./scopedStyle.css"></style>

@@ -60,9 +60,10 @@ const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
     frameController.curFrameIndex=index
 }
 const logout = () => {
+    localStorage.removeItem("user")
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
-            sessionStorage.removeItem("token")
+            localStorage.removeItem("token")
             ElMessage({message: "已退出登录", type: "info"})
             router.push('/login')
         } else {
