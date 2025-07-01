@@ -8,7 +8,7 @@ import Button from './components/ui/button/Button.vue';
 import 'element-plus/dist/index.css'
 
 const router=useRouter()
-router.push('/login')
+router.push('/main')
 // router.push('/main')
 
 </script>

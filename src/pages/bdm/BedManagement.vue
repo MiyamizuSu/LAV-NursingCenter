@@ -4,6 +4,7 @@ import type {
     ColumnDef,
     ColumnFiltersState,
     ExpandedState,
+    Row,
     SortingState,
     VisibilityState,
 } from '@tanstack/vue-table'
@@ -16,17 +17,10 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { fakerZH_CN as faker } from '@faker-js/faker';
-import { h, onMounted, ref, type Ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+    DialogContent,
+    DialogTitle} from '@/components/ui/dialog'
 import {
     Table,
     TableBody,
@@ -36,33 +30,44 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { useBedManagementStore } from '@/lib/store'
-import type { BedUser, StrictDate } from '@/lib/type'
+import type { BedUser } from '@/lib/type'
 import { valueUpdater } from '@/components/ui/table/utils'
 import { axiosInstance as axios } from '@/lib/core';
 import { cn } from '@/lib/utils'
 import Switcher from '@/components/custom/Switcher.vue';
 import DynamicButton from '@/components/custom/DynamicButton.vue';
-import { DialogRoot } from 'reka-ui';
+import { DialogPortal, DialogRoot, type DateValue } from 'reka-ui';
+import { FormField, Form } from '@/components/ui/form';
+import FormItem from '@/components/ui/form/FormItem.vue';
+import FormLabel from '@/components/ui/form/FormLabel.vue';
+import FormControl from '@/components/ui/form/FormControl.vue';
+import Label from '@/components/ui/label/Label.vue';
+import IInput from '@/components/ui/insput/IInput.vue';
+import Calendar from '@/components/ui/calendar/Calendar.vue';
+import { PopoverTrigger, Popover } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-vue-next';
+import PopoverContent from '@/components/ui/popover/PopoverContent.vue';
+import type { BedChangeRequestBody, UpdateNeedMessage } from './type';
 const bdmStore = useBedManagementStore();
-const diglogOpen=ref<boolean>(false)
-
-function openDialog(){
-
+const diglogOpen = ref<boolean>(false)
+const changeDialogOpen = ref<boolean>(false)
+const curCustomer = ref<BedUser>();
+const bedChangeRequest = reactive<BedChangeRequestBody>({
+    endDate: '',
+    customerId: -1
+})
+function handleCalendarValueChange(v: DateValue | undefined) {
+    bedChangeRequest.endDate = v?.toString() ?? ''
 }
-function _mockDataGenerator(mockData: BedUser[], times: number = 10, seed: number = 520) {
-    for (let i = 0; i < times; i++) {
-        const singleMock: BedUser = {
-            Id: i + 1,
-            Name: faker.person.fullName(),
-            gender: faker.person.sex() as '女' | '男',
-            bedMes: faker.string.uuid(),
-            startUsedTime: faker.date.anytime().toISOString().slice(0, 10) as StrictDate,
-            endUsedTime: faker.date.anytime().toISOString().slice(0, 10) as StrictDate,
-        }
-        mockData[i] = singleMock
-    }
+function openDialog(row: Row<BedUser>) {
+    diglogOpen.value = true
+    curCustomer.value = row.original
 }
-
+function openChangeDialog(row: Row<BedUser>) {
+    changeDialogOpen.value = true;
+    curCustomer.value = row.original;
+    bedChangeRequest.endDate = curCustomer.value.endUsedTime
+}
 async function xhrBedMessage() {
     const res = (await axios.post('/bedUsageRecord/listAll')).data
     return res.data as any[]
@@ -76,20 +81,22 @@ function responseAdaptor(adapted: BedUser[], sources: any[]) {
             gender: source.customerGender ? '男' : '女',
             bedMes: source.bedNumber,
             startUsedTime: source.startDate,
-            endUsedTime: source.endDate || '没有结束'
+            endUsedTime: source.endDate || '没有结束',
+            customerId: source.cutsomerId,
         }
         adapted[i] = b;
     }
 }
 
 onMounted(async () => {
-    // const mockData: BedUser[] = []
-    // _mockDataGenerator(mockData);
     const bedData = [] as BedUser[]
     responseAdaptor(bedData, await xhrBedMessage())
     bdmStore.setUsingBeds(bedData);
     console.log(bedData)
 })
+
+
+
 const columns: ColumnDef<BedUser>[] = [
     {
         id: 'userID',
@@ -130,14 +137,15 @@ const columns: ColumnDef<BedUser>[] = [
     {
         id: 'actions',
         enableHiding: false,
-        cell: () => h('div', { class: 'flex-row flex ' }, [
+        cell: ({ row }) => h('div', { class: 'flex-row flex ' }, [
             h(DynamicButton, {
                 class: '',
-                onclick:openDialog
+                onclick: () => openDialog(row)
             }, '床位调换'
             ),
             h(DynamicButton, {
                 class: '',
+                onclick: () => openChangeDialog(row)
             },
                 '修改'
             )
@@ -145,6 +153,9 @@ const columns: ColumnDef<BedUser>[] = [
         )
     }
 ]
+function onSubmit(values: UpdateNeedMessage) {
+
+}
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
@@ -224,18 +235,180 @@ const datatable = useVueTable({
                 </TableBody>
             </Table>
         </div>
-        <DialogRoot v-model:open="diglogOpen" default-open>
-            <DialogHeader>
-                Hello
-            </DialogHeader>
-            <DialogTrigger :data-state="diglogOpen">
+        <DialogRoot v-model:open="diglogOpen" !default-open>
+            <DialogPortal>
+                <DialogContent>
+                    <DialogTitle>
+                        床位调换
+                    </DialogTitle>
+                    <div>
+                        <Form @submit="(values: any) => onSubmit(values)" v-slot="{ values }">
+                            <div class="flex flex-col ">
+                                <div class="flex flex-col">
+                                    <div class="flex flex-row justify-between">
+                                        <div class="flex flex-row ">
+                                            <div class="flex flex-col leading-20">
+                                                <div class="flex flex-row gap-4">
+                                                    <p> 客户姓名:</p>
+                                                    <Label>
+                                                        {{ curCustomer?.Name }}
+                                                    </Label>
+                                                </div>
+                                                <div class="flex flex-row gap-4">
+                                                    <p>性别:</p>
+                                                    <Label>
+                                                        {{ curCustomer?.gender }}
+                                                    </Label>
+                                                </div>
+                                                <div class="flex flex-row gap-4">
+                                                    <p>旧床位详情:</p>
+                                                    <Label>
+                                                        {{ curCustomer?.bedMes }}
+                                                    </Label>
+                                                </div>
+                                            </div>
 
+                                        </div>
+                                        <div>
+                                            <FormField v-slot="{ componentField }" name="nRoom">
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        新房号
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <IInput v-bind="componentField"></IInput>
+                                                    </FormControl>
+                                                </FormItem>
+                                            </FormField>
+                                            <FormField v-slot="{ componentField }" name="nBed">
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        新床号
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <IInput v-bind="componentField"></IInput>
+                                                    </FormControl>
+                                                </FormItem>
+                                            </FormField>
+                                        </div>
+                                    </div>
+                                    <div class=" flex flex-col leading-10">
+                                        <FormField v-slot="{ componentField }" name="startDate">
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Popover>
+                                                        <PopoverTrigger>
+                                                            <div class="flex flex-row items-center justify-between">
+                                                                <div class="flex flex-row items-center gap-3">
+                                                                    <CalendarIcon class="h-4 w-4 opacity-50">
+                                                                    </CalendarIcon>
+                                                                    <div>新床位使用开始日期</div>
+                                                                </div>
+                                                                <div>
+                                                                    <span>{{ `${componentField.modelValue ?? ''}`
+                                                                    }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent>
+                                                            <Calendar v-bind="componentField" :weekday-format="'short'">
+                                                            </Calendar>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormControl>
+                                            </FormItem>
+                                        </FormField>
+                                        <FormField v-slot="{ componentField }" name="endDate">
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Popover>
+                                                        <PopoverTrigger>
+                                                            <div class="flex flex-row items-center justify-between">
+                                                                <div class="flex flex-row items-center gap-3">
+                                                                    <CalendarIcon class="h-4 w-4 opacity-50">
+                                                                    </CalendarIcon>
+                                                                    <div>新床位使用结束日期</div>
+                                                                </div>
+                                                                <div>
+                                                                    <span>{{ `${componentField.modelValue ?? ''}`
+                                                                    }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent>
+                                                            <Calendar v-bind="componentField" :weekday-format="'short'">
+                                                            </Calendar>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormControl>
+                                            </FormItem>
+                                        </FormField>
+                                    </div>
+                                </div>
+                                <div class="justify-end flex">
+                                    <DynamicButton type="submit">
+                                        提交
+                                    </DynamicButton>
+                                </div>
 
-            </DialogTrigger>
-            <DialogContent>
-                11123211
-            </DialogContent>
+                            </div>
+                        </Form>
+                    </div>
+                </DialogContent>
+            </DialogPortal>
+        </DialogRoot>
+        <DialogRoot v-model:open="changeDialogOpen">
+            <DialogPortal>
+                <DialogContent>
+                    <DialogTitle>修改信息</DialogTitle>
+                    <div class="flex flex-row justify-between">
+                        <div class="flex-col leading-15">
+                            <div class="flex-row flex gap-6">
+                                <p>客户姓名:</p>
+                                <label>{{ curCustomer?.Name }}</label>
+                            </div>
+                            <div class="flex-row flex gap-6">
+                                <p>性别:</p>
+                                <label>{{ curCustomer?.gender }}</label>
+                            </div>
+                        </div>
+                        <div class="felx flex-col leading-15">
+                            <div class="flex flex-row gap-6">
+                                <p>床位详情:</p>
+                                <label>{{ curCustomer?.bedMes }}</label>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="flex flex-col leading-10">
+                        <div class="flex-row flex gap-6">
+                            <p>当前床位使用起始时间:</p>
+                            <label>{{ curCustomer?.startUsedTime }}</label>
+                        </div>
+                        <Popover>
+                            <PopoverTrigger>
+                                <div class="flex flex-row items-center gap-6">
+                                    <p> 当前床位使用结束时间:</p>
+                                    <div class="flex flex-row items-center">
+                                        <p>{{ bedChangeRequest.endDate }}</p>
+                                        <CalendarIcon class="h-4 w-4 opacity-50"></CalendarIcon>
+                                    </div>
+                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                <Calendar :weekday-format="'short'" @update:model-value="handleCalendarValueChange">
+                                </Calendar>
+                            </PopoverContent>
+                        </Popover>
+
+                        <div class="flex justify-end">
+                            <DynamicButton type="submit"> 提交</DynamicButton>
+                        </div>
+
+                    </div>
+                </DialogContent>
+
+            </DialogPortal>
         </DialogRoot>
     </div>
 

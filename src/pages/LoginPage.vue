@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
+import DynamicButton from '@/components/custom/DynamicButton.vue'
 const router = useRouter()
 
 type UserMes = {
@@ -33,17 +34,6 @@ const user1 = ref<UserMes>({
     account: '',
     password: ''
 })
-
-const jump = () => {
-    router.push('/main')
-}
-
-const simpleLogin= async()=>{
-    //  const res= await axios.post("/user/login",user1.value)
-    //  console.log(res)
-     jump()
-
-}
 
 const login = () => {
     axios.post("/user/login", user1.value).then(response => {
@@ -111,7 +101,7 @@ const login = () => {
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="login">提交</Button>
+                        <DynamicButton class=" mt-4" @Click="login">提交</DynamicButton>
                     </div>
 
                 </CardContent>
