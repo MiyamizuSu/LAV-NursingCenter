@@ -38,7 +38,7 @@ const pagination = ref({
 const fetchOrders = async () => {
   try {
     loading.value = true
-    const { data } = await axios.post('http://localhost:9000/mealReservation/page', {
+    const { data } = await axios.post('/mealReservation/page', {
       current: pagination.value.page,
       size: pagination.value.size,
       isDeleted: queryParams.value.isCompleted,
@@ -57,7 +57,7 @@ const fetchOrders = async () => {
 // 完成操作
 const handleComplete = async (id: number) => {
   try {
-    await axios.post('http://localhost:9000/mealReservation/delete', { id })
+    await axios.post('/mealReservation/delete', { id })
     ElMessage.success('操作成功')
     fetchOrders()
   } catch (error) {
@@ -73,7 +73,7 @@ const handleBatchComplete = async () => {
   }
 
   try {
-    await axios.post('http://localhost:9000/mealReservation/deleteBatch', {
+    await axios.post('/mealReservation/deleteBatch', {
       ids: selectedItems.value
     })
     ElMessage.success('批量操作成功')

@@ -45,7 +45,7 @@ const isUploading = ref(false)
 
 // 分页查询
 const queryFoods = () => {
-  axios.post('http://localhost:9000/food/page', queryParams.value)
+  axios.post('/food/page', queryParams.value)
     .then(res => {
       const pr = res.data
       console.log(pr)
@@ -61,7 +61,7 @@ const handleDelete = (id: number) => {
     confirmButtonText: '确认删除',
     cancelButtonText: '取消'
   }).then(() => {
-    axios.post(`http://localhost:9000/food/delete`, { id: id }).then(res => {
+    axios.post(`/food/delete`, { id: id }).then(res => {
       if (res.data.status == 200) {
         ElMessage.success('删除成功')
         queryFoods()
@@ -84,7 +84,7 @@ const handleBatchDelete = () => {
     confirmButtonText: '确认删除',
     cancelButtonText: '取消'
   }).then(() => {
-    axios.post('http://localhost:9000/food/deleteBatch', { ids })
+    axios.post('/food/deleteBatch', { ids })
 
       .then(() => {
         ElMessage.success('批量删除成功')
@@ -179,8 +179,8 @@ const submitForm = () => {
   formRef.value.validate((valid: boolean) => {
     if (!valid) return
     const url = formType.value === 'create'
-      ? 'http://localhost:9000/food/add'
-      : 'http://localhost:9000/food/update'
+      ? '/food/add'
+      : '/food/update'
 
     // 编辑时需要传递ID
     const requestData = formType.value === 'edit'
@@ -236,7 +236,7 @@ const formRules = ref({
 
 const showPriceChart = async () => {
   try {
-    const { data } = await axios.post('http://localhost:9000/food/list', {})
+    const { data } = await axios.post('/food/list', {})
     const foods = data.data
 
     // 同名食品价格归一化（取平均值）

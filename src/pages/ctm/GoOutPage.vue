@@ -28,12 +28,13 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import type { Customer, OutingRegistration } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
 import dayjs from 'dayjs'
 import { debounce } from '@/lib/utils'
+import { E } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ'
 
 const ctmStore = usecustomerManagementStore()
 const outingPages = ref({
@@ -259,7 +260,7 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('http://localhost:9000/customer/page', {
+    const res = await axios.post('/customer/page', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
         name: searchName.value
@@ -273,7 +274,7 @@ const loadCustomers = async () => {
 }
 // 获取分页外出审批数据
 const loadOutingRegistrations = async () => {
-    const res = await axios.post('http://localhost:9000/outingRegistration/page', {
+    const res = await axios.post('/outingRegistration/page', {
         current: outingPages.value.currentPage,
         size: outingPages.value.pageSize,
         name: searchName.value
@@ -338,7 +339,7 @@ const updateApproval = async () => {  // 提交审批
     const currentTime = dayjs().format('YYYY-MM-DD HH:mm:ss')  // 获取当前审批时间
     approvalForm.reviewTime = currentTime
     if (isPassed) { approvalForm.rejectReason = '' }
-    const res = await axios.post('http://localhost:9000/outingRegistration/update', approvalForm)
+    const res = await axios.post('/outingRegistration/update', approvalForm)
     if (res.data.status === 200) {
         ElMessage.success('提交审批成功')
         submitApprovalVisible.value = false
@@ -351,16 +352,14 @@ const updateApproval = async () => {  // 提交审批
 const checkUpdateForm = () => {
     ruleFormRef.value?.validate((valid: any) => {
         if (valid) {
-            console.log("表单验证通过");
             submitApprovalVisible.value = true;
         } else {
-            console.log("表单验证未通过");
+            ElMessage.error('请填写完整信息')
         }
     })
 }
 
 watch(() => approvalForm.reviewStatus, (newVal: any) => {
-    console.log("审批类型", approvalForm.reviewStatus)
     if (approvalForm.reviewStatus === 1) {
         isPassed.value = false
         rules.rejectReason = [
@@ -411,7 +410,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     客户信息
                 </div>
-                <div class="rounded-b-md border overflow-x-auto">
+                <div class="rounded-b-md border">
                     <div>
                         <Table>
                             <TableHeader>
@@ -472,7 +471,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     外出申请审批
                 </div>
-                <div class="rounded-b-md border overflow-x-auto" style="max-height: calc(100vh - 240px);">
+                <div class="rounded-b-md border" >
                     <div>
                         <Table>
                             <TableHeader>
