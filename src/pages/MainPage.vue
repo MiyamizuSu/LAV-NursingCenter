@@ -19,19 +19,15 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { computed, onMounted, reactive, ref, type Reactive, type Ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, type Reactive, type Ref } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
 
-const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
-const userType = ref(0) // 0-系统管理员 1-护工
+let userType = sessionStorage.getItem('userType') // 0-系统管理员 1-护工
+
 type StateNameTag = {
     主页: string;
     [key: string]: string;
 }
-
-onMounted(() => {
-    userType.value = userData.userType || 0
-})
 
 const router = useRouter();
 const frameController = reactive({
@@ -70,6 +66,7 @@ const handleQuickTap = (frame: keyof StateNameTag, index: number) => {
 }
 const logout = () => {
     sessionStorage.removeItem("user")
+    localStorage.removeItem('tokenu')
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
             sessionStorage.removeItem("token")
@@ -83,7 +80,7 @@ const logout = () => {
 
 const STATENAME_TAG = computed<StateNameTag>(() => ({
     主页: '',
-    ...(userType.value === 0 ? {
+    ...(userType === '0' ? {
         入住登记: '/checkIn',
         退住登记: '/checkOut',
         外出登记: '/goOut',
@@ -254,7 +251,7 @@ const nurseSidebarItems = [
             <div>
                 <SidebarProvider :default-open="false">
                     <!-- 根据用户类型显示不同侧边栏 -->
-                    <AppSideBar v-if="userType === 0" :sidebar-items="adminSidebarItems" application-name="东软颐养-系统管理"
+                    <AppSideBar v-if="userType == '0'" :sidebar-items="adminSidebarItems" application-name="东软颐养-系统管理"
                         @memory-plus="handleStatePlus" />
                     <AppSideBar v-else :sidebar-items="nurseSidebarItems" application-name="东软颐养-护理中心"
                         @memory-plus="handleStatePlus" />

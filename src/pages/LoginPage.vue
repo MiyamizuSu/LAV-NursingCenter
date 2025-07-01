@@ -14,6 +14,7 @@ import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
+import { r } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ'
 const router = useRouter()
 
 type UserMes = {
@@ -47,21 +48,64 @@ const simpleLogin = async () => {
 
 const login = () => {
     axios.post("/user/login", user1.value).then(response => {
-        console.log(response)
-
         let rb = response.data;
         if (rb.status == 200) {
             // 取得登录成功的用户的令牌
             let token = rb.data;
             // console.log('token: ', token)
             // 把用户令牌存入前端Session中
-            sessionStorage.setItem('token', token);
+            sessionStorage.removeItem('customerActive')
+            localStorage.setItem('tokenu', token)
+            // localStorage.removeItem('tokenc')
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
-                    sessionStorage.setItem('user', JSON.stringify(res.data.data))
+                    // 登录成功
+                    // console.log(res.data.data.userType)
+                    if (res.data.data.userType == 0) {
+                        localStorage.setItem('tokenu0', token)
+                        localStorage.setItem('user0', JSON.stringify(res.data.data))
+                        sessionStorage.setItem('userType', res.data.data.userType)
+                        localStorage.setItem('AdminUsing', "1")
+                    } else {
+                        localStorage.setItem('tokenu1', token)
+                        localStorage.setItem('user1', JSON.stringify(res.data.data))
+                        sessionStorage.setItem('userType', res.data.data.userType)
+                        localStorage.setItem('NurseUsing', "1")
+                    }
+
+                    ElMessage({ message: "登录成功！", type: "success" })
+                    router.push('/main')
+                }
+            })
+
+        } else {
+            // 登录失败
+            ElMessage({ message: rb.msg, type: "error" })
+        }
+    })
+}
+const loginAsCustomer = () => {
+    axios.post("/customer/login", {
+        phoneNumber: user1.value.account,
+        password: user1.value.password
+    }).then(response => {
+        let rb = response.data;
+        if (rb.status == 200) {
+            // 取得登录成功的用户的令牌
+            let token = rb.data;
+            sessionStorage.removeItem('userType')
+            // console.log('token: ', token)
+            // 把用户令牌存入前端Session中
+            localStorage.setItem('tokenc', token);
+            localStorage.removeItem('tokenu')
+            axios.post("/customer/load", {}).then(res => {
+                if (res.data.status == 200) {
+                    localStorage.setItem('customer', JSON.stringify(res.data.data))
+                    sessionStorage.setItem('customerActive', '1')
+                    localStorage.setItem('customerUsing', '1')
                     // 登录成功
                     ElMessage({ message: "登录成功！", type: "success" })
-                    router.push('/main');
+                    router.push('/mealReservation');
                 }
             })
 
@@ -85,9 +129,7 @@ const login = () => {
         }" :transition="{
             type: 'spring'
         }" class="absolute  -translate-x-1/4 z-1">
-            <Card class="h-[50vh] w-[30vw]">
-                1
-            </Card>
+
         </motion.div>
         <motion.div :initial="{
             x: 100,
@@ -114,6 +156,9 @@ const login = () => {
                             </FormControl>
                         </FormField>
                     </form>
+                    <div class="flex justify-end mt-10">
+                        <Button class=" mt-4" @Click="loginAsCustomer">膳食预定</Button>
+                    </div>
                     <div class="flex justify-end mt-10">
                         <Button class=" mt-4" @Click="login">提交</Button>
                     </div>

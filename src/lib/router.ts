@@ -25,6 +25,9 @@ import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
+import MealReservation from '@/pages/MealReservation.vue'
+import { axiosInstance as axios } from '@/lib/core'
+
 import type { User } from './type'
 export const routes: RouteRecordRaw[] = [
     {
@@ -130,6 +133,10 @@ export const routes: RouteRecordRaw[] = [
         path: "/errorPage",
         component: ErrorPage
     },
+    {
+        path: "/mealReservation",
+        component: MealReservation
+    }
 ]
 export const router = createRouter({
     // history:createMemoryHistory(),
@@ -152,9 +159,93 @@ router.beforeEach((to, from, next) => {
 
     const nextRoute = ['/login', '/errorPage'];
 
-    if (nextRoute.indexOf(to.path) == -1) {
-        let userJson = sessionStorage.getItem('user')
-        if (userJson == null || userJson == undefined) {
+    if (to.path == '/') {
+        if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
+            router.push('/login')
+        } else {
+            // console.log("/ tokenu", localStorage.getItem('tokenu'))
+            // console.log("/ tokenc", localStorage.getItem('tokenc'))
+            if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
+                axios.post("/user/load", {}).then(res => {
+                    // console.log(res)
+                    // console.log(localStorage.getItem('customerUsing'))
+                    if (res.data.status == 200) {
+                        console.log("userType: ", res.data.data.userType)
+                        if (res.data.data.userType == 0) {
+                            // console.log(localStorage.getItem('AdminUsing'))
+
+                            if (localStorage.getItem('AdminUsing') == null) {
+                                sessionStorage.setItem('userType', res.data.data.userType)
+                                localStorage.setItem('user0', JSON.stringify(res.data.data))
+                                localStorage.setItem('AdminUsing', "1")
+                                // console.log(localStorage.getItem('AdminUsing'))
+                                router.push('/main')
+                            } else {
+                                // console.log(localStorage.getItem('AdminUsing'))
+                                router.push('/login')
+                            }
+                        } else if (res.data.data.userType == 1) {
+                            // console.log(localStorage.getItem('NurseUsing'))
+                            if (localStorage.getItem('NurseUsing') == null) {
+                                sessionStorage.setItem('userType', res.data.data.userType)
+                                localStorage.setItem('user1', JSON.stringify(res.data.data))
+                                localStorage.setItem('NurseUsing', "1")
+                                router.push('/main')
+                            } else {
+                                router.push('/login')
+                            }
+                        }
+                    }
+                })
+            }
+            else if (localStorage.getItem('tokenc') != null && localStorage.getItem('tokenc') != undefined) {
+                axios.post("/customer/load", {}).then(res => {
+                    // console.log(res)
+                    // console.log(localStorage.getItem('customerUsing'))
+                    if (res.data.status == 200) {
+                        if (localStorage.getItem('customerUsing') == null) {
+                            localStorage.setItem('customer', JSON.stringify(res.data.data))
+                            sessionStorage.setItem('customerActive', '1')
+                            localStorage.setItem('customerUsing', '1')
+                            router.push('/mealReservation');
+                            // console.log(sessionStorage.getItem('customerActive'))
+                        } else {
+                            router.push('/login')
+                        }
+
+                    }
+                })
+            }
+        }
+    } else if (to.path === '/mealReservation') {
+        // console.log("mealReservation")
+        let customerJson = ''
+        if (sessionStorage.getItem('customerActive') == '1') {
+            // console.log("customerActive=1")
+            customerJson = localStorage.getItem('customer') as string
+            localStorage.setItem('customerUsing', "1")
+        }
+        console.log(customerJson)
+        if (customerJson == null || customerJson == undefined || customerJson == '') {
+            router.push('/login')
+        }
+    }
+
+    else if (nextRoute.indexOf(to.path) == -1) {
+        let userJson = ''
+        // console.log("路由守卫", sessionStorage.getItem('userType'))
+
+        if (sessionStorage.getItem('userType') == '0') {
+            userJson = localStorage.getItem('user0') as string
+            localStorage.setItem('AdminUsing', "1")
+        } else if (sessionStorage.getItem('userType') == '1') {
+            userJson = localStorage.getItem('user1') as string
+            localStorage.setItem('NurseUsing', "1")
+        }
+        // console.log("路由", userJson)
+
+        if (userJson == null || userJson == undefined || userJson == '') {
+            // console.log("路由守卫", userJson)
             router.push('/login')
         }
         else {
