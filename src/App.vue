@@ -6,10 +6,26 @@ import AppSideBar from './components/custom/AppSideBar.vue';
 import SidebarTrigger from './components/ui/sidebar/SidebarTrigger.vue';
 import Button from './components/ui/button/Button.vue';
 import 'element-plus/dist/index.css'
+import { E } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ';
+import { axiosInstance as axios } from '@/lib/core'
 
-const router=useRouter()
-router.push('/main')
-// router.push('/main')
+const router = useRouter()
+
+//关闭窗口时
+window.addEventListener('beforeunload', function (e) {
+    handleWindowClose()
+})
+
+const handleWindowClose = () => {
+    if (sessionStorage.getItem('customerActive') == '1') {
+        localStorage.removeItem('customerUsing')
+    }
+    if (sessionStorage.getItem('userType') == '0') {
+        localStorage.removeItem('AdminUsing')
+    } else if (sessionStorage.getItem('userType') == '1') {
+        localStorage.removeItem('NurseUsing')
+    }
+}
 
 </script>
 
@@ -19,5 +35,4 @@ router.push('/main')
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
