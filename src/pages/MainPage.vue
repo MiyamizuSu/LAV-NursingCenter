@@ -13,21 +13,21 @@ import DropdownMenuSeparator from '@/components/ui/dropdown-menu/DropdownMenuSep
 import DropdownMenuItem from '@/components/ui/dropdown-menu/DropdownMenuItem.vue';
 import DropdownMenuShortcut from '@/components/ui/dropdown-menu/DropdownMenuShortcut.vue';
 import DropdownMenuGroup from '@/components/ui/dropdown-menu/DropdownMenuGroup.vue';
-// import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
-import { onBeforeRouteUpdate, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { reactive, ref, type Reactive, type Ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
+import { toast } from 'vue-sonner';
+import type { sidebarItem } from '@/components/custom/type';
 
 const router = useRouter();
 const frameController = reactive({
     frameStack: ['主页'] as Key<typeof STATENAME_TAG>[],
     curFrameIndex: 0
 })
-const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
+const handleStateCancel = (stateName: Key<typeof STATENAME_TAG>) => {
     const frameStack = frameController.frameStack
     let i = 0;
     for (; i < frameStack.length; i++) {
@@ -38,16 +38,14 @@ const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
         }
     }
     if (frameController.curFrameIndex === i) {
-        frameController.curFrameIndex=i-1;
-        console.log(frameController.curFrameIndex)
+        frameController.curFrameIndex = i - 1;
         router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
-
     }
 }
 
 const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
-    if (frameController.frameStack.includes(frame)){
-        frameController.curFrameIndex=frameController.frameStack.findIndex(f=>f===frame);
+    if (frameController.frameStack.includes(frame)) {
+        frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
         router.push(`/main${STATENAME_TAG[frame]}`)
         return
     }
@@ -56,20 +54,19 @@ const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
     router.push(`/main${STATENAME_TAG[frame]}`)
 }
 //To-do customerNursingSet遮挡了顶部状态栏
-const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
+const handleQuickTap = (frame: Key<typeof STATENAME_TAG>, index: number) => {
     router.push(`/main${STATENAME_TAG[frame]}`);
-    frameController.curFrameIndex=index
+    frameController.curFrameIndex = index
 }
-const logout = () => {
-    axios.post("/user/logout", {}).then(res => {
-        if (res.data.status == 200) {
-            sessionStorage.removeItem("token")
-            ElMessage({message: "已退出登录", type: "info"})
-            router.push('/login')
-        } else {
-            ElMessage({message: res.data.msg, type: "error"})
-        }
-    })
+const logout = async () => {
+    const res = await axios.post("/user/logout", {})
+    if (res.data.status == 200) {
+        sessionStorage.removeItem("token")
+        toast.info('您已经退出登录')
+        router.push('/login')
+    } else {
+       toast.error(res.data.msg)
+    }
 }
 
 const STATENAME_TAG = {
@@ -90,72 +87,64 @@ const STATENAME_TAG = {
     基础信息维护: '/basicInformationMaintain'
 } as const
 
-const sidebarItems = [
+const sidebarItems = ref<sidebarItem[]>([ 
     { title: "首页" },
     {
-        title: "客户管理",
-        icon: ShieldUser,
-        children: [{
-            title: "入住登记"
-        }, {
-            title: "退住登记"
-        }, {
-            title: '外出登记'
-        }]
+      title: "客户管理",
+      icon: ShieldUser,
+      children: [
+        { title: "入住登记" },
+        { title: "退住登记" },
+        { title: "外出登记" }
+      ]
     },
     {
-        title: "床位管理",
-        icon: Bed,
-        children: [{
-            title: "床位示意图"
-        },
-        {
-            title: "床位管理"
-        }
-        ]
+      title: "床位管理",
+      icon: Bed,
+      children: [
+        { title: "床位示意图" },
+        { title: "床位管理" }
+      ]
     },
     {
-        title: "护理管理",
-        icon: SquareActivity,
-        children: [{
-            title: "护理级别"
-        },
-        {
-            title: "护理项目"
-        }, {
-            title: "客户护理设置"
-        },
-        {
-            title: "护理记录"
-        }
-        ]
+      title: "护理管理",
+      icon: SquareActivity,
+      children: [
+        { title: "护理级别" },
+        { title: "护理项目" },
+        { title: "客户护理设置" },
+        { title: "护理记录" }
+      ]
     },
     {
-        title: "膳食管理",
-        icon: Apple,
-        children: [{
-            title: "膳食日历"
-        }, {
-            title: "膳食配置"
-        }]
+      title: "膳食管理",
+      icon: Apple,
+      children: [
+        { title: "膳食日历" },
+        { title: "膳食配置" }
+      ]
     },
     {
-        title: "健康管家",
-        icon: HeartPlus,
-        children: [{
-            title: "设置服务对象"
-        }, {
-            title: "服务关注"
-        }]
+      title: "健康管家",
+      icon: HeartPlus,
+      children: [
+        { title: "设置服务对象" },
+        { title: "服务关注" }
+      ]
+    },
+    {
+      title: "用户管理",
+      icon: CircleUserRound,
+      children: [
+        { title: "基础信息维护" }
+      ]
     }
-    , {
-        title: '用户管理',
-        icon: CircleUserRound,
-        children: [{
-            title: "基础信息维护"
-        }]
-    }
-];
+  ]);
+
+onMounted(() => {
+  sidebarItems.value = []
+});
+
 </script>
 
 <template>
@@ -165,10 +154,10 @@ const sidebarItems = [
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
                         <div class=" flex-1 space-x-4 flex">
-                            <template v-for="(frame,index) in frameController.frameStack">
-                                <AvgTag :tag-name="frame" :is-active="index===frameController.curFrameIndex"
+                            <template v-for="(frame, index) in frameController.frameStack">
+                                <AvgTag :tag-name="frame" :is-active="index === frameController.curFrameIndex"
                                     @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
-                                    @tap-to-page="handleQuickTap(frame,index)" v-if="frame !== '主页'" />
+                                    @tap-to-page="handleQuickTap(frame, index)" v-if="frame !== '主页'" />
                             </template>
 
                         </div>
@@ -222,7 +211,6 @@ const sidebarItems = [
 .backBlur {
     backdrop-filter: blur(8px);
 }
-
 .bg-img {
     background-image: url('/src/assets/bg.jpeg');
     background-size: cover;

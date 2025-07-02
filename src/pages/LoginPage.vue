@@ -8,13 +8,13 @@ import FormLabel from '@/components/ui/form/FormLabel.vue'
 import IInput from '@/components/ui/insput/IInput.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
-import Button from '@/components/ui/button/Button.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
 import DynamicButton from '@/components/custom/DynamicButton.vue'
+import { toast} from 'vue-sonner'
 const router = useRouter()
 
 type UserMes = {
@@ -35,34 +35,28 @@ const user1 = ref<UserMes>({
     password: ''
 })
 
-const login = () => {
-    axios.post("/user/login", user1.value).then(response => {
-		let rb = response.data;
-		if (rb.status == 200) {
-			// 取得登录成功的用户的令牌
-			let token = rb.data;
-            // console.log('token: ', token)
-			// 把用户令牌存入前端Session中
-			sessionStorage.setItem('token', token);
-            axios.post("/user/load", {}).then(res => {
-                if (res.data.status == 200) {
-                    sessionStorage.setItem("user", JSON.stringify(res.data.data))
-                    // 登录成功
-                    ElMessage({message: "登录成功！", type: "success"})
-                    router.push('/main');
-                }
-            })
-			
-		} else {
-			// 登录失败
-			ElMessage({message: rb.msg, type: "error"})
-		}
-	})
+const login = async () => {
+    const response = await axios.post("/user/login", user1.value)
+    let rb = response.data;
+    if (rb.status == 200) {
+        let token = rb.data;
+        sessionStorage.setItem('token', token);
+        const res = await axios.post("/user/load", {})
+        if (res.data.status == 200) {
+            sessionStorage.setItem("user", JSON.stringify(res.data.data))
+            toast.success('登陆成功')
+            router.push('/main');
+        }
+    } else {
+        toast.error('登陆失败')
+    }
 }
+
 
 </script>
 
 <template>
+    
     <div class="flex justify-center items-center h-screen w-screen overflow-auto ">
         <motion.div :initial="{
             x: -100,
@@ -77,19 +71,15 @@ const login = () => {
                 1
             </Card>
         </motion.div>
-        <motion.div 
-        :initial="{
-            x:100,
-            y:100
-        }"
-        :animate="{
-            x:0,
-            y:0
-        }"
-        :transition="{
-            type:'spring'
-        }"
-        class="z-10 h-[40vh] w-[25vw]">
+        <motion.div :initial="{
+            x: 100,
+            y: 100
+        }" :animate="{
+            x: 0,
+            y: 0
+        }" :transition="{
+            type: 'spring'
+        }" class="z-10 h-[40vh] w-[25vw]">
             <Card class="">
                 <CardContent>
                     <form class="grid gap-4">
