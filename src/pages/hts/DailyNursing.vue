@@ -1,8 +1,9 @@
 <!-- 健康管家端 日常护理 -->
 <script setup lang="ts">
 import { axiosInstance as axios } from '@/lib/core'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { User } from '@/lib/type'
 
 // 客户信息接口
 interface Customer {
@@ -29,6 +30,8 @@ interface CareItem {
   expirationDate: string
   status: string
 }
+
+let currentNurse = ref({} as User)
 
 // 分页查询参数
 const customerQuery = ref({
@@ -77,7 +80,8 @@ const formRules = ref({
 
 // 分页查询客户
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/page', customerQuery.value)
+  console.log(currentNurse.value.userId)
+  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, currentNurseId: currentNurse.value.userId })
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {
@@ -152,7 +156,22 @@ const handleOpenRecordDialog = (careItem: CareItem) => {
   showRecordDialog.value = true
 }
 
+const form = ref()
+
+const handleDialogClosed = () => {
+  nextTick(() => {
+    const dialog = document.querySelector('.el-dialog') as HTMLElement
+    if (dialog) {
+      // 重置对话框位置
+      dialog.style.marginTop = '10vh'
+      dialog.style.left = '35%'
+      dialog.style.transform = 'translateX(-50%)'
+    }
+  })
+}
+
 onMounted(() => {
+  currentNurse.value = JSON.parse(localStorage.getItem('user1')!)
   queryCustomers()
 })
 
@@ -189,13 +208,16 @@ onMounted(() => {
           </el-table-column>
         </el-table>
 
-        <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
+        <el-pagination background v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
+          :page-sizes="[5, 7, 10, 15]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
           @current-change="queryCustomers" @size-change="queryCustomers" />
       </el-card>
 
       <!-- 护理项目管理对话框 -->
-      <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog" width="70%" top="5vh">
+      <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog" draggable overflow @closed="() => {
+        form?.resetFields()
+        handleDialogClosed()
+      }" width="70%" top="10vh">
         <el-card shadow="hover" class="dialog-card">
           <el-table :data="careItems" stripe header-row-class-name="dialog-table-header">
             <el-table-column type="index" label="序号" width="60" align="center" />
@@ -223,7 +245,7 @@ onMounted(() => {
             </el-table-column>
           </el-table>
 
-          <el-pagination v-model:current-page="careItemQuery.current" v-model:page-size="careItemQuery.size"
+          <el-pagination background v-model:current-page="careItemQuery.current" v-model:page-size="careItemQuery.size"
             :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="careItemTotal"
             @current-change="queryCareItems" @size-change="queryCareItems" class="dialog-pagination" />
         </el-card>
@@ -232,7 +254,10 @@ onMounted(() => {
   </el-container>
 
   <!-- 护理记录对话框 -->
-  <el-dialog title="添加护理记录" v-model="showRecordDialog" @closed="recordForm?.resetFields()">
+  <el-dialog title="添加护理记录" v-model="showRecordDialog" draggable overflow @closed="() => {
+    form?.resetFields()
+    handleDialogClosed()
+  }">
     <el-form :model="careRecordForm" :rules="formRules" ref="recordForm">
       <el-form-item label="客户姓名">
         <el-input v-model="currentCustomer.name" disabled />

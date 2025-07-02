@@ -19,10 +19,8 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { computed, onBeforeUnmount, onMounted, reactive, ref, type Reactive, type Ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, type Component, type Reactive, type Ref } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
-
-let userType = sessionStorage.getItem('userType') // 0-系统管理员 1-护工
 
 type StateNameTag = {
     主页: string;
@@ -46,22 +44,22 @@ const handleStateCancel = (stateName: keyof StateNameTag) => {
     }
     if (frameController.curFrameIndex === i) {
         frameController.curFrameIndex = i - 1;
-        router.push(`/main${STATENAME_TAG.value[frameController.frameStack[frameController.curFrameIndex]]}`);
+        router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
     }
 }
 
 const handleStatePlus = (frame: keyof StateNameTag) => {
     if (frameController.frameStack.includes(frame)) {
         frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
-        router.push(`/main${STATENAME_TAG.value[frame]}`)
+        router.push(`/main${STATENAME_TAG[frame]}`)
         return
     }
     frameController.frameStack.push(frame);
     frameController.curFrameIndex = frameController.frameStack.length - 1
-    router.push(`/main${STATENAME_TAG.value[frame]}`);
+    router.push(`/main${STATENAME_TAG[frame]}`);
 }
 const handleQuickTap = (frame: keyof StateNameTag, index: number) => {
-    router.push(`/main${STATENAME_TAG.value[frame]}`);
+    router.push(`/main${STATENAME_TAG[frame]}`);
     frameController.curFrameIndex = index
 }
 const logout = () => {
@@ -78,9 +76,90 @@ const logout = () => {
     })
 }
 
-const STATENAME_TAG = computed<StateNameTag>(() => ({
-    主页: '',
-    ...(userType === '0' ? {
+let STATENAME_TAG = {}
+
+type SidebarItem = {
+    title: string;
+    icon?: Component;
+    children?: SidebarItem[];
+}
+
+let sidebarItems = reactive<SidebarItem[]>([])
+
+const adminState = {
+    // 管理员侧边栏
+    adminSidebarItems: [
+        { title: "首页" },
+        {
+            title: "客户管理",
+            icon: ShieldUser,
+            children: [{
+                title: "入住登记"
+            }, {
+                title: "退住登记"
+            }, {
+                title: '外出登记'
+            }]
+        },
+        {
+            title: "床位管理",
+            icon: Bed,
+            children: [{
+                title: "床位示意图"
+            },
+            {
+                title: "床位管理"
+            }
+            ]
+        },
+        {
+            title: "护理管理",
+            icon: SquareActivity,
+            children: [{
+                title: "护理级别"
+            },
+            {
+                title: "护理项目"
+            }, {
+                title: "客户护理设置"
+            },
+            {
+                title: "护理记录"
+            }
+            ]
+        },
+        {
+            title: "膳食管理",
+            icon: Apple,
+            children: [{
+                title: "膳食日历"
+            }, {
+                title: "膳食配置"
+            }, {
+                title: "食品管理"
+            }, {
+                title: "膳食预约管理"
+            }]
+        },
+        {
+            title: "健康管家",
+            icon: HeartPlus,
+            children: [{
+                title: "设置服务对象"
+            }, {
+                title: "服务关注"
+            }]
+        }
+        , {
+            title: '用户管理',
+            icon: CircleUserRound,
+            children: [{
+                title: "基础信息维护"
+            }]
+        }
+    ],
+    adminStateList: {
+        主页: '',
         入住登记: '/checkIn',
         退住登记: '/checkOut',
         外出登记: '/goOut',
@@ -97,107 +176,50 @@ const STATENAME_TAG = computed<StateNameTag>(() => ({
         设置服务对象: '/serviceObjectSetting',
         服务关注: '/serviceFocus',
         基础信息维护: '/basicInfromationMaintain'
-    } : {
+    }
+}
+
+const nurseState = {
+    // 护工侧边栏
+    nurseSidebarItems: [
+        {
+            title: "客户管理",
+            icon: ShieldUser,
+            children: [
+                { title: "外出申请" },
+                { title: "退住申请" },
+            ]
+        },
+        {
+            title: "健康管理",
+            icon: HeartPlus,
+            children: [
+                { title: "日常护理" },
+                { title: "护理记录" },
+            ]
+        }
+    ],
+    nurseStateList: {
+        主页: '',
         日常护理: '/dailyNursing',
         护理记录: '/nursingRecord2',
         退住申请: '/checkOutApplication',
         外出申请: '/goOutApplication'
-    })
-
-
-}))
-
-// 管理员侧边栏
-const adminSidebarItems = [
-    { title: "首页" },
-    {
-        title: "客户管理",
-        icon: ShieldUser,
-        children: [{
-            title: "入住登记"
-        }, {
-            title: "退住登记"
-        }, {
-            title: '外出登记'
-        }]
-    },
-    {
-        title: "床位管理",
-        icon: Bed,
-        children: [{
-            title: "床位示意图"
-        },
-        {
-            title: "床位管理"
-        }
-        ]
-    },
-    {
-        title: "护理管理",
-        icon: SquareActivity,
-        children: [{
-            title: "护理级别"
-        },
-        {
-            title: "护理项目"
-        }, {
-            title: "客户护理设置"
-        },
-        {
-            title: "护理记录"
-        }
-        ]
-    },
-    {
-        title: "膳食管理",
-        icon: Apple,
-        children: [{
-            title: "膳食日历"
-        }, {
-            title: "膳食配置"
-        }, {
-            title: "食品管理"
-        }, {
-            title: "膳食预约管理"
-        }]
-    },
-    {
-        title: "健康管家",
-        icon: HeartPlus,
-        children: [{
-            title: "设置服务对象"
-        }, {
-            title: "服务关注"
-        }]
     }
-    , {
-        title: '用户管理',
-        icon: CircleUserRound,
-        children: [{
-            title: "基础信息维护"
-        }]
-    }
-];
+}
 
-// 护工侧边栏
-const nurseSidebarItems = [
-    {
-        title: "客户管理",
-        icon: ShieldUser,
-        children: [
-            { title: "外出申请" },
-            { title: "退住申请" },
-        ]
-    },
-    {
-        title: "健康管理",
-        icon: HeartPlus,
-        children: [
-            { title: "日常护理" },
-            { title: "护理记录" },
-        ]
+
+onMounted(() => {
+    const userType = sessionStorage.getItem('userType')
+    if (userType === '0') {
+        sidebarItems = adminState.adminSidebarItems
+        STATENAME_TAG = adminState.adminStateList
+    } else if (userType === '1') {
+        sidebarItems = nurseState.nurseSidebarItems
+        STATENAME_TAG = nurseState.nurseStateList
     }
-]
+    console.log(sidebarItems);
+})
 </script>
 
 <template>
@@ -250,11 +272,7 @@ const nurseSidebarItems = [
         <div class="flex z-10 flex-1">
             <div>
                 <SidebarProvider :default-open="false">
-                    <!-- 根据用户类型显示不同侧边栏 -->
-                    <AppSideBar v-if="userType == '0'" :sidebar-items="adminSidebarItems" application-name="东软颐养-系统管理"
-                        @memory-plus="handleStatePlus" />
-                    <AppSideBar v-else :sidebar-items="nurseSidebarItems" application-name="东软颐养-护理中心"
-                        @memory-plus="handleStatePlus" />
+                    <AppSideBar :sidebar-items="sidebarItems" application-name="东软颐养" @memory-plus="handleStatePlus" />
                     <main class="h-[30px]">
                         <SidebarTrigger></SidebarTrigger>
                     </main>

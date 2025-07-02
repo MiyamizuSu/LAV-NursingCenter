@@ -1,7 +1,7 @@
 <!-- 系统管理员端 膳食管理 膳食日历 -->
 <script setup lang="ts">
 import { axiosInstance as axios } from '@/lib/core'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, ElTable, ElButton, ElInput, ElForm, ElDialog, ElContainer } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
 import type { User } from '@/lib/type'
@@ -256,6 +256,7 @@ const remove = (id: number) => {
   })
 }
 
+
 const init = () => {
   query();
 }
@@ -329,18 +330,18 @@ const handleChange = () => {
           <el-table-column align="center" prop="status" label="状态" :formatter="formatStatus" />
           <el-table-column align="center" label="操作" fixed="right" min-width="120">
             <template #default="scope">
-              <el-button size="small" @click="handleEdit(scope.$index,)">
+              <el-button size="small" @click="handleEdit(scope.row)">
                 编辑
               </el-button>
-              <el-button size="small" type="danger" @click="handleDelete(scope.$index)">
+              <el-button size="small" type="danger" @click="handleDelete(scope.row)">
                 删除
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
-        <el-pagination v-model:current-page="queryEntity.current" v-model:page-size="queryEntity.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="total"
+        <el-pagination background v-model:current-page="queryEntity.current" v-model:page-size="queryEntity.size"
+          :page-sizes="[5, 6, 7]" layout="total, sizes, prev, pager, next, jumper" :total="total"
           @size-change="handleSizeChange" @current-change="handleCurrentChange" />
 
       </el-card>
@@ -348,7 +349,9 @@ const handleChange = () => {
   </el-container>
 
   <el-dialog v-model="dialogVisible" :title="isAdding ? '新增膳食日历项' : '编辑膳食日历项'" width="500" :before-close="handleClose"
-    draggable overflow @closed="form?.resetFields()">
+    draggable overflow :key="Number(dialogVisible)" @closed="() => {
+      form?.resetFields()
+    }">
     <el-form :model="mealItem" :rules="rules" ref="form">
       <el-form-item label="选择品类" prop="foodType" :label-width="formLableWidth">
         <el-select v-model="mealItem.foodType" @change="handleChange" placeholder="请选择食品品类" :clearable="isAdding"
