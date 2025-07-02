@@ -17,24 +17,22 @@ import AvgTag from '@/components/custom/AvgTag.vue';
 import { useRouter } from 'vue-router';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { computed, onBeforeUnmount, onMounted, reactive, ref, type Component, type Reactive, type Ref } from 'vue';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, type Component } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
 import { toast } from 'vue-sonner';
 import type { sidebarItem } from '@/components/custom/type';
 import { ElMessage } from 'element-plus';
-
-type StateNameTag = {
-    主页: string;
-    [key: string]: string;
+type SidebarItem = {
+    title: string;
+    icon?: Component;
+    children?: SidebarItem[];
 }
-
 const router = useRouter();
 const frameController = reactive({
-    frameStack: ['主页'] as Array<keyof StateNameTag>,
+    frameStack: ['主页'] ,
     curFrameIndex: 0
 })
-const handleStateCancel = (stateName: Key<typeof STATENAME_TAG>) => {
+const handleStateCancel = (stateName: string) => {
     const frameStack = frameController.frameStack
     let i = 0;
     for (; i < frameStack.length; i++) {
@@ -46,23 +44,23 @@ const handleStateCancel = (stateName: Key<typeof STATENAME_TAG>) => {
     }
     if (frameController.curFrameIndex === i) {
         frameController.curFrameIndex = i - 1;
-        router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
+        router.push(`/main${stateName_tag.value?.[frameController.frameStack[frameController.curFrameIndex]]}`);
     }
 }
 
-const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
+const handleStatePlus = (frame: string) => {
     if (frameController.frameStack.includes(frame)) {
         frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
-        router.push(`/main${STATENAME_TAG[frame]}`)
+        router.push(`/main${stateName_tag.value?.[frame]}`)
         return
     }
     frameController.frameStack.push(frame);
     frameController.curFrameIndex = frameController.frameStack.length - 1
-    router.push(`/main${STATENAME_TAG[frame]}`);
+    router.push(`/main${stateName_tag.value?.[frame]}`);
 }
 //To-do customerNursingSet遮挡了顶部状态栏
-const handleQuickTap = (frame: Key<typeof STATENAME_TAG>, index: number) => {
-    router.push(`/main${STATENAME_TAG[frame]}`);
+const handleQuickTap = (frame: string, index: number) => {
+    router.push(`/main${stateName_tag.value?.[frame]}`);
     frameController.curFrameIndex = index
 }
 const logout = () => {
@@ -79,13 +77,9 @@ const logout = () => {
     })
 }
 
-let STATENAME_TAG = {}
+let stateName_tag = ref<{[key:string]:string}>()
 
-type SidebarItem = {
-    title: string;
-    icon?: Component;
-    children?: SidebarItem[];
-}
+
 
 let sidebarItems = reactive<SidebarItem[]>([])
 
@@ -215,11 +209,11 @@ const nurseState = {
 onMounted(() => {
     const userType = sessionStorage.getItem('userType')
     if (userType === '0') {
-        sidebarItems = adminState.adminSidebarItems
-        STATENAME_TAG = adminState.adminStateList
+        sidebarItems.push(...adminState.adminSidebarItems)
+        stateName_tag.value = adminState.adminStateList
     } else if (userType === '1') {
-        sidebarItems = nurseState.nurseSidebarItems
-        STATENAME_TAG = nurseState.nurseStateList
+        sidebarItems.push(...nurseState.nurseSidebarItems)
+        stateName_tag.value = nurseState.nurseStateList
     }
     console.log(sidebarItems);
 })
@@ -234,7 +228,7 @@ onMounted(() => {
                         <div class=" flex-1 space-x-4 flex">
                             <template v-for="(frame, index) in frameController.frameStack">
                                 <AvgTag :tag-name="frame" :is-active="index === frameController.curFrameIndex"
-                                    @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
+                                    @memory-cancel="handleStateCancel(frame )" :id="frame"
                                     @tap-to-page="handleQuickTap(frame, index)" v-if="frame !== '主页'" />
                             </template>
 
