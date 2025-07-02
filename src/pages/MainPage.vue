@@ -19,7 +19,7 @@ import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { reactive, ref, type Reactive, type Ref } from 'vue';
+import { onMounted, reactive, ref, watch, type Reactive, type Ref } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
 
 const router = useRouter();
@@ -38,7 +38,7 @@ const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
         }
     }
     if (frameController.curFrameIndex === i) {
-        frameController.curFrameIndex=i-1;
+        frameController.curFrameIndex = i - 1;
         console.log(frameController.curFrameIndex)
         router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
 
@@ -46,8 +46,8 @@ const handleStateCancel = (stateName: keyof typeof STATENAME_TAG) => {
 }
 
 const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
-    if (frameController.frameStack.includes(frame)){
-        frameController.curFrameIndex=frameController.frameStack.findIndex(f=>f===frame);
+    if (frameController.frameStack.includes(frame)) {
+        frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
         router.push(`/main${STATENAME_TAG[frame]}`)
         return
     }
@@ -55,18 +55,18 @@ const handleStatePlus = (frame: Key<typeof STATENAME_TAG>) => {
     frameController.curFrameIndex = frameController.frameStack.length - 1
     router.push(`/main${STATENAME_TAG[frame]}`)
 }
-const handleQuickTap=(frame:Key<typeof STATENAME_TAG>,index:number)=>{
+const handleQuickTap = (frame: Key<typeof STATENAME_TAG>, index: number) => {
     router.push(`/main${STATENAME_TAG[frame]}`);
-    frameController.curFrameIndex=index
+    frameController.curFrameIndex = index
 }
 const logout = () => {
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
             sessionStorage.removeItem("token")
-            ElMessage({message: "已退出登录", type: "info"})
-            router.push('/login')
+            ElMessage({ message: "已退出登录", type: "info" })
+            router.push('/home')
         } else {
-            ElMessage({message: res.data.msg, type: "error"})
+            ElMessage({ message: res.data.msg, type: "error" })
         }
     })
 }
@@ -155,6 +155,17 @@ const sidebarItems = [
         }]
     }
 ];
+const isDark = ref(false)
+watch(isDark, (newVal) => {
+    localStorage.setItem('theme', newVal ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', newVal)
+})
+onMounted(() => {
+    const savedTheme = localStorage.getItem('theme')
+    isDark.value = savedTheme === 'dark'
+    document.documentElement.classList.toggle('dark', isDark.value)
+})
+
 </script>
 
 <template>
@@ -164,43 +175,71 @@ const sidebarItems = [
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
                         <div class=" flex-1 space-x-4 flex">
-                            <template v-for="(frame,index) in frameController.frameStack">
+                            <template v-for="(frame, index) in frameController.frameStack">
                                 <AvgTag :tag-name="frame"
                                     @memory-cancel="handleStateCancel(frame as Key<typeof STATENAME_TAG>)" :id="frame"
-                                    @tap-to-page="handleQuickTap(frame,index)" v-if="frame !== '主页'" />
+                                    @tap-to-page="handleQuickTap(frame, index)" v-if="frame !== '主页'" />
                             </template>
 
                         </div>
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <Avatar>
-                                <AvatarFallback>
-                                    头像
-                                </AvatarFallback>
-                                <AvatarImage src="">
-                                </AvatarImage>
-                            </Avatar>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuLabel>个人资料</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <span>档案</span>
-                                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>设置</span>
-                                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem @click="logout">
-                                    <span>退出</span>
-                                    <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div class="flex items-center space-x-2">
+                        <Switch v-model="isDark">
+                            <template #thumb>
+                                <div class="flex items-center justify-center w-full h-full">
+                                    <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-moon-icon lucide-moon size-3">
+                                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-sun-medium-icon lucide-sun-medium size-3">
+                                        <circle cx="12" cy="12" r="4" />
+                                        <path d="M12 3v1" />
+                                        <path d="M12 20v1" />
+                                        <path d="M3 12h1" />
+                                        <path d="M20 12h1" />
+                                        <path d="m18.364 5.636-.707.707" />
+                                        <path d="m6.343 17.657-.707.707" />
+                                        <path d="m5.636 5.636.707.707" />
+                                        <path d="m17.657 17.657.707.707" />
+                                    </svg>
+                                </div>
+                            </template>
+                        </Switch>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Avatar>
+                                    <AvatarFallback>
+                                        头像
+                                    </AvatarFallback>
+                                    <AvatarImage src="">
+                                    </AvatarImage>
+                                </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>个人资料</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <span>档案</span>
+                                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <span>设置</span>
+                                        <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem @click="logout">
+                                        <span>退出</span>
+                                        <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
         </div>

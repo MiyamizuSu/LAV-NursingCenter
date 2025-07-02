@@ -39,6 +39,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
+import { Switch } from '@/components/ui/switch'
 
 const ctmStore = usecustomerManagementStore()
 // 分页参数
@@ -543,7 +544,25 @@ watch(selectedCustomerType, (newType: any) => {
   loadCustomers()
 })
 
+const isDark = ref(false)
+// document.documentElement.classList.add('dark')  // 启用暗黑模式
+// document.documentElement.classList.remove('dark') // 关闭暗黑模式
+// const toggleDarkMode = () => {
+//   isDark.value = !isDark.value
+// }
+watch(isDark, (newVal) => {
+  localStorage.setItem('theme', newVal ? 'dark' : 'light')
+  document.documentElement.classList.toggle('dark', newVal)
+  // console.log('当前模式', isDark.value)
+  // console.log('存储的模式', localStorage.getItem('theme'))
+})
+
+
+
 onMounted(async () => {
+  const savedTheme = localStorage.getItem('theme')
+  isDark.value = savedTheme === 'dark'
+  document.documentElement.classList.toggle('dark', isDark.value)
   await loadCustomers()
   await loadAllCustomers()
   await loadRooms()
@@ -591,6 +610,33 @@ function change(e: string) {
         </InteractiveHoverButton>
       </div>
     </div>
+    <div class="flex items-center space-x-2">
+      <Switch v-model="isDark">
+        <template #thumb>
+          <div class="flex items-center justify-center w-full h-full">
+            <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-moon-icon lucide-moon size-3">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-sun-medium-icon lucide-sun-medium size-3">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 3v1" />
+              <path d="M12 20v1" />
+              <path d="M3 12h1" />
+              <path d="M20 12h1" />
+              <path d="m18.364 5.636-.707.707" />
+              <path d="m6.343 17.657-.707.707" />
+              <path d="m5.636 5.636.707.707" />
+              <path d="m17.657 17.657.707.707" />
+            </svg>
+          </div>
+        </template>
+      </Switch>
+    </div>
+    
     <div class="mb-5 flex items-center gap-4">
       <Switcher left-value="自理老人" right-value="护理老人" @select-value-change="change">
       </Switcher>
@@ -616,7 +662,7 @@ function change(e: string) {
       客户信息
     </div>
     <div class="rounded-b-md border">
-      <Table>
+      <Table class="bg-white rounded-b-md dark:bg-slate-800">
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <TableHead v-for="header in headerGroup.headers" :key="header.id" :data-pinned="header.column.getIsPinned()"
@@ -680,9 +726,9 @@ function change(e: string) {
   </div>
 
   <!-- 添加客户表单 -->
-  <div>
-    <el-dialog v-model="showForm" title="入住登记" width="35%" :append-to-body="true" label-position="left"
-      @close="cancelSubmit">
+  <div class="dark:bg-slate-800">
+    <el-dialog class="addDialog" v-model="showForm" title="入住登记" width="35%" :append-to-body="true"
+      label-position="left" @close="cancelSubmit">
       <el-form :model="form" :rules="rules" ref="formRef">
         <!-- 分隔符 -->
         <el-divider></el-divider>

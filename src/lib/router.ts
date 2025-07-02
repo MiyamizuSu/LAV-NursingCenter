@@ -23,7 +23,11 @@ import DailyNursing from '@/pages/hts/DailyNursing.vue'
 import FoodManage from '@/pages/mlm/FoodManage.vue'
 import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
+import HomePage from '@/pages/HomePage.vue'
 export const routes:RouteRecordRaw[]=[
+    {
+        path:'/home', component:HomePage
+    },
     {
         path:'/login',component:LoginPage
     },

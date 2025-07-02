@@ -604,7 +604,7 @@ onMounted(async () => {
                     客户信息
                 </div>
                 <div class="rounded-b-md border">
-                    <Table>
+                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
                         <TableHeader>
                             <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -663,7 +663,7 @@ onMounted(async () => {
                     外出申请审批
                 </div>
                 <div class="rounded-b-md border overflow-auto" style="max-height: calc(100vh - 240px);">
-                    <Table>
+                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
                         <TableHeader>
                             <TableRow v-for="headerGroup in outingTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">

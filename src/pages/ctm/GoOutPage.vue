@@ -412,7 +412,7 @@ onMounted(async () => {
                 </div>
                 <div class="rounded-b-md border">
                     <div>
-                        <Table>
+                        <Table class="bg-white rounded-b-md dark:bg-slate-800">
                             <TableHeader>
                                 <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
                                     <TableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -473,7 +473,7 @@ onMounted(async () => {
                 </div>
                 <div class="rounded-b-md border" >
                     <div>
-                        <Table>
+                        <Table class="bg-white rounded-b-md dark:bg-slate-800">
                             <TableHeader>
                                 <TableRow v-for="headerGroup in outingTable.getHeaderGroups()" :key="headerGroup.id">
                                     <TableHead v-for="header in headerGroup.headers" :key="header.id">
