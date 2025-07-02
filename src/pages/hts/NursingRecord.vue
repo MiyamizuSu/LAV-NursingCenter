@@ -1,9 +1,10 @@
 <!-- 健康管家端 护理记录管理 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
+import type { User } from '@/lib/type'
 
 // 客户信息接口
 interface Customer {
@@ -27,6 +28,8 @@ interface NursingRecord {
   nursePhone: string
   nursingTime: string
 }
+
+let currentNurse = ref({} as User)
 
 // 客户查询参数
 const customerQuery = ref({
@@ -54,7 +57,7 @@ const selectedRecords = ref<NursingRecord[]>([])
 
 // 分页查询客户
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/page', customerQuery.value)
+  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, currentNurseId: currentNurse.value.userId })
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {
@@ -125,6 +128,7 @@ const handleBatchDelete = () => {
 }
 
 onMounted(() => {
+  currentNurse.value = JSON.parse(localStorage.getItem('user1')!)
   queryCustomers()
 })
 
@@ -159,9 +163,10 @@ onMounted(() => {
                 </template>
               </el-table-column>
             </el-table>
-            <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-              :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
-              @current-change="queryCustomers" @size-change="queryCustomers" />
+            <el-pagination background v-model:current-page="customerQuery.current"
+              v-model:page-size="customerQuery.size" :page-sizes="[5, 7, 9]"
+              layout="total, sizes, prev, pager, next, jumper" :total="customerTotal" @current-change="queryCustomers"
+              @size-change="queryCustomers" />
           </el-card>
         </el-col>
 
@@ -184,7 +189,7 @@ onMounted(() => {
               <el-table-column align="center" prop="executionCount" label="数量" />
               <el-table-column align="center" prop="description" label="护理内容" :show-overflow-tooltip="true" />
               <el-table-column align="center" prop="nurseName" label="护理人员" />
-              <el-table-column align="center" prop="nursePhone" label="联系电话" :show-overflow-tooltip="true"/>
+              <el-table-column align="center" prop="nursePhone" label="联系电话" :show-overflow-tooltip="true" />
               <el-table-column align="center" prop="nursingTime" label="护理时间" :show-overflow-tooltip="true" />
               <el-table-column align="center" label="操作">
                 <template #default="{ row }">
@@ -192,7 +197,7 @@ onMounted(() => {
                 </template>
               </el-table-column>
             </el-table>
-            <el-pagination v-model:current-page="recordQuery.current" v-model:page-size="recordQuery.size"
+            <el-pagination background v-model:current-page="recordQuery.current" v-model:page-size="recordQuery.size"
               :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="recordTotal"
               @current-change="() => queryRecords(recordQuery.customerId, currentCustomerName)"
               @size-change="() => queryRecords(recordQuery.customerId, currentCustomerName)" />
@@ -221,6 +226,7 @@ onMounted(() => {
   padding-left: 10px;
   border-left: 4px solid #409eff;
 }
+
 .el-table {
   :deep(.el-table__cell) {
     min-width: 80px;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { axiosInstance as axios } from '@/lib/core';
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, computed, nextTick } from 'vue'
 import { ElMessage, ElTabs, ElTabPane } from 'element-plus'
 
@@ -59,8 +59,11 @@ const totalPrice = computed(() => {
     (getMealItemById(item.mealItemId)?.foodPrice || 0) * item.purchaseCount, 0)
 })
 
+let customerId = 0
+
 // 获取膳食数据
 onMounted(async () => {
+  customerId = JSON.parse(localStorage.getItem('customer') || '{}').customerId
   try {
     const weekDayNumber = new Date().getDay()
     const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
@@ -131,7 +134,7 @@ const submitOrder = async () => {
       mealItemIds: cart.value.map(c => c.mealItemId),
       purchaseCounts: cart.value.map(c => c.purchaseCount),
       purchaseTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      customerId: 1
+      customerId: customerId,
     })
     ElMessage.success('预定成功')
     cart.value = []
@@ -146,8 +149,8 @@ const submitOrder = async () => {
 // 获取订单数据
 const fetchOrders = async () => {
   try {
-    const { data } = await axios.post('/mealReservation/getByCustomerId', {
-      customerId: 1
+    const { data } = await axios.post('http://localhost:9000/mealReservation/getByCustomerId', {
+      customerId: customerId,
     })
     if (data.status === 200) {
       const ordersWithDetails = await Promise.all(
