@@ -45,10 +45,10 @@ const login = () => {
 			let token = rb.data;
             // console.log('token: ', token)
 			// 把用户令牌存入前端Session中
-			sessionStorage.setItem('token', token);
+			localStorage.setItem('token', token);
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
-                    sessionStorage.setItem("user", JSON.stringify(res.data.data))
+                    localStorage.setItem("user", JSON.stringify(res.data.data))
                     // 登录成功
                     ElMessage({message: "登录成功！", type: "success"})
                     router.push('/main');
