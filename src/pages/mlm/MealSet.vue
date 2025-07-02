@@ -1,9 +1,9 @@
 <!-- 系统管理员端 膳食管理 膳食配置 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowLeft, Delete, Search, Edit } from '@element-plus/icons-vue'
+import { ArrowLeft, Delete, Search, Edit, CircleClose } from '@element-plus/icons-vue'
 
 // 客户相关
 interface Customer {
@@ -27,7 +27,7 @@ interface MealConfig {
 const customers = ref<Customer[]>([])
 const customerQuery = ref({
   name: '',
-  customerType: 1,
+  customerType: undefined,
   current: 1,
   size: 5
 })
@@ -38,7 +38,7 @@ const handleDeleteConfig = (id: number) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    axios.post('http://localhost:9000/dietConfigItem/delete', { id }).then(res => {
+    axios.post('/dietConfigItem/delete', { id }).then(res => {
       let pr = res.data
       if (pr.status === 200) {
         ElMessage.success('删除成功')
@@ -92,7 +92,7 @@ const rules = {
 
 // 客户列表查询
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/page', customerQuery.value)
+  axios.post('/customer/page', customerQuery.value)
     .then(res => {
       let pr = res.data
       if (pr.status === 200) {
@@ -111,7 +111,7 @@ const queryCustomers = () => {
 const queryMealConfigs = () => {
   if (!currentCustomerId.value) return
 
-  axios.post('http://localhost:9000/dietConfigItem/page', {
+  axios.post('/dietConfigItem/page', {
     ...mealConfigQuery.value,
     customerId: currentCustomerId.value
   }).then(res => {
@@ -137,8 +137,8 @@ const handleSubmit = () => {
         customerId: currentCustomerId.value
       }
 
-      const url = isAdding.value ? 'http://localhost:9000/dietConfigItem/add'
-        : 'http://localhost:9000/dietConfigItem/update'
+      const url = isAdding.value ? '/dietConfigItem/add'
+        : '/dietConfigItem/update'
       axios.post(url, config).then(res => {
         let pr = res.data
         if (pr.status === 200) {
@@ -166,7 +166,7 @@ const handleBatchDeleteConfig = () => {
     type: 'warning'
   }).then(() => {
     const ids = selectedConfigs.value.map(c => c.id)
-    axios.post('http://localhost:9000/dietConfigItem/deleteBatch', { ids })
+    axios.post('/dietConfigItem/deleteBatch', { ids })
       .then(res => {
         let pr = res.data
         if (pr.status === 200) {
@@ -193,7 +193,6 @@ const formatGender = (row: any) => {
 const backToCustomerList = () => {
   currentCustomerId.value = undefined
 }
-
 
 onMounted(() => {
   if (!currentCustomerId.value) {
@@ -229,7 +228,7 @@ onMounted(() => {
           <el-table-column align="center" prop="gender" label="性别" :formatter="formatGender" />
           <el-table-column align="center" prop="bedNumber" label="床位号" />
           <el-table-column align="center" prop="phoneNumber" label="联系电话" />
-          <el-table-column align="center" label="操作" fixed="right" :min-width="90">
+          <el-table-column align="center" label="操作" fixed="right" :min-width="120">
             <template #default="{ row }">
               <el-link type="primary" @click="showConfigManagement(row)" :underline="false" style="padding: 0 5px">
                 管理膳食配置
@@ -239,13 +238,13 @@ onMounted(() => {
         </el-table>
 
         <!-- 客户列表分页 -->
-        <el-pagination v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
+        <el-pagination background v-model:current-page="customerQuery.current" v-model:page-size="customerQuery.size"
+          :page-sizes="[5, 8, 10, 13, 15]" layout="total, sizes, prev, pager, next, jumper" :total="customerTotal"
           @size-change="queryCustomers" @current-change="queryCustomers" />
       </el-card>
 
       <!-- 膳食配置管理部分 -->
-      <el-card v-else shadow="hover" class="section-card" style="max-width: 800px">
+      <el-card v-else shadow="hover" class="section-card">
         <div class="action-bar">
           <div class="flex-container">
             <el-button type="primary" @click="backToCustomerList">
@@ -272,10 +271,11 @@ onMounted(() => {
         <el-table stripe header-row-class-name="table-header" row-class-name="table-row" :fit="true" :data="mealConfigs"
           @selection-change="(rows: any) => selectedConfigs = rows">
           <el-table-column align="center" type="selection" />
-          <el-table-column align="center" type="index" label="序号" />
-          <el-table-column align="center" prop="name" label="配置名称" :min-width="180" />
-          <el-table-column align="center" prop="description" label="详细描述" :min-width="240" :show-overflow-tooltip="true" />
-          <el-table-column align="center" label="操作" fixed="right">
+          <el-table-column align="center" type="index" label="序号" :min-width="70" />
+          <el-table-column align="center" prop="name" label="配置名称" :min-width="140" />
+          <el-table-column align="center" prop="description" label="详细描述" :min-width="240"
+            :show-overflow-tooltip="true" />
+          <el-table-column align="center" label="操作" fixed="right" :min-width="100">
             <template #default="{ row }">
               <el-button type="primary" size="small"
                 @click="dialogVisible = true; isAdding = false; mealConfigForm = { ...row }">
@@ -295,21 +295,25 @@ onMounted(() => {
 
         </el-table>
 
-        <el-pagination v-model:current-page="mealConfigQuery.current" v-model:page-size="mealConfigQuery.size"
-          :page-sizes="[5, 7, 9]" layout="total, sizes, prev, pager, next, jumper" :total="mealConfigTotal"
-          @size-change="queryMealConfigs" @current-change="queryMealConfigs" />
+        <el-pagination background v-model:current-page="mealConfigQuery.current"
+          v-model:page-size="mealConfigQuery.size" :page-sizes="[5, 8, 10, 13, 15]"
+          layout="total, sizes, prev, pager, next, jumper" :total="mealConfigTotal" @size-change="queryMealConfigs"
+          @current-change="queryMealConfigs" />
       </el-card>
     </el-col>
   </el-container>
 
   <!-- 配置表单对话框 -->
-  <el-dialog :title="isAdding ? '新增膳食配置' : '编辑膳食配置'" v-model="dialogVisible" width="500px">
+  <el-dialog :title="isAdding ? '新增膳食配置' : '编辑膳食配置'" v-model="dialogVisible" width="500px" draggable overflow @closed="() => {
+    form?.resetFields()
+  }" :key="dialogVisible">
     <el-form :model="mealConfigForm" :rules="rules" ref="form">
       <el-form-item label="配置名称" prop="name">
-        <el-input v-model="mealConfigForm.name" />
+        <el-input v-model="mealConfigForm.name" clearable />
       </el-form-item>
       <el-form-item label="详细描述" prop="description">
-        <el-input v-model="mealConfigForm.description" type="textarea" />
+        <el-input v-model="mealConfigForm.description" type="textarea" auto-size="{ minRows: 2, maxRows: 8 }"
+          :show-word-limit="true" :maxlength="200" :key="dialogVisible" />
       </el-form-item>
     </el-form>
 

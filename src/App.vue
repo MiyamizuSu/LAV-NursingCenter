@@ -7,6 +7,7 @@ import SidebarTrigger from './components/ui/sidebar/SidebarTrigger.vue';
 import Button from './components/ui/button/Button.vue';
 import HomePage from './pages/HomePage.vue';
 import 'element-plus/dist/index.css'
+import { Toaster } from 'vue-sonner';
 
 const router=useRouter()
 // router.push('/login')
@@ -16,15 +17,10 @@ const router=useRouter()
 </script>
 
 <template>
+  <Toaster close-button/>
   <div class="w-screen h-screen ">
     <RouterView></RouterView>
-    <!-- <CheckIn></Checkin> -->
-    <!-- <SidebarProvider>
-      <AppSideBar></AppSideBar>
-      <SidebarTrigger></SidebarTrigger>
-    </SidebarProvider> -->
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Check } from '@element-plus/icons-vue'
@@ -38,7 +38,7 @@ const pagination = ref({
 const fetchOrders = async () => {
   try {
     loading.value = true
-    const { data } = await axios.post('http://localhost:9000/mealReservation/page', {
+    const { data } = await axios.post('/mealReservation/page', {
       current: pagination.value.page,
       size: pagination.value.size,
       isDeleted: queryParams.value.isCompleted,
@@ -57,7 +57,7 @@ const fetchOrders = async () => {
 // 完成操作
 const handleComplete = async (id: number) => {
   try {
-    await axios.post('http://localhost:9000/mealReservation/delete', { id })
+    await axios.post('/mealReservation/delete', { id })
     ElMessage.success('操作成功')
     fetchOrders()
   } catch (error) {
@@ -73,7 +73,7 @@ const handleBatchComplete = async () => {
   }
 
   try {
-    await axios.post('http://localhost:9000/mealReservation/deleteBatch', {
+    await axios.post('/mealReservation/deleteBatch', {
       ids: selectedItems.value
     })
     ElMessage.success('批量操作成功')
@@ -100,10 +100,12 @@ onMounted(fetchOrders)
             </el-select>
 
             <el-date-picker v-model="queryParams.startTime" type="datetime" placeholder="开始时间"
-              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
+              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px"
+              @change="(val: string | null) => queryParams.startTime = val || ''" />
 
             <el-date-picker v-model="queryParams.endTime" type="datetime" placeholder="结束时间"
-              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px" />
+              value-format="YYYY-MM-DD HH:mm:ss" style="width: 220px"
+              @change="(val: string | null) => queryParams.endTime = val || ''" />
 
             <div class="button-group">
               <el-button type="primary" @click="fetchOrders" :icon="Search">查询</el-button>
@@ -118,10 +120,9 @@ onMounted(fetchOrders)
         <!-- 数据表格 -->
         <el-card shadow="hover" class="section-card mt-16">
           <el-table :data="tableData" v-loading="loading" :fit="true" stripe header-row-class-name="table-header"
-
             row-class-name="table-row"
             @selection-change="(rows: MealReservationItem[]) => selectedItems = rows.map(r => r.id)">
-            <el-table-column align="center" type="selection"/>
+            <el-table-column align="center" type="selection" />
             <el-table-column align="center" prop="customerName" label="客户姓名" />
             <el-table-column align="center" prop="foodName" label="膳食名称" />
             <el-table-column align="center" prop="purchaseCount" label="购买数量" />
@@ -145,7 +146,7 @@ onMounted(fetchOrders)
 
           <!-- 分页 -->
           <el-pagination background v-model:current-page="pagination.page" v-model:page-size="pagination.size"
-            :page-sizes="[10, 12, 15]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
+            :page-sizes="[7, 10, 13]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
             @size-change="fetchOrders" @current-change="fetchOrders" />
         </el-card>
       </el-card>
@@ -232,6 +233,7 @@ onMounted(fetchOrders)
     white-space: nowrap;
     /* 防止文字换行 */
   }
+
   :deep(th),
   :deep(td) {
     padding: 8px 12px !important;

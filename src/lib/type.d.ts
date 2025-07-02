@@ -84,9 +84,21 @@ export type NursingRecord = {
 }
 export type BedUser={
     Id:number,
-    Name:string,
+    name:string,
     gender:'男'|'女'
     bedMes:string,
     startUsedTime:StrictDate,
     endUsedTime:StrictDate,
+    customerId:number
 }
+export type Bed={
+    id:number,
+    rId:number,
+    rNumber:string,
+    bNumber:string,
+    bStatus:'空闲'|'外出'|'有人'
+}
+export interface Adapter<S extends object | object[], T extends object | object[]> {
+    adapt(source: S): T;
+}
+  

@@ -1,6 +1,6 @@
 <!-- 系统管理员端 膳食管理 食物管理 -->
 <script setup lang="ts">
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import * as echarts from 'echarts';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, type UploadRequestOptions } from 'element-plus'
@@ -45,7 +45,7 @@ const isUploading = ref(false)
 
 // 分页查询
 const queryFoods = () => {
-  axios.post('http://localhost:9000/food/page', queryParams.value)
+  axios.post('/food/page', queryParams.value)
     .then(res => {
       const pr = res.data
       console.log(pr)
@@ -61,7 +61,7 @@ const handleDelete = (id: number) => {
     confirmButtonText: '确认删除',
     cancelButtonText: '取消'
   }).then(() => {
-    axios.post(`http://localhost:9000/food/delete`, { id: id }).then(res => {
+    axios.post(`/food/delete`, { id: id }).then(res => {
       if (res.data.status == 200) {
         ElMessage.success('删除成功')
         queryFoods()
@@ -84,7 +84,7 @@ const handleBatchDelete = () => {
     confirmButtonText: '确认删除',
     cancelButtonText: '取消'
   }).then(() => {
-    axios.post('http://localhost:9000/food/deleteBatch', { ids })
+    axios.post('/food/deleteBatch', { ids })
 
       .then(() => {
         ElMessage.success('批量删除成功')
@@ -96,7 +96,17 @@ const handleBatchDelete = () => {
 // 打开创建对话框
 const openCreateDialog = () => {
   formType.value = 'create'
-  foodForm.value = {}
+  foodForm.value = {
+    type: [],
+    name: '',
+    description: '',
+    price: undefined,
+    imageUrl: ''
+  }
+  nextTick(() => {
+    formRef.value?.resetFields()
+    formRef.value?.clearValidate()
+  })
   dialogVisible.value = true
 }
 
@@ -105,8 +115,11 @@ const handleEdit = (row: Food) => {
   formType.value = 'edit'
   foodForm.value = {
     ...row,
-    type: row.type
+    type: Array.isArray(row.type) ? [...row.type] : row.type
   }
+  nextTick(() => {
+    formRef.value?.clearValidate()
+  })
   dialogVisible.value = true
 }
 
@@ -179,8 +192,8 @@ const submitForm = () => {
   formRef.value.validate((valid: boolean) => {
     if (!valid) return
     const url = formType.value === 'create'
-      ? 'http://localhost:9000/food/add'
-      : 'http://localhost:9000/food/update'
+      ? '/food/add'
+      : '/food/update'
 
     // 编辑时需要传递ID
     const requestData = formType.value === 'edit'
@@ -210,11 +223,19 @@ const formRules = ref({
   type: [
     {
       required: true,
-      validator: (value: string[], callback: Function) => {
-        if (!value || value.length === 0) {
-          callback(new Error('请选择食品类型'))
+      validator: (rule: any, value: any, callback: Function) => {
+        if (formType.value === 'create') {
+          if (!Array.isArray(value) || value.length === 0) {
+            callback(new Error('请选择至少一个食品类型'))
+          } else {
+            callback()
+          }
         } else {
-          callback()
+          if (typeof value !== 'string' || !value) {
+            callback(new Error('请选择食品类型'))
+          } else {
+            callback()
+          }
         }
       },
       trigger: 'change'
@@ -236,7 +257,7 @@ const formRules = ref({
 
 const showPriceChart = async () => {
   try {
-    const { data } = await axios.post('http://localhost:9000/food/list', {})
+    const { data } = await axios.post('/food/list', {})
     const foods = data.data
 
     // 同名食品价格归一化（取平均值）
@@ -350,15 +371,15 @@ onMounted(() => {
         <el-table :data="foodList" :fit="true" @selection-change="(rows: Food[]) => selectedFoods = rows"
           style="width:100%">
           <el-table-column align="center" type="selection" />
-          <el-table-column align="center" type="index" label="序号" />
+          <el-table-column align="center" type="index" label="序号" :min-width="50"/>
           <el-table-column align="center" prop="name" label="食品名称" />
-          <el-table-column align="center" label="图片" width="160">
+          <el-table-column align="center" label="图片">
             <template #default="{ row }">
               <el-image :src="row.imageUrl" style="width:100px;height:60px" />
             </template>
           </el-table-column>
           <el-table-column align="center" prop="type" label="食品类型" />
-          <el-table-column align="center" prop="description" label="食品描述" min-width="200" />
+          <el-table-column align="center" prop="description" label="食品描述" :min-width="200" />
           <el-table-column align="center" prop="price" label="价格" />
           <el-table-column align="center" label="操作" min-width="120">
             <template #default="{ row }">
@@ -371,22 +392,20 @@ onMounted(() => {
         </el-table>
 
         <!-- 分页 -->
-        <el-pagination v-model:current-page="queryParams.current" v-model:page-size="queryParams.size"
-          :page-sizes="[5, 6, 7, 8]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+        <el-pagination background v-model:current-page="queryParams.current" v-model:page-size="queryParams.size"
+          :page-sizes="[5, 6, 7, 8, 9]" :total="total" layout="total, sizes, prev, pager, next, jumper"
           @current-change="queryFoods" @size-change="queryFoods" />
 
       </el-card>
     </el-col>
   </el-container>
   <!-- 价格统计对话框 -->
-  <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow
-    @closed="chartInstance?.dispose()">
+  <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow :key="chartDialogVisible.toString() + Date.now()" >
     <div id="priceChart" style="width: 100%; height: 500px;"></div>
   </el-dialog>
 
   <!-- 创建/编辑对话框 -->
-  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" @closed="formRef?.resetFields()"
-    draggable overflow>
+  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" draggable overflow :key="Number(dialogVisible)" >
     <el-form :model="foodForm" :rules="formRules" ref="formRef" label-width="80px">
       <el-form-item prop="name" label="食品名称">
         <el-input v-model="foodForm.name" />
@@ -444,6 +463,7 @@ onMounted(() => {
 .container {
   padding: 20px;
   min-height: calc(100vh - 60px);
+  padding-bottom: 40px;
 }
 
 .query-bar {
@@ -461,7 +481,7 @@ onMounted(() => {
   margin-bottom: 20px;
   margin-right: 30px;
   padding: 16px;
-
+  
   :deep(.el-card__body) {
     padding: 20px;
   }
@@ -494,7 +514,6 @@ onMounted(() => {
 
 .el-pagination {
   margin: 20px 0;
-  justify-content: flex-end;
 }
 
 .image-container {
