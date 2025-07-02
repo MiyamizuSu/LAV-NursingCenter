@@ -163,8 +163,8 @@ router.beforeEach((to, from, next) => {
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
             router.push('/login')
         } else {
-            console.log("/ tokenu", localStorage.getItem('tokenu'))
-            // console.log("/ tokenc", localStorage.getItem('tokenc'))
+            console.log("/ tokenu: ", localStorage.getItem('tokenu'))
+            console.log("/ tokenc: ", localStorage.getItem('tokenc'))
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
                 axios.post("/user/load", {}).then(res => {
                     // console.log(res)

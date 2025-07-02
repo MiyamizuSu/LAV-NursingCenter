@@ -49,15 +49,15 @@ axiosInstance.interceptors.request.use(function (config) {
             }
         }
     }
-    else if (localStorage.getItem('tokenu') != null) {
+    else if (config.url?.indexOf('/user') != -1 && localStorage.getItem('tokenu') != null) {
         let token = localStorage.getItem('tokenu');
-        // console.log("发送tokenu ", token)
+        console.log("发送tokenu ", token)
         if (token) {
             config.headers['token'] = token;
         }
     } else if (localStorage.getItem('tokenc') != null) {
         let token = localStorage.getItem('tokenc');
-        // console.log("发送tokenc ", token)
+        console.log("发送tokenc ", token)
         if (token) {
             config.headers['token'] = token;
         }
