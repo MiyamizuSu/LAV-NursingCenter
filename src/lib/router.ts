@@ -29,6 +29,7 @@ import MealReservation from '@/pages/MealReservation.vue'
 import { axiosInstance as axios } from '@/lib/core'
 
 import type { User } from './type'
+import { use } from 'echarts'
 export const routes: RouteRecordRaw[] = [
     {
         path: '/login', component: LoginPage
@@ -234,14 +235,20 @@ router.beforeEach((to, from, next) => {
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
         // console.log("路由守卫", sessionStorage.getItem('userType'))
-
-        if (sessionStorage.getItem('userType') == '0') {
-            userJson = localStorage.getItem('user0') as string
-            localStorage.setItem('AdminUsing', "1")
-        } else if (sessionStorage.getItem('userType') == '1') {
-            userJson = localStorage.getItem('user1') as string
-            localStorage.setItem('NurseUsing', "1")
-        }
+        axios.post('/user/load', {}).then(res => {
+            if (res.data.status == 200) {
+                let user = res.data.data
+                userJson = JSON.stringify(user)
+                sessionStorage.setItem("userType", user.userType)
+                if (user.userType == 0) {
+                    localStorage.setItem('user0', userJson)
+                    localStorage.setItem('AdminUsing', "1")
+                } else if (user.userType == 1) {
+                    localStorage.setItem('user1', userJson)
+                    localStorage.setItem('NurseUsing', "1")
+                }
+            }
+        })
         // console.log("路由", userJson)
 
         if (userJson == null || userJson == undefined || userJson == '') {
