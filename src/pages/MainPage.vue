@@ -13,26 +13,26 @@ import DropdownMenuSeparator from '@/components/ui/dropdown-menu/DropdownMenuSep
 import DropdownMenuItem from '@/components/ui/dropdown-menu/DropdownMenuItem.vue';
 import DropdownMenuShortcut from '@/components/ui/dropdown-menu/DropdownMenuShortcut.vue';
 import DropdownMenuGroup from '@/components/ui/dropdown-menu/DropdownMenuGroup.vue';
-// import { useAppState } from '@/lib/store';
 import AvgTag from '@/components/custom/AvgTag.vue';
-import { onBeforeRouteUpdate, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { computed, onBeforeUnmount, onMounted, reactive, ref, type Component, type Reactive, type Ref } from 'vue';
+import { onMounted, reactive, ref, type Component } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
-
-type StateNameTag = {
-    主页: string;
-    [key: string]: string;
+import { toast } from 'vue-sonner';
+import type { sidebarItem } from '@/components/custom/type';
+import { ElMessage } from 'element-plus';
+type SidebarItem = {
+    title: string;
+    icon?: Component;
+    children?: SidebarItem[];
 }
-
 const router = useRouter();
 const frameController = reactive({
-    frameStack: ['主页'] as Array<keyof StateNameTag>,
+    frameStack: ['主页'] ,
     curFrameIndex: 0
 })
-const handleStateCancel = (stateName: keyof StateNameTag) => {
+const handleStateCancel = (stateName: string) => {
     const frameStack = frameController.frameStack
     let i = 0;
     for (; i < frameStack.length; i++) {
@@ -44,22 +44,23 @@ const handleStateCancel = (stateName: keyof StateNameTag) => {
     }
     if (frameController.curFrameIndex === i) {
         frameController.curFrameIndex = i - 1;
-        router.push(`/main${STATENAME_TAG[frameController.frameStack[frameController.curFrameIndex]]}`);
+        router.push(`/main${stateName_tag.value?.[frameController.frameStack[frameController.curFrameIndex]]}`);
     }
 }
 
-const handleStatePlus = (frame: keyof StateNameTag) => {
+const handleStatePlus = (frame: string) => {
     if (frameController.frameStack.includes(frame)) {
         frameController.curFrameIndex = frameController.frameStack.findIndex(f => f === frame);
-        router.push(`/main${STATENAME_TAG[frame]}`)
+        router.push(`/main${stateName_tag.value?.[frame]}`)
         return
     }
     frameController.frameStack.push(frame);
     frameController.curFrameIndex = frameController.frameStack.length - 1
-    router.push(`/main${STATENAME_TAG[frame]}`);
+    router.push(`/main${stateName_tag.value?.[frame]}`);
 }
-const handleQuickTap = (frame: keyof StateNameTag, index: number) => {
-    router.push(`/main${STATENAME_TAG[frame]}`);
+//To-do customerNursingSet遮挡了顶部状态栏
+const handleQuickTap = (frame: string, index: number) => {
+    router.push(`/main${stateName_tag.value?.[frame]}`);
     frameController.curFrameIndex = index
 }
 const logout = () => {
@@ -83,13 +84,9 @@ const logout = () => {
     })
 }
 
-let STATENAME_TAG = {}
+let stateName_tag = ref<{[key:string]:string}>()
 
-type SidebarItem = {
-    title: string;
-    icon?: Component;
-    children?: SidebarItem[];
-}
+
 
 let sidebarItems = reactive<SidebarItem[]>([])
 
@@ -219,11 +216,11 @@ const nurseState = {
 onMounted(() => {
     const userType = sessionStorage.getItem('userType')
     if (userType === '0') {
-        sidebarItems = adminState.adminSidebarItems
-        STATENAME_TAG = adminState.adminStateList
+        sidebarItems.push(...adminState.adminSidebarItems)
+        stateName_tag.value = adminState.adminStateList
     } else if (userType === '1') {
-        sidebarItems = nurseState.nurseSidebarItems
-        STATENAME_TAG = nurseState.nurseStateList
+        sidebarItems.push(...nurseState.nurseSidebarItems)
+        stateName_tag.value = nurseState.nurseStateList
     }
     console.log(sidebarItems);
 })
@@ -235,10 +232,10 @@ onMounted(() => {
             <div class="z-0 flex w-3/4 justify-end">
                 <div class="flex justify-between mr-5 w-full">
                     <div class=" h-[3em] flex items-center">
-                        <div class="translate-x-1/4 flex-1 space-x-4 flex">
+                        <div class=" flex-1 space-x-4 flex">
                             <template v-for="(frame, index) in frameController.frameStack">
-                                <AvgTag :tag-name="frame"
-                                    @memory-cancel="handleStateCancel(frame as keyof StateNameTag)" :id="frame"
+                                <AvgTag :tag-name="frame" :is-active="index === frameController.curFrameIndex"
+                                    @memory-cancel="handleStateCancel(frame )" :id="frame"
                                     @tap-to-page="handleQuickTap(frame, index)" v-if="frame !== '主页'" />
                             </template>
 
@@ -293,7 +290,6 @@ onMounted(() => {
 .backBlur {
     backdrop-filter: blur(8px);
 }
-
 .bg-img {
     background-image: url('/src/assets/bg.jpeg');
     background-size: cover;

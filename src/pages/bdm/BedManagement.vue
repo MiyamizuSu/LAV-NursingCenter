@@ -47,7 +47,7 @@ import Calendar from '@/components/ui/calendar/Calendar.vue';
 import { PopoverTrigger, Popover } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-vue-next';
 import PopoverContent from '@/components/ui/popover/PopoverContent.vue';
-import type { BedChangeRequestBody, UpdateNeedMessage } from './type';
+import type { BedChangeRequestBody, UpdateNeedMessage } from './type'
 const bdmStore = useBedManagementStore();
 const diglogOpen = ref<boolean>(false)
 const changeDialogOpen = ref<boolean>(false)
@@ -77,7 +77,7 @@ function responseAdaptor(adapted: BedUser[], sources: any[]) {
         const source = sources[i];
         const b: BedUser = {
             Id: i + 1,
-            Name: source.customerName,
+            name: source.customerName,
             gender: source.customerGender ? '男' : '女',
             bedMes: source.bedNumber,
             startUsedTime: source.startDate,
@@ -251,7 +251,7 @@ const datatable = useVueTable({
                                                 <div class="flex flex-row gap-4">
                                                     <p> 客户姓名:</p>
                                                     <Label>
-                                                        {{ curCustomer?.Name }}
+                                                        {{ curCustomer?.name }}
                                                     </Label>
                                                 </div>
                                                 <div class="flex flex-row gap-4">
@@ -365,7 +365,7 @@ const datatable = useVueTable({
                         <div class="flex-col leading-15">
                             <div class="flex-row flex gap-6">
                                 <p>客户姓名:</p>
-                                <label>{{ curCustomer?.Name }}</label>
+                                <label>{{ curCustomer?.name }}</label>
                             </div>
                             <div class="flex-row flex gap-6">
                                 <p>性别:</p>

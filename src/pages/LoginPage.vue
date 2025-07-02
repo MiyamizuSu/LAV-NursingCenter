@@ -8,13 +8,13 @@ import FormLabel from '@/components/ui/form/FormLabel.vue'
 import IInput from '@/components/ui/insput/IInput.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
-import Button from '@/components/ui/button/Button.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
-import { r } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ'
+import DynamicButton from '@/components/custom/DynamicButton.vue'
+import { toast} from 'vue-sonner'
 const router = useRouter()
 
 type UserMes = {
@@ -116,9 +116,11 @@ const loginAsCustomer = () => {
     })
 }
 
+
 </script>
 
 <template>
+    
     <div class="flex justify-center items-center h-screen w-screen overflow-auto ">
         <motion.div :initial="{
             x: -100,

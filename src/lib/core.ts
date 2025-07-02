@@ -1,5 +1,6 @@
-import axios from "axios";
-import { router } from './router'
+import axios, { type AxiosInstance } from "axios";
+import {  router  } from './router'
+import type { Adapter } from "./type";
 
 let baseUrl: string;
 if (import.meta.env.VITE_DEV_ENV === 'sameSite') {
@@ -9,7 +10,7 @@ else {
     baseUrl = import.meta.env.VITE_DEV_URL_UNSAMESITE
 }
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
     baseURL: baseUrl,
     timeout: 1000,
 })
@@ -94,6 +95,7 @@ axiosInstance.interceptors.response.use(function (response) {
         return Promise.reject(error);
     });
 
-export {
-    axiosInstance
+export async function xhrWithAdapter<S extends object | object[], T extends object | object[]>(url: string, requestBody: object, adapter: Adapter<S, T>, axios: AxiosInstance = axiosInstance): Promise<T> {
+    const response = (await axios.post<S>(url, requestBody)).data as { data: any };
+    return adapter.adapt(response.data);
 }
