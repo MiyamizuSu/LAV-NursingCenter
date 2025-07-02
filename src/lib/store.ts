@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import type { CheckoutRegistration, Customer, OutingRegistration, Room, SpareBed } from "@/pages/ctm/type";
-import type { BedUser, NursingLevel, User, Customer } from "./type";
+import type { Bed, BedUser, User } from "./type";
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
   const allCustomerList = ref<Customer[]>([])
@@ -71,16 +71,41 @@ export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
     getCustomerList, getCheckoutList, getOutingList, getAllCustomerList, getCurrentNurseId, setCustomerList, setCheckoutList, setOutingList, setAllCustomerList, setCurrentNurseId
   }
 })
+
+
+
 export const useBedManagementStore=defineStore("bedUseStore",()=>{
   const usingBeds=ref<BedUser[]>([]);
   const usedBeds=ref<BedUser[]>([]);
+  const floorBeds=ref<Bed[]>([]);
+  const _floorBeds_cache:Map<number,Bed[]>=new Map();
   const getUsingBeds=computed(()=>usingBeds);
   const getUsedBeds=computed(()=>usedBeds);
+  const getFloorBeds=computed(()=>floorBeds);
+  function _getCacheOrXhr(floor:number):1|0{
+    if(_floorBeds_cache.has(floor)){
+      floorBeds.value=_floorBeds_cache.get(floor) as Bed[]
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }
+  function _update_cache(floor:number){
+    _floorBeds_cache.set(floor,floorBeds.value);
+  }
+  const setFloorBedsWithCache=(floor:number)=>{
+    return !!_getCacheOrXhr(floor)
+  }
+  const setFloorBedsWithNoneCache=(floor:number,newFloorBeds:Bed[])=>{
+    floorBeds.value=newFloorBeds;
+    _update_cache(floor);
+  }
   const setUsingBeds=(newUsingBedsList:BedUser[])=>{
     usingBeds.value=newUsingBedsList
   }
   return {
-    getUsedBeds,getUsingBeds,setUsingBeds
+    getUsedBeds,getUsingBeds,setUsingBeds,getFloorBeds,setFloorBedsWithCache,setFloorBedsWithNoneCache
   }
 })
 export const useLevelProgramStore = defineStore('levelProgramStore', () =>{

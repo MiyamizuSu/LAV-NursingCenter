@@ -10,13 +10,40 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import type { BedMes, BedType, BedVodeMes } from './type';
-import { motion, type BoundingBox } from 'motion-v'
-import { nextTick, onMounted, reactive, ref, useTemplateRef, type Reactive, type Ref, type ShallowRef } from 'vue';
-import { useDraggable, useResizeObserver } from '@vueuse/core';
-// import { useBedLayoutStore } from '@/lib/store';
+import type { BedMes, BedResponse, BedType } from './type';
+import { onMounted, ref } from 'vue';
 import type { AcceptableValue } from 'reka-ui';
-// const bedLayoutStore = useBedLayoutStore()
+import { useBedManagementStore } from '@/lib/store';
+import type { Adapter, Bed, Key } from '@/lib/type';
+import { axiosInstance, xhrWithAdapter } from '@/lib/core';
+const bdmStore=useBedManagementStore();
+const bedStatusMap:{[key:number]:BedType}={
+    0:'空闲',
+    1:'外出',
+    2:'外出'
+}
+const bedsAdapter:Adapter< {[key:string]: Array<BedResponse>},Array<Bed>>={
+    adapt(source){
+        console.log(source)
+        let concatSource:BedResponse[]=[]
+        for(let value of Object.values(source)){
+            concatSource=concatSource.concat(value);
+        }
+        const floorBeds:Array<Bed>=[];
+        for(let i=0;i<concatSource.length;i++){
+            const responseBed=concatSource[i]
+            const bed:Bed={
+                id:responseBed.id,
+                rId:responseBed.roomId,
+                bNumber:responseBed.bedNumber,
+                rNumber:responseBed.roomNumber,
+                bStatus:bedStatusMap[responseBed.status as Key<typeof bedStatusMap>]
+            }
+            floorBeds[i]=bed;
+        }
+        return floorBeds
+    }
+}
 const floorBedMessages: BedMes[] = [
     {
         bedType: "总量",
@@ -41,94 +68,14 @@ const bedTypeImgUrl = {
     有人: '/src/assets/busy.jpg',
     外出: '/src/assets/out.jpg',
 }
-
-
-// const bedVNodeMesArr = ref<LNodepos[]>([])
-
-// const dragFieldSize: Reactive<Partial<BoundingBox>> = reactive({
-//     top: 0,
-//     right: 0,
-//     left: 0,
-//     bottom: 0
-// })
-// const bedLNodeChange = (e: PointerEvent, nodeCode: string) => {
-//     const { clientX, clientY } = e;
-//     bedLayoutStore.setLNodeFromCode(nodeCode, {
-//         x: clientX,
-//         y: clientY
-//     })
-
-// }
-// const bedsRef = useTemplateRef('bedsRef');
-// const constraintsRef = useTemplateRef('constraintsRef') as Ref<HTMLElement>;
-// const createBedVnode = async (bdt: BedType) => {
-//     if (bdt === '总量') {
-//         return
-//     }
-//     const bedVNode: BedVodeMes = {
-//         bedType: bdt,
-//         romId: 1004,
-//         bedId: 1,
-//         nodeCode: _encodeWithTimestampToBase64(bdt)
-//     }
-//     bedVNodeMesArr.value.push({
-//         nodeMes: bedVNode,
-//         nodePosition: {
-//             x: 0,
-//             y: 0
-//         }
-//     });
-//     await nextTick();
-//     const bedStandard = bedsRef.value?.[0]?.$el as HTMLDivElement
-//     dragFieldSize.right = constraintsRef.value.getClientRects()[0].width - bedStandard.clientWidth;
-//     dragFieldSize.bottom = constraintsRef.value.getClientRects()[0].height - bedStandard.clientHeight;
-//     bedLayoutStore.addNewNodes({
-//         nodePosition: {
-//             x: bedStandard.clientLeft,
-//             y: bedStandard.clientTop
-//         },
-//         nodeMes: bedVNode
-//     })
-//     console.log(bedLayoutStore.getLNodes)
-//     useResizeObserver(constraintsRef, (entries) => {
-//         const entry = entries[0]
-//         const { width, height, left, top } = entry.contentRect
-//         bedLayoutStore.setCansvasNode({
-//             x: left,
-//             y: top
-//         })
-//         dragFieldSize.right = width - bedStandard.clientWidth;
-//         dragFieldSize.bottom = height - bedStandard.clientHeight;
-//         for (let bedRef of bedsRef.value ?? []) {
-//             const bedElement = bedRef?.$el as HTMLDivElement;
-//             if (bedElement.clientLeft > left + width) {
-//                 bedElement.style.left = `${left + width - 2}px`;
-//             }
-//         }
-//     })
-// }
-
-onMounted(async () => {
-    // bedVNodeMesArr.value = bedLayoutStore.getLNodes;
-    // for (let item of bedVNodeMesArr.value) {
-    //     console.log(item.nodePosition.x, item.nodePosition.y)
-    // }
-    // await nextTick()
-    // const bedStandard = bedsRef.value?.[0]?.$el as HTMLDivElement
-    // if (!bedStandard) {
-
-    // }
-    // else {
-    //     dragFieldSize.right = constraintsRef.value.getClientRects()[0].width - bedStandard.clientWidth;
-    //     dragFieldSize.bottom = constraintsRef.value.getClientRects()[0].height - bedStandard.clientHeight;
-    // }
-
-})
 const curSelectFloorVal=ref(1)
-const handleSelect=(e:AcceptableValue)=>{
-    curSelectFloorVal.value=e as number
-}
-
+onMounted(async () => {
+    const floorBed = await xhrWithAdapter('/bed/listByFloor',{
+        floor:curSelectFloorVal.value,
+    },bedsAdapter)
+    console.log(floorBed)
+    bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value,floorBed);
+})
 
 </script>
 
@@ -136,7 +83,7 @@ const handleSelect=(e:AcceptableValue)=>{
     <div class="flex-col w-full h-full flex overflow-hidden">
         <div id="header" class="flex space-x-4">
             <div class="flex items-center">
-                <Select  @update:model-value="handleSelect" >
+                <Select  v-model:model-value="curSelectFloorVal" >
                     <SelectTrigger>
                         <SelectValue placeholder="选择楼层"></SelectValue>
                     </SelectTrigger>
@@ -159,27 +106,6 @@ const handleSelect=(e:AcceptableValue)=>{
             </div>
         </div>
         <div class="flex h-full max-w-7/8">
-            <!-- 床位信息展示位
-            <div id="canvasContent" class="w-7/8 border border-gray-400" ref="constraintsRef">
-                <div id="canvas" class="flex relative">
-                    <motion.div v-for="(bedVNodeMes, index) in bedVNodeMesArr" class="absolute flex-col" drag
-                        :drag-momentum="false" :drag-constraints="dragFieldSize" :drag-elastic="1" ref="bedsRef"
-                        :key="bedVNodeMes.nodeMes.nodeCode"
-                        @dragEnd="bedLNodeChange($event, bedVNodeMes.nodeMes.nodeCode)"
-                        :style="{ left: bedVNodeMes.nodePosition.x + 'px', top: bedVNodeMes.nodePosition.y + 'px' }">
-                        <label> {{ `${bedVNodeMes.nodeMes.romId}-${bedVNodeMes.nodeMes.bedId}` }}</label>
-                        <img :src="bedTypeImgUrl[bedVNodeMes.nodeMes.bedType]" class="min-w-[30px] max-w-[50px]">
-                    </motion.div>
-                </div>
-            </div>
-            床位原料
-            <div id="dragableContent" class="flex flex-col flex-1">
-                <div v-for="bed in floorBedMessages" :key="bed.bedType" class="flex flex-1 items-center"
-                    @dblclick="createBedVnode(bed.bedType)">
-                    <img :src="bedTypeImgUrl[bed.bedType]" class="min-w-[30px] max-w-[50px]">
-                    <label class=" flex items-center"> {{ `${bed.bedType}` }}</label>
-                </div>
-            </div> -->
             <img :alt="`第${curSelectFloorVal}床位示意图`" class="w-full h-full object-cover">
         </div>
     </div>
