@@ -63,11 +63,18 @@ const handleQuickTap = (frame: keyof StateNameTag, index: number) => {
     frameController.curFrameIndex = index
 }
 const logout = () => {
-    sessionStorage.removeItem("user")
-    localStorage.removeItem('tokenu')
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {
-            sessionStorage.removeItem("token")
+            if (sessionStorage.getItem("userType") == '0') {
+                localStorage.removeItem("user0")
+                localStorage.removeItem('tokenu0')
+                localStorage.removeItem("AdminUsing")
+            } else if (sessionStorage.getItem("userType") == '1') {
+                localStorage.removeItem("user1")
+                localStorage.removeItem('tokenu1')
+                localStorage.removeItem("NurseUsing")
+            }
+            sessionStorage.removeItem("userType")
             ElMessage({ message: "已退出登录", type: "info" })
             router.push('/login')
         } else {
