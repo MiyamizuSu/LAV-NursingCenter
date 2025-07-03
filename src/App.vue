@@ -3,6 +3,8 @@ import { useRouter } from 'vue-router';
 import 'vue-sonner/style.css'
 import 'element-plus/dist/index.css'
 import { Toaster } from 'vue-sonner';
+import { onMounted, onUnmounted } from 'vue';
+import { axiosInstance as axios } from '@/lib/core'
 
 const router=useRouter()
 // router.push('/main')
@@ -21,6 +23,25 @@ const handleWindowClose = () => {
         localStorage.removeItem('NurseUsing')
     }
 }
+
+let checkInterval: number;
+
+const checkTokenValidity = () => {
+    console.log("check")
+    if(sessionStorage.getItem('userType')!=null){
+        axios.post('user/load',{})
+    }else if(sessionStorage.getItem('customerActive')!=null){
+        axios.post('customer/load',{})
+    }
+};
+
+onMounted(() => {
+  checkInterval = setInterval(checkTokenValidity, 60000); // 每1分钟检查一次
+});
+
+onUnmounted(() => {
+  clearInterval(checkInterval);
+});
 
 </script>
 

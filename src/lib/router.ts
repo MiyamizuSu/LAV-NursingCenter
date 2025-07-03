@@ -146,7 +146,7 @@ export const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     // 管理员专属路径
     const adminPaths = ['/checkIn', '/checkOut', '/goOut', '/bedLayoutDiagram',
         '/bedManagement', '/nursingLevel', '/nursingPrograms', '/customerNursingSet',
@@ -235,7 +235,7 @@ router.beforeEach((to, from, next) => {
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
         // console.log("路由守卫", sessionStorage.getItem('userType'))
-        axios.post('/user/load', {}).then(res => {
+        await axios.post('/user/load', {}).then(res => {
             if (res.data.status == 200) {
                 let user = res.data.data
                 userJson = JSON.stringify(user)

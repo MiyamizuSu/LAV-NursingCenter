@@ -75,7 +75,7 @@ axiosInstance.interceptors.request.use(function (config) {
     //         config.headers['token'] = token;
     //     }
     // }
-    console.log("最终发送token  ", config.headers['token'])
+    // console.log("最终发送token  ", config.headers['token'])
     return config;
 },
     function (error) {
@@ -87,6 +87,16 @@ axiosInstance.interceptors.response.use(function (response) {
     // 获取响应之前的动作
     // 当token失效时，会自动跳转至提示页面要求用户登录
     if (response.data === 'invalid token') {
+        if(sessionStorage.getItem('userType')=='1'){
+            localStorage.removeItem('NurseUsing');
+            sessionStorage.removeItem('userType');
+        } else if(sessionStorage.getItem('userType')=='0'){
+            localStorage.removeItem('AdminUsing');
+            sessionStorage.removeItem('userType');
+        } else if(sessionStorage.getItem('customerActive')!=null){
+            localStorage.removeItem('customerUsing');
+            sessionStorage.removeItem('customerActive');
+        }
         router.push('/errorPage');
     }
     return response;
