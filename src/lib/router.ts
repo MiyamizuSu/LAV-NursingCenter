@@ -29,8 +29,8 @@ import MealReservation from '@/pages/MealReservation.vue'
 import StreamPage from '@/pages/StreamPage.vue'
 import { axiosInstance as axios } from '@/lib/core'
 import type { User } from './type'
-
-export const routes:RouteRecordRaw[]=[
+import { use } from 'echarts'
+export const routes: RouteRecordRaw[] = [
     {
         path: '/login', component: LoginPage
     },
@@ -150,9 +150,7 @@ export const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
-    console.log("/ tokenu", localStorage.getItem('tokenu'))
-    console.log("/ tokenc", localStorage.getItem('tokenc'))
+router.beforeEach(async (to, from, next) => {
     // 管理员专属路径
     const adminPaths = ['/checkIn', '/checkOut', '/goOut', '/bedLayoutDiagram',
         '/bedManagement', '/nursingLevel', '/nursingPrograms', '/customerNursingSet',
@@ -167,11 +165,11 @@ router.beforeEach((to, from, next) => {
     const nextRoute = ['/login', '/errorPage'];
 
     if (to.path == '/') {
-        console.log("/ tokenu", localStorage.getItem('tokenu'))
-        console.log("/ tokenc", localStorage.getItem('tokenc'))
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
             router.push('/login')
         } else {
+            console.log("/ tokenu: ", localStorage.getItem('tokenu'))
+            console.log("/ tokenc: ", localStorage.getItem('tokenc'))
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
                 axios.post("/user/load", {}).then(res => {
                     // console.log(res)
@@ -241,14 +239,27 @@ router.beforeEach((to, from, next) => {
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
         // console.log("路由守卫", sessionStorage.getItem('userType'))
-
-        if (sessionStorage.getItem('userType') == '0') {
-            userJson = localStorage.getItem('user0') as string
-            localStorage.setItem('AdminUsing', "1")
-        } else if (sessionStorage.getItem('userType') == '1') {
-            userJson = localStorage.getItem('user1') as string
-            localStorage.setItem('NurseUsing', "1")
-        }
+        await axios.post('/user/load', {}).then(res => {
+            if (res.data.status == 200) {
+                let user = res.data.data
+                userJson = JSON.stringify(user)
+                sessionStorage.setItem("userType", user.userType)
+                if (user.userType == 0) {
+                    localStorage.setItem('user0', userJson)
+                    localStorage.setItem('AdminUsing', "1")
+                } else if (user.userType == 1) {
+                    localStorage.setItem('user1', userJson)
+                    localStorage.setItem('NurseUsing', "1")
+                }
+            }
+        })
+        // if (sessionStorage.getItem('userType') == '0') {
+        //     userJson = localStorage.getItem('user0') as string
+        //     localStorage.setItem('AdminUsing', "1")
+        // } else if (sessionStorage.getItem('userType') == '1') {
+        //     userJson = localStorage.getItem('user1') as string
+        //     localStorage.setItem('NurseUsing', "1")
+        // }
         // console.log("路由", userJson)
 
         if (userJson == null || userJson == undefined || userJson == '') {

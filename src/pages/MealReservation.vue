@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, computed, nextTick } from 'vue'
-import { ElMessage, ElTabs, ElTabPane } from 'element-plus'
+import { SwitchButton } from '@element-plus/icons-vue'
+import { ElMessage, ElTabs, ElTabPane, ElMessageBox } from 'element-plus'
+import { router } from '@/lib/router'
 
 // 膳食项接口
 interface MealItem {
@@ -195,16 +197,44 @@ const fetchOrders = async () => {
 const filteredCart = computed(() =>
   cart.value.filter(item => item.purchaseCount > 0)
 )
+
+const logout = () => {
+  ElMessageBox.confirm('确认退出登录吗？', '提示', {
+    confirmButtonText: '确认退出',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    
+    axios.post("/customer/logout", {}).then(res => {
+      if (res.data.status == 200) {
+        localStorage.removeItem("customer")
+        localStorage.removeItem('tokenc')
+        sessionStorage.removeItem("customerActive")
+        localStorage.removeItem("customerUsing")
+        ElMessage({ message: "已退出登录", type: "info" })
+        router.push('/login')
+      } else {
+        ElMessage({ message: res.data.msg, type: "error" })
+      }
+    })
+  }).catch(() => {})
+}
 </script>
 
 <template>
   <div class="container">
     <!-- 顶部导航 -->
-    <el-tabs v-model="activeTab" @tab-change="tab => tab === 'orders' && fetchOrders()">
-      <el-tab-pane label="膳食预订" name="reservation" />
-      <el-tab-pane label="我的订单" name="orders" />
-    </el-tabs>
-
+    <div class="header-container">
+      <el-tabs v-model="activeTab" @tab-change="tab => tab === 'orders' && fetchOrders()">
+        <el-tab-pane label="膳食预订" name="reservation" />
+        <el-tab-pane label="我的订单" name="orders" />
+      </el-tabs>
+      <el-button circle >
+        <el-icon>
+          <SwitchButton @click="logout"/>
+        </el-icon>
+      </el-button>
+    </div>
     <!-- 膳食预订页内容 -->
     <div v-if="activeTab === 'reservation'" class="main-content">
       <!-- 左侧导航 -->
@@ -686,5 +716,12 @@ const filteredCart = computed(() =>
     background: #fff3e0;
     color: #ff9900;
   }
+}
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background: #fff;
 }
 </style>

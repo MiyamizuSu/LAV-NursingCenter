@@ -68,14 +68,27 @@ const careRecordForm = ref({
   nursingTime: '',
   executionCount: 1,
   description: '',
-  nurseName: '张护工'
+  nurseName: currentNurse.value.name
 })
 
 //表单验证规则
 const formRules = ref({
   nursingTime: [{ required: true, message: '请选择护理时间', trigger: 'change' }],
   description: [{ required: true, message: '请输入护理内容', trigger: 'blur' }],
-  executionCount: [{ type: 'number', min: 1, message: '次数必须大于0' }]
+  executionCount: [
+    {
+      type: 'number',
+      required: true,
+      message: '请输入护理次数',
+      trigger: 'blur'  // 必填验证
+    },
+    {
+      type: 'number',
+      min: 1,
+      message: '次数必须大于0',
+      trigger: 'change' 
+    }
+  ]
 })
 
 // 分页查询客户
@@ -151,24 +164,15 @@ const handleOpenRecordDialog = (careItem: CareItem) => {
     customerName: currentCustomer.value?.name || '',
     customerId: currentCustomer.value?.customerId || 0,
     programCode: careItem.programCode,
-    programName: careItem.programName
+    programName: careItem.programName,
+    nursingTime: '',  // 重置时间
+    executionCount: 1, // 重置次数
+    description: '',  // 重置描述
   }
   showRecordDialog.value = true
 }
 
 const form = ref()
-
-const handleDialogClosed = () => {
-  nextTick(() => {
-    const dialog = document.querySelector('.el-dialog') as HTMLElement
-    if (dialog) {
-      // 重置对话框位置
-      dialog.style.marginTop = '10vh'
-      dialog.style.left = '35%'
-      dialog.style.transform = 'translateX(-50%)'
-    }
-  })
-}
 
 onMounted(() => {
   currentNurse.value = JSON.parse(localStorage.getItem('user1')!)
@@ -214,28 +218,26 @@ onMounted(() => {
       </el-card>
 
       <!-- 护理项目管理对话框 -->
-      <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog" draggable overflow @closed="() => {
-        form?.resetFields()
-        handleDialogClosed()
-      }" width="70%" top="10vh">
+      <el-dialog :title="`护理项目管理 - ${currentCustomer.name}`" v-model="showCareDialog"
+        :key="'care-dialog-' + showCareDialog" draggable overflow width="70%" top="10vh">
         <el-card shadow="hover" class="dialog-card">
-          <el-table :data="careItems" stripe header-row-class-name="dialog-table-header">
-            <el-table-column type="index" label="序号" width="60" align="center" />
-            <el-table-column prop="programCode" label="项目编号" width="120" />
-            <el-table-column prop="programName" label="项目名称" min-width="150" />
-            <el-table-column prop="programPrice" label="价格" width="120" align="right">
+          <el-table :data="careItems" stripe header-row-class-name="dialog-table-header" :fit="true">
+            <el-table-column type="index" label="序号" :min-width="60" align="center" />
+            <el-table-column prop="programCode" label="项目编号" align="center" />
+            <el-table-column prop="programName" label="项目名称"  align="center" />
+            <el-table-column prop="programPrice" label="价格" align="center">
               <template #default="{ row }">¥{{ row.programPrice }}</template>
             </el-table-column>
-            <el-table-column prop="leftCount" label="余量" width="100" align="center" />
-            <el-table-column prop="expirationDate" label="到期日" width="140" />
-            <el-table-column label="状态" width="120" align="center">
+            <el-table-column prop="leftCount" label="余量" align="center" />
+            <el-table-column prop="expirationDate" label="到期日" align="center" />
+            <el-table-column label="状态" align="center">
               <template #default="{ row }">
                 <el-tag :type="new Date(row.expirationDate) < new Date() ? 'danger'
                   : row.leftCount <= 0 ? 'warning' : 'success'" effect="plain">
                   {{ new Date(row.expirationDate) < new Date() ? '已过期' : row.leftCount <= 0 ? '已用完' : '可用' }} </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="140" align="center">
+            <el-table-column label="操作" align="center">
               <template #default="{ row }">
                 <el-button type="primary" size="small" @click="handleOpenRecordDialog(row)"
                   :disabled="new Date(row.expirationDate) < new Date() || row.leftCount <= 0">
@@ -254,10 +256,7 @@ onMounted(() => {
   </el-container>
 
   <!-- 护理记录对话框 -->
-  <el-dialog title="添加护理记录" v-model="showRecordDialog" draggable overflow @closed="() => {
-    form?.resetFields()
-    handleDialogClosed()
-  }">
+  <el-dialog title="添加护理记录" v-model="showRecordDialog" draggable overflow :key="'record-dialog-' + showRecordDialog">
     <el-form :model="careRecordForm" :rules="formRules" ref="recordForm">
       <el-form-item label="客户姓名">
         <el-input v-model="currentCustomer.name" disabled />

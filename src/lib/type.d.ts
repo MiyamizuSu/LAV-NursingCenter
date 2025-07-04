@@ -79,12 +79,12 @@ export type NursingRecord = {
 }
 export type BedUser={
     Id:number,
+    customerId:number
     name:string,
     gender:'男'|'女'
     bedMes:string,
     startUsedTime:StrictDate,
     endUsedTime:StrictDate,
-    customerId:number
 }
 export type Bed={
     id:number,
@@ -96,4 +96,7 @@ export type Bed={
 export interface Adapter<S extends object | object[], T extends object | object[]> {
     adapt(source: S): T;
 }
-  
+export type Room = {
+    id: number
+    roomNumber: string
+}

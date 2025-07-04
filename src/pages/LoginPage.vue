@@ -160,10 +160,10 @@ const loginAsCustomer = () => {
                         </FormField>
                     </form>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="loginAsCustomer">膳食预定</Button>
+                        <DynamicButton class=" mt-4" @Click="loginAsCustomer">膳食预定</DynamicButton>
                     </div>
                     <div class="flex justify-end mt-10">
-                        <Button class=" mt-4" @Click="login">提交</Button>
+                        <DynamicButton class=" mt-4" @Click="login">提交</DynamicButton>
                     </div>
 
                 </CardContent>
