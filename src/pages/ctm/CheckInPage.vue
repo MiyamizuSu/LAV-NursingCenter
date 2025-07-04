@@ -40,6 +40,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Customer } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
 import { Switch } from '@/components/ui/switch'
+import { motion } from 'motion-v'
 
 const ctmStore = usecustomerManagementStore()
 // 分页参数
@@ -295,12 +296,10 @@ const rules: FormRules = {
   phoneNumber: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
+      validator: (rule: any, value: string, callback: (arg0: Error | undefined) => void) => {
         const reg = /^\d{11}$/
         if (!reg.test(value)) {
           callback(new Error('电话号码必须是11位数字'))
-        } else {
-          callback()
         }
       },
       trigger: 'blur'
@@ -596,18 +595,21 @@ function change(e: string) {
         </div>
       </div>
       <div class="ml-auto">
-        <InteractiveHoverButton @click="showForm = true" text="登记" text-before-color="#71C9CE"
-          text-after-color="#CBF1F5" before-color="#CBF1F5" after-color="#71C9CE">
-          <template #svgIcon>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-circle-plus-icon lucide-circle-plus">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M8 12h8" />
-              <path d="M12 8v8" />
-            </svg>
-          </template>
-        </InteractiveHoverButton>
+        <motion.div :whilePress="{ scale: 0.9, rotate: 3 }">
+          <InteractiveHoverButton @click="showForm = true" text="登记" text-before-color="#71C9CE"
+            text-after-color="#CBF1F5" before-color="#CBF1F5" after-color="#71C9CE">
+            <template #svgIcon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-circle-plus-icon lucide-circle-plus">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 12h8" />
+                <path d="M12 8v8" />
+              </svg>
+            </template>
+          </InteractiveHoverButton>
+        </motion.div>
+
       </div>
     </div>
     <div class="flex items-center space-x-2">
@@ -636,7 +638,7 @@ function change(e: string) {
         </template>
       </Switch>
     </div>
-    
+
     <div class="mb-5 flex items-center gap-4">
       <Switcher left-value="自理老人" right-value="护理老人" @select-value-change="change">
       </Switcher>

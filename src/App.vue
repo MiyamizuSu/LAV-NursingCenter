@@ -18,7 +18,7 @@ const router=useRouter()
 
 <template>
   <Toaster close-button/>
-  <div class="w-screen h-screen ">
+  <div class="w-full h-screen ">
     <RouterView></RouterView>
   </div>
 </template>

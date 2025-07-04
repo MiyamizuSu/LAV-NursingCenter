@@ -165,7 +165,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.path == '/') {
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
-            router.push('/login')
+            router.push('/home')
         } else {
             // console.log("/ tokenu", localStorage.getItem('tokenu'))
             // console.log("/ tokenc", localStorage.getItem('tokenc'))

@@ -17,7 +17,7 @@ import AvgTag from '@/components/custom/AvgTag.vue';
 import { useRouter } from 'vue-router';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { onMounted, onMounted, reactive, ref, watch, type Component } from 'vue';
+import { onMounted, reactive, ref, watch, type Component } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
 import { toast } from 'vue-sonner';
 import type { sidebarItem } from '@/components/custom/type';
@@ -70,7 +70,7 @@ const logout = () => {
         if (res.data.status == 200) {
             sessionStorage.removeItem("token")
             ElMessage({ message: "已退出登录", type: "info" })
-            router.push('/login')
+            router.push('/home')
         } else {
             ElMessage({ message: res.data.msg, type: "error" })
         }
@@ -204,6 +204,12 @@ const nurseState = {
         外出申请: '/goOutApplication'
     }
 }
+
+const isDark = ref(false)
+watch(isDark, (newVal) => {
+    localStorage.setItem('theme', newVal ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', newVal)
+})
 
 
 onMounted(() => {

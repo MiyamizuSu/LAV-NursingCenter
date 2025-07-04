@@ -8,6 +8,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppleBlurImage: typeof import('./src/components/ui/apple-card-carousel/AppleBlurImage.vue')['default']
+    AppleCard: typeof import('./src/components/ui/apple-card-carousel/AppleCard.vue')['default']
+    AppleCardCarousel: typeof import('./src/components/ui/apple-card-carousel/AppleCardCarousel.vue')['default']
+    AppleCarouselItem: typeof import('./src/components/ui/apple-card-carousel/AppleCarouselItem.vue')['default']
     AppSideBar: typeof import('./src/components/custom/AppSideBar.vue')['default']
     Avatar: typeof import('./src/components/ui/avatar/Avatar.vue')['default']
     AvatarFallback: typeof import('./src/components/ui/avatar/AvatarFallback.vue')['default']
@@ -94,6 +98,7 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     EncapsulationDialog: typeof import('./src/components/custom/EncapsulationDialog.vue')['default']
+    FlipCard: typeof import('./src/components/ui/flip-card/FlipCard.vue')['default']
     FormControl: typeof import('./src/components/ui/form/FormControl.vue')['default']
     FormDescription: typeof import('./src/components/ui/form/FormDescription.vue')['default']
     FormItem: typeof import('./src/components/ui/form/FormItem.vue')['default']
@@ -180,6 +185,7 @@ declare module 'vue' {
     TableHeader: typeof import('./src/components/ui/table/TableHeader.vue')['default']
     TableRow: typeof import('./src/components/ui/table/TableRow.vue')['default']
     Textarea: typeof import('./src/components/ui/textarea/Textarea.vue')['default']
+    Timeline: typeof import('./src/components/ui/timeline/Timeline.vue')['default']
     Tooltip: typeof import('./src/components/ui/tooltip/Tooltip.vue')['default']
     TooltipContent: typeof import('./src/components/ui/tooltip/TooltipContent.vue')['default']
     TooltipProvider: typeof import('./src/components/ui/tooltip/TooltipProvider.vue')['default']
