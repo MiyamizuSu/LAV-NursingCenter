@@ -30,7 +30,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { useCustomerNurseStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'

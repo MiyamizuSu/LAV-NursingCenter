@@ -64,7 +64,7 @@ const handleQuickTap = (frame: string, index: number) => {
     frameController.curFrameIndex = index
 }
 const logout = () => {
-    sessionStorage.removeItem("user")
+    localStorage.removeItem("user0")
     localStorage.removeItem('tokenu')
     axios.post("/user/logout", {}).then(res => {
         if (res.data.status == 200) {

@@ -30,11 +30,12 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { useCustomerNurseStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
 import type { Customer, OutingRegistration } from './type'
+import type { User } from '@/lib/type'
 
 const ctsStore = useCustomerNurseStore()
 const outingPages = ref({
@@ -265,7 +266,7 @@ const onInput = async (event: Event) => {
 }
 // 获取分页客户数据
 const loadCustomers = async () => {
-    const res = await axios.post('customer/pageByNurseId', {
+    const res = await axios.post('/customer/pageByNurseId', {
         current: customerPages.value.currentPage,
         size: customerPages.value.pageSize,
         name: searchName.value,
@@ -550,7 +551,9 @@ const updateActualReturnDate = async () => {
 }
 
 onMounted(async () => {
-    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
+    let currentNurse = JSON.parse(localStorage.getItem('user1')!) as User
+    console.log("currentNurse: ", currentNurse)
+    ctsStore.setCurrentNurseId(currentNurse.userId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()

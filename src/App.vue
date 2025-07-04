@@ -6,7 +6,7 @@ import { Toaster } from 'vue-sonner';
 
 const router=useRouter()
 // router.push('/login')
-router.push('/main')
+// router.push('/main')
 
 </script>
 

@@ -13,8 +13,39 @@ import { useLevelProgramStore } from '@/lib/store'
 const router = useRouter()
 const levelProgramStore = useLevelProgramStore()
 
+let websocket = reactive({} as WebSocket)
+
+const initWebSocket = ()=> {
+    let user = {} as User
+    if (sessionStorage.getItem('userType') == '0') {
+        user = JSON.parse(localStorage.getItem('user0')!)
+    } else if (sessionStorage.getItem('userType') == '1') {
+        user = JSON.parse(localStorage.getItem('user1')!)
+    }
+    let url = axios.defaults.baseURL?.replace("http://","ws://").replace("https://","wss://") + "/websocket/" + user.userId.toString()
+    websocket = new WebSocket(url)
+    websocket.onopen = (ev) => {
+        // console.log("WebSocket连接成功：", ev);
+    }
+    websocket.onerror = (ev) => {
+        // console.log("WebSocket连接发生错误：", ev);
+    }
+    websocket.onmessage = (ev) => {
+        let data = ev.data
+        console.log("收到消息：", data)
+        if (data == 'NursingLevel_UPDATE') {
+            console.log("根据消息自动发送请求更新数据")
+            loadData()
+        }
+    }
+    websocket.onclose = (ev) => {
+        // console.log("connection closed (" + ev.code + ")");
+    }
+}
+
 onMounted(() => {
     loadData()
+    initWebSocket()
 })
 
 let currentUser = ref({} as User)
@@ -122,7 +153,7 @@ const confirm_commit = () => {
         axios.post("/nursingLevel/update", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
-                    loadData()
+                    // loadData()
                     dialogFormControl.value.isVisible = false
                     ElMessage({ message: "修改成功！", type: "success" })
                 } else {
@@ -137,7 +168,7 @@ const confirm_commit = () => {
         axios.post("/nursingLevel/add", editForm.value)
             .then(res => {
                 if (res.data.status == 200) {
-                    loadData()
+                    // loadData()
                     dialogFormControl.value.isVisible = false
                     ElMessage({ message: "添加成功！", type: "success" })
                 } else {

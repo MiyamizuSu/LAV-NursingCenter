@@ -26,11 +26,10 @@ import ErrorPage from '@/pages/ErrorPage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
-import { axiosInstance as axios } from '@/lib/core'
-
-import type { User } from './type'
-export const routes: RouteRecordRaw[] = [
 import StreamPage from '@/pages/StreamPage.vue'
+import { axiosInstance as axios } from '@/lib/core'
+import type { User } from './type'
+
 export const routes:RouteRecordRaw[]=[
     {
         path: '/login', component: LoginPage
@@ -152,6 +151,8 @@ export const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
+    console.log("/ tokenu", localStorage.getItem('tokenu'))
+    console.log("/ tokenc", localStorage.getItem('tokenc'))
     // 管理员专属路径
     const adminPaths = ['/checkIn', '/checkOut', '/goOut', '/bedLayoutDiagram',
         '/bedManagement', '/nursingLevel', '/nursingPrograms', '/customerNursingSet',
@@ -166,11 +167,11 @@ router.beforeEach((to, from, next) => {
     const nextRoute = ['/login', '/errorPage'];
 
     if (to.path == '/') {
+        console.log("/ tokenu", localStorage.getItem('tokenu'))
+        console.log("/ tokenc", localStorage.getItem('tokenc'))
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
             router.push('/login')
         } else {
-            // console.log("/ tokenu", localStorage.getItem('tokenu'))
-            // console.log("/ tokenc", localStorage.getItem('tokenc'))
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
                 axios.post("/user/load", {}).then(res => {
                     // console.log(res)

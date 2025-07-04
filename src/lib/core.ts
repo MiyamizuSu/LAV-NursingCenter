@@ -18,6 +18,7 @@ export const axiosInstance = axios.create({
 //请求拦截器
 axiosInstance.interceptors.request.use(function (config) {
     const currentPath = router.currentRoute.value.path;
+    console.log("currentPath ", currentPath)
     if (currentPath === '/login') {
         if (config.url?.indexOf('/user') != -1) {
             let token = localStorage.getItem('tokenu');
