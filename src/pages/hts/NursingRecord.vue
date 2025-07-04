@@ -57,7 +57,7 @@ const selectedRecords = ref<NursingRecord[]>([])
 
 // 分页查询客户
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, currentNurseId: currentNurse.value.userId })
+  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, nurseId: currentNurse.value.userId })
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {

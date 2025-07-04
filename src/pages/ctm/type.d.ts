@@ -41,10 +41,6 @@ export type OutingRegistration = { // 外出申请
     reviewTime?: string
     rejectReason?: string
 }
-export type Room = {
-    id: number
-    roomNumber: string
-}
 export type SpareBed = {
     id: number
     roomNumber: string

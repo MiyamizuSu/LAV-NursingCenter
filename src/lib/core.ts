@@ -21,7 +21,6 @@ axiosInstance.interceptors.request.use(function (config) {
     if (currentPath === '/login') {
         if (config.url?.indexOf('/user') != -1) {
             let token = localStorage.getItem('tokenu');
-            console.log("用户登录发送token ", token)
             if (token) {
                 config.headers['token'] = token;
             }
@@ -35,50 +34,40 @@ axiosInstance.interceptors.request.use(function (config) {
     else if (currentPath.startsWith('/main')) {
         // 发送请求之前的动作
         // 利用前端Session获得令牌信息
-        if (currentPath.startsWith('/main/nursingRecord2')
-            || currentPath.startsWith('/main/dailyNursing')
-            || currentPath.startsWith('/main/goOutApplication')
-            || currentPath.startsWith('/main/checkOutApplication')) {
+        if (sessionStorage.getItem("userType") == '1') {
             let token = localStorage.getItem('tokenu1');
             if (token) {
-                // console.log("发送tokenu1 ", token)
                 config.headers['token'] = token;
             }
-        } else {
+        } else if (sessionStorage.getItem("userType") == '0') {
             let token = localStorage.getItem('tokenu0');
             if (token) {
-                // console.log("发送tokenu0 ", token)
                 config.headers['token'] = token;
             }
         }
     }
-    else if (localStorage.getItem('tokenu') != null) {
+    else if (config.url?.indexOf('/user') != -1 && localStorage.getItem('tokenu') != null) {
         let token = localStorage.getItem('tokenu');
-        // console.log("发送tokenu ", token)
         if (token) {
             config.headers['token'] = token;
         }
     } else if (localStorage.getItem('tokenc') != null) {
         let token = localStorage.getItem('tokenc');
-        // console.log("发送tokenc ", token)
         if (token) {
             config.headers['token'] = token;
         }
     }
     // else if(sessionStorage.getItem('userType')==null) {
     //     let token = localStorage.getItem('tokenc');
-    //     console.log("发送tokenc ",token)
     //     if (token) {
     //         config.headers['token'] = token;
     //     }
     // }else if(sessionStorage.getItem('customerActive')==null){
     //     let token = localStorage.getItem('tokenu');
-    //     console.log("发送tokenu ",token)
     //     if (token) {
     //         config.headers['token'] = token;
     //     }
     // }
-    console.log("最终发送token  ", config.headers['token'])
     return config;
 },
     function (error) {
@@ -90,6 +79,16 @@ axiosInstance.interceptors.response.use(function (response) {
     // 获取响应之前的动作
     // 当token失效时，会自动跳转至提示页面要求用户登录
     if (response.data === 'invalid token') {
+        if(sessionStorage.getItem('userType')=='1'){
+            localStorage.removeItem('NurseUsing');
+            sessionStorage.removeItem('userType');
+        } else if(sessionStorage.getItem('userType')=='0'){
+            localStorage.removeItem('AdminUsing');
+            sessionStorage.removeItem('userType');
+        } else if(sessionStorage.getItem('customerActive')!=null){
+            localStorage.removeItem('customerUsing');
+            sessionStorage.removeItem('customerActive');
+        }
         router.push('/errorPage');
     }
     return response;
