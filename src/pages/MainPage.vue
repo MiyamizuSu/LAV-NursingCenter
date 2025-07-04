@@ -179,7 +179,7 @@ const adminState = {
         食品管理: '/foodManage',
         设置服务对象: '/serviceObjectSetting',
         服务关注: '/serviceFocus',
-        基础信息维护: '/basicInfromationMaintain'
+        基础信息维护: '/basicInformationMaintain'
     }
 }
 

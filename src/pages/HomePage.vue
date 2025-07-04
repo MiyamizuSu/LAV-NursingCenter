@@ -272,7 +272,7 @@ onBeforeUnmount(() => {
                 <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-2/5">
                     <CardContainer>
                         <CardBody
-                            class="group/card relative size-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 sm:w-[30rem] dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]">
+                            class="group/card relative size-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 sm:w-[50rem] h-[40rem] dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]">
                             <CardItem :translate-z="50" class="text-xl font-bold text-neutral-600 dark:text-white">
                                 Make things float in air
                             </CardItem>
@@ -280,14 +280,14 @@ onBeforeUnmount(() => {
                                 class="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-300">
                                 Hover over this card to unleash the power of CSS perspective
                             </CardItem>
-                            <CardItem :translate-z="100" class="mt-4 w-full">
+                            <CardItem :translate-z="90" class="mt-4 w-full">
                                 <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                                     height="1000" width="1000"
-                                    class="h-60 w-full rounded-xl object-cover group-hover/card:shadow-xl"
+                                    class="h-100 w-full rounded-xl object-cover group-hover/card:shadow-xl"
                                     alt="thumbnail" />
                             </CardItem>
                             <div class="mt-10 flex justify-center">
-                                <CardItem :translate-z="30" as="button" @click="login"
+                                <CardItem :translate-z="60" as="button" @click="login"
                                     class="rounded-2xl bg-black px-8 py-4 text-lg font-bold text-white dark:bg-white dark:text-black">
                                     立即登入
                                 </CardItem>
@@ -388,7 +388,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 入住流程 -->
-        <div class="py-20 bg-white dark:bg-gray-900">
+        <div class="py-20 bg-white dark:bg-black">
             <div class="max-w-4xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-semibold mb-10 text-gray-800 dark:text-white">入住流程</h2>
                 <div class="h-fit w-full">

@@ -295,8 +295,18 @@ const rules = reactive<FormRules<OutingRegistration>>({
         {
             required: true,
             message: '请选择是否通过审批',
-            trigger: 'change',
+            trigger: 'blur',
         },
+        {
+            validator: (rule, value, callback) => {
+                if (value !== 1 && value !== 2) {
+                    callback(new Error('请选择是否通过审批'));
+                } else {
+                    callback(); // 验证通过
+                }
+            },
+            trigger: 'blur',
+        }
     ],
     rejectReason: [],
 })
@@ -321,6 +331,7 @@ const openApprovalForm = (outing: OutingRegistration) => {  // 打开审批界�
     outingApprovalVisible.value = true
 }
 const cancelApprove = () => {   // 取消审批
+    ruleFormRef.value?.resetFields()
     outingApprovalVisible.value = false
     approvalForm.id = -1
     approvalForm.customerName = ''
@@ -350,7 +361,7 @@ const updateApproval = async () => {  // 提交审批
     }
 }
 const checkUpdateForm = () => {
-    ruleFormRef.value?.validate((valid: any) => {
+    ruleFormRef.value?.validate((valid: boolean) => {
         if (valid) {
             submitApprovalVisible.value = true;
         } else {
@@ -471,7 +482,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     外出申请审批
                 </div>
-                <div class="rounded-b-md border" >
+                <div class="rounded-b-md border">
                     <div>
                         <Table class="bg-white rounded-b-md dark:bg-slate-800">
                             <TableHeader>

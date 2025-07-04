@@ -162,7 +162,7 @@ router.beforeEach(async (to, from, next) => {
     const nursePaths = ['/dailyNursing', '/checkOutApplication',
         '/goOutApplication', '/nursingRecord2']
 
-    const nextRoute = ['/login', '/errorPage'];
+    const nextRoute = ['/login', '/errorPage', '/home'];
 
     if (to.path == '/') {
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {

@@ -30,7 +30,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { useCustomerNurseStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
@@ -183,7 +183,7 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
                         onClick: () => openUpdateReturnedDateForm(row.original)
                     }, '登记回院时间')
                 ])
-            }
+            } 
             return null
         }
     },
@@ -286,7 +286,7 @@ const loadAllCustomers = async () => {
     if (res.data.status === 200) {
         ctsStore.setAllCustomerList(res.data.data)
     } else {
-        console.log('查询失败')
+        ctsStore.setAllCustomerList([])
     }
 }
 
@@ -403,7 +403,8 @@ const addOutingForm = reactive({ // 暂存审批信息
     reviewStatus: -1,
     rejectReason: '',
     reviewTime: '',
-    actualReturnDate: ''
+    actualReturnDate: '',
+    nurseId: -1
 })
 const selectedCustomer = ref(null)
 const onCustomerChange = (id: number) => {
@@ -411,20 +412,15 @@ const onCustomerChange = (id: number) => {
     if (customer) {
         addOutingForm.customerName = customer.name;
         addOutingForm.customerId = customer.customerId
-        console.log('客户信息：', customer)
     } else {
         addOutingForm.customerName = '';
-        console.log('未找到客户信息')
     }
 }
 const submitOutingFormVisible = ref(false)  // 确认提交表单可见性
 const checkAddOutingForm = () => {   // 检查表单
     ruleFormRef.value?.validate((valid) => {
         if (valid) {
-            console.log("表单验证通过");
             submitOutingFormVisible.value = true;
-        } else {
-            console.log("表单验证未通过");
         }
     })
 }
@@ -448,7 +444,7 @@ const clearOutingForm = () => {
     addOutingForm.reviewTime = ''
 }
 const addOutingRegistration = async () => {
-    console.log('提交外出申请', addOutingForm)
+    addOutingForm.nurseId = ctsStore.getCurrentNurseId.value
     const res = await axios.post('/outingRegistration/add', addOutingForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
@@ -528,15 +524,11 @@ const updateReturnDateConfirmVisible = ref(false)
 const checkUpdateActualReturnDate = () => {
     ruleFormRef.value?.validate((valid) => {
         if (valid) {
-            console.log("表单验证通过");
             updateReturnDateConfirmVisible.value = true
-        } else {
-            console.log("表单验证未通过");
         }
     })
 }
 const updateActualReturnDate = async () => {
-    console.log('提交回院时间', updateReturnDateForm)
     const res = await axios.post('/outingRegistration/update', updateReturnDateForm)
     if (res.data.status === 200) {
         ElMessage.success('登记成功')
@@ -550,7 +542,7 @@ const updateActualReturnDate = async () => {
 }
 
 onMounted(async () => {
-    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
+    ctsStore.setCurrentNurseId(JSON.parse(localStorage.getItem('user1')!).userId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()

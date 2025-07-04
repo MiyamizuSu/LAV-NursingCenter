@@ -293,24 +293,23 @@ const loadCheckoutRegistrations = async () => {
 
 const formRef = ref<FormInstance>()
 const isPassed = ref(false)
-const rules: FormRules = {
+const rules = reactive<FormRules<CheckoutRegistration>>({
     reviewStatus: [
-        { required: true, message: '请选择审批结果', trigger: 'blur' }
-    ],
-    rejectReason: [
+        { required: true, message: '请选择审批结果', trigger: 'blur' },
         {
             validator: (rule, value, callback) => {
-                if (approvalForm.reviewStatus === '1' && !value) {
-                    callback(new Error('请填写拒绝原因'))
+                if (value !== 1 && value !== 2) {
+                    callback(new Error('请选择是否通过审批'));
                 } else {
-                    callback()
+                    callback(); // 验证通过
                 }
             },
-            trigger: 'blur'
+            trigger: 'blur',
         }
-    ]
-}
-// 配置表单校验规则
+    ],
+    rejectReason: [],
+})
+
 const checkOutApprovalVisible = ref(false) // 退住审批表单可见性
 const approvalForm = reactive({ // 暂存审批信息
     id: '',
@@ -318,7 +317,7 @@ const approvalForm = reactive({ // 暂存审批信息
     checkoutType: '',
     checkoutDate: '',
     checkoutReason: '',
-    reviewStatus: '',
+    reviewStatus: '' as string | number,
     rejectReason: '',
     reviewTime: ''
 })
@@ -327,13 +326,14 @@ const openApprovalForm = (checkout: CheckoutRegistration) => {  // 打开审批�
     checkOutApprovalVisible.value = true
 }
 const cancelApprove = () => {   // 取消审批
+    formRef.value?.resetFields()
     checkOutApprovalVisible.value = false
     approvalForm.id = ''
     approvalForm.customerName = ''
     approvalForm.checkoutType = ''
     approvalForm.checkoutDate = ''
     approvalForm.checkoutReason = ''
-    approvalForm.reviewStatus = ''
+    approvalForm.reviewStatus = -1
     approvalForm.rejectReason = ''
     approvalForm.reviewTime = ''
 }
@@ -376,14 +376,21 @@ const updateApproval = async () => {  // 提交审批
     }
 }
 
-watch(() => approvalForm.reviewStatus, (newVal: string) => {
-    if (newVal === '1') {
+watch(() => approvalForm.reviewStatus, (newVal: any) => {
+    if (approvalForm.reviewStatus === 1) {
         isPassed.value = false
-    } else if (newVal === '2') {
+        rules.rejectReason = [
+            {
+                required: true,
+                message: '请填写拒绝原因',
+                trigger: 'blur',
+            },
+        ]
+    } else if (approvalForm.reviewStatus === 2) {
         isPassed.value = true
+        rules.rejectReason = []
     }
 })
-
 onMounted(async () => {
     await loadCustomers() // 加载客户数据
     await loadCheckoutRegistrations() // 加载退住申请数据
@@ -560,8 +567,8 @@ onMounted(async () => {
 
                 <el-form-item label="是否通过该申请：" prop="reviewStatus">
                     <el-radio-group v-model="approvalForm.reviewStatus">
-                        <el-radio value='2'>通过</el-radio>
-                        <el-radio value='1'>不通过</el-radio>
+                        <el-radio :value=2>通过</el-radio>
+                        <el-radio :value=1>不通过</el-radio>
                     </el-radio-group>
                 </el-form-item>
 

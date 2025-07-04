@@ -296,10 +296,12 @@ const rules: FormRules = {
   phoneNumber: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
     {
-      validator: (rule: any, value: string, callback: (arg0: Error | undefined) => void) => {
+      validator: (rule, value, callback) => {
         const reg = /^\d{11}$/
         if (!reg.test(value)) {
           callback(new Error('电话号码必须是11位数字'))
+        }else{
+          callback()
         }
       },
       trigger: 'blur'
