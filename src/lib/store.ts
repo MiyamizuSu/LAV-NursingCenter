@@ -1,7 +1,7 @@
-import { computed, ref } from "vue";
+import { computed, reactive, ref, type Reactive } from "vue";
 import { defineStore } from "pinia";
-import type { CheckoutRegistration, Customer, OutingRegistration, Room, SpareBed } from "@/pages/ctm/type";
-import type { Bed, BedUser, User } from "./type";
+import type { CheckoutRegistration, Customer, OutingRegistration, SpareBed } from "@/pages/ctm/type";
+import type { Bed, BedUser, Room, User } from "./type";
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
   const allCustomerList = ref<Customer[]>([])
@@ -72,16 +72,18 @@ export const useCustomerNurseStore = defineStore('customerNurseStore', () =>{
   }
 })
 
-
-
 export const useBedManagementStore=defineStore("bedUseStore",()=>{
   const usingBeds=ref<BedUser[]>([]);
   const usedBeds=ref<BedUser[]>([]);
   const floorBeds=ref<Bed[]>([]);
   const _floorBeds_cache:Map<number,Bed[]>=new Map();
+  const room_cache = reactive<Room[]>([])
   const getUsingBeds=computed(()=>usingBeds);
   const getUsedBeds=computed(()=>usedBeds);
   const getFloorBeds=computed(()=>floorBeds);
+  const getRooms=computed(()=>{
+    return room_cache.length!==0?room_cache:undefined
+  });
   function _getCacheOrXhr(floor:number):1|0{
     if(_floorBeds_cache.has(floor)){
       floorBeds.value=_floorBeds_cache.get(floor) as Bed[]
@@ -97,14 +99,21 @@ export const useBedManagementStore=defineStore("bedUseStore",()=>{
   const setFloorBedsWithCache=(floor:number)=>{
     return !!_getCacheOrXhr(floor)
   }
+  const setRoom=(rooms:Room[])=>{
+    room_cache.push(...rooms)
+  }
   const setFloorBedsWithNoneCache=(floor:number,newFloorBeds:Bed[])=>{
     floorBeds.value=newFloorBeds;
     _update_cache(floor);
+  }
+  const setUsedBeds=(newUsedBedList:BedUser[])=>{
+    usedBeds.value=newUsedBedList
   }
   const setUsingBeds=(newUsingBedsList:BedUser[])=>{
     usingBeds.value=newUsingBedsList
   }
   return {
-    getUsedBeds,getUsingBeds,setUsingBeds,getFloorBeds,setFloorBedsWithCache,setFloorBedsWithNoneCache
+    getUsedBeds,getUsingBeds,setUsingBeds,getFloorBeds,setFloorBedsWithCache,setFloorBedsWithNoneCache,getRooms,setRoom,setUsedBeds
   }
 })
+

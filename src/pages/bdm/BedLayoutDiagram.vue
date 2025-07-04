@@ -11,39 +11,18 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import type { BedMes, BedResponse, BedType } from './type';
-import { onMounted, ref } from 'vue';
-import type { AcceptableValue } from 'reka-ui';
+import { computed, onMounted, ref } from 'vue';
 import { useBedManagementStore } from '@/lib/store';
 import type { Adapter, Bed, Key } from '@/lib/type';
-import { axiosInstance, xhrWithAdapter } from '@/lib/core';
-const bdmStore=useBedManagementStore();
-const bedStatusMap:{[key:number]:BedType}={
-    0:'空闲',
-    1:'外出',
-    2:'外出'
-}
-const bedsAdapter:Adapter< {[key:string]: Array<BedResponse>},Array<Bed>>={
-    adapt(source){
-        console.log(source)
-        let concatSource:BedResponse[]=[]
-        for(let value of Object.values(source)){
-            concatSource=concatSource.concat(value);
-        }
-        const floorBeds:Array<Bed>=[];
-        for(let i=0;i<concatSource.length;i++){
-            const responseBed=concatSource[i]
-            const bed:Bed={
-                id:responseBed.id,
-                rId:responseBed.roomId,
-                bNumber:responseBed.bedNumber,
-                rNumber:responseBed.roomNumber,
-                bStatus:bedStatusMap[responseBed.status as Key<typeof bedStatusMap>]
-            }
-            floorBeds[i]=bed;
-        }
-        return floorBeds
-    }
-}
+import { xhrWithAdapter } from '@/lib/core';
+import Blayout from '@/components/custom/blaylout/Blayout.vue';
+import BlyaoutContent from '@/components/custom/blaylout/BlyaoutContent.vue';
+import BlayoutTitle from "@/components/custom/blaylout/BlyaoutTitle.vue"
+import BedComponent from '@/components/custom/blaylout/BedComponent.vue';
+import type { AcceptableValue } from 'reka-ui';
+import { bedsAdapter } from './helper';
+const bdmStore = useBedManagementStore();
+
 const floorBedMessages: BedMes[] = [
     {
         bedType: "总量",
@@ -68,13 +47,33 @@ const bedTypeImgUrl = {
     有人: '/src/assets/busy.jpg',
     外出: '/src/assets/out.jpg',
 }
-const curSelectFloorVal=ref(1)
+const curSelectFloorVal = ref(1)
+async function selectValChange(v: any) {
+    curSelectFloorVal.value = v
+    if (!bdmStore.setFloorBedsWithCache(v)) {
+        const floorBed = await xhrWithAdapter('/bed/listByFloor', {
+            floor: v
+        }, bedsAdapter)
+        bdmStore.setFloorBedsWithNoneCache(v, floorBed);
+    }
+}
+const useFloorBeds = computed(() => {
+    const rb_map = new Map<string, Bed[]>();
+    for (const bed of bdmStore.getFloorBeds.value) {
+        if (!rb_map.has(bed.rNumber)) {
+            rb_map.set(bed.rNumber, []);
+        }
+        rb_map.get(bed.rNumber)!.push(bed);
+    }
+    return rb_map;
+});
 onMounted(async () => {
-    const floorBed = await xhrWithAdapter('/bed/listByFloor',{
-        floor:curSelectFloorVal.value,
-    },bedsAdapter)
-    console.log(floorBed)
-    bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value,floorBed);
+    if (!bdmStore.setFloorBedsWithCache(curSelectFloorVal.value)) {
+        const floorBed = await xhrWithAdapter('/bed/listByFloor', {
+            floor: curSelectFloorVal.value,
+        }, bedsAdapter)
+        bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value, floorBed);
+    }
 })
 
 </script>
@@ -83,14 +82,14 @@ onMounted(async () => {
     <div class="flex-col w-full h-full flex overflow-hidden">
         <div id="header" class="flex space-x-4">
             <div class="flex items-center">
-                <Select  v-model:model-value="curSelectFloorVal" >
+                <Select @update:model-value="selectValChange" :default-value="curSelectFloorVal">
                     <SelectTrigger>
                         <SelectValue placeholder="选择楼层"></SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup v-model="curSelectFloorVal">
                             <SelectLabel>楼层</SelectLabel>
-                            <SelectItem v-for="i in floorCount" :value="i" >
+                            <SelectItem v-for="i in floorCount" :value="i">
                                 {{ `第${i}楼层` }}
                             </SelectItem>
                         </SelectGroup>
@@ -105,10 +104,24 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-        <div class="flex h-full max-w-7/8">
-            <img :alt="`第${curSelectFloorVal}床位示意图`" class="w-full h-full object-cover">
+        <div class="flex h-full max-w-full ml-4 mr-4">
+            <div class="border border-gray-300 rounded flex w-full max-h-full flex-row gap-10 items-center">
+                <div v-for="[rNumber, beds] in Array.from(useFloorBeds.entries())" :key="rNumber"
+                    class="border border-gray-300 rounded flex-1 ">
+                    <div class="border border-gray-400 rounded border-b flex justify-center">
+                        <p>
+                            {{ rNumber }}
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div v-for="bed in beds" :key="bed.bNumber" class="flex items-center flex-col p-2">
+                            <img :src="bedTypeImgUrl[bed.bStatus]" class="min-w-[30px] max-w-[50px]" />
+                            <p>{{ bed.bNumber }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 </template>
 <style lang="css" scoped></style>

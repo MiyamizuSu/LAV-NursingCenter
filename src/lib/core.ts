@@ -21,7 +21,6 @@ axiosInstance.interceptors.request.use(function (config) {
     if (currentPath === '/login') {
         if (config.url?.indexOf('/user') != -1) {
             let token = localStorage.getItem('tokenu');
-            console.log("用户登录发送token ", token)
             if (token) {
                 config.headers['token'] = token;
             }
@@ -41,44 +40,37 @@ axiosInstance.interceptors.request.use(function (config) {
             || currentPath.startsWith('/main/checkOutApplication')) {
             let token = localStorage.getItem('tokenu1');
             if (token) {
-                // console.log("发送tokenu1 ", token)
                 config.headers['token'] = token;
             }
         } else {
             let token = localStorage.getItem('tokenu0');
             if (token) {
-                // console.log("发送tokenu0 ", token)
                 config.headers['token'] = token;
             }
         }
     }
     else if (localStorage.getItem('tokenu') != null) {
         let token = localStorage.getItem('tokenu');
-        // console.log("发送tokenu ", token)
         if (token) {
             config.headers['token'] = token;
         }
     } else if (localStorage.getItem('tokenc') != null) {
         let token = localStorage.getItem('tokenc');
-        // console.log("发送tokenc ", token)
         if (token) {
             config.headers['token'] = token;
         }
     }
     // else if(sessionStorage.getItem('userType')==null) {
     //     let token = localStorage.getItem('tokenc');
-    //     console.log("发送tokenc ",token)
     //     if (token) {
     //         config.headers['token'] = token;
     //     }
     // }else if(sessionStorage.getItem('customerActive')==null){
     //     let token = localStorage.getItem('tokenu');
-    //     console.log("发送tokenu ",token)
     //     if (token) {
     //         config.headers['token'] = token;
     //     }
     // }
-    console.log("最终发送token  ", config.headers['token'])
     return config;
 },
     function (error) {

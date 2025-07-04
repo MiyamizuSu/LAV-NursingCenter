@@ -215,7 +215,6 @@ onMounted(() => {
         sidebarItems.push(...nurseState.nurseSidebarItems)
         stateName_tag.value = nurseState.nurseStateList
     }
-    console.log(sidebarItems);
 })
 </script>
 
