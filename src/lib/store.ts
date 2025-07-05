@@ -117,3 +117,13 @@ export const useBedManagementStore=defineStore("bedUseStore",()=>{
   }
 })
 
+export const useUserManagementStore=defineStore("userManagementStore",()=>{
+  const userList = ref<User[]>([])
+  const getUserList=computed(()=>userList);
+  function setUserList(newList:User[]){
+    userList.value=newList
+  }
+  return {
+    getUserList,setUserList
+  }
+})
