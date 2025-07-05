@@ -273,7 +273,7 @@ const loadCustomers = async () => {
         ctsStore.setCustomerList(res.data.data)
         customerPages.value.totalCustomer = res.data.total
     } else {
-        ctsStore.getCustomerList.value = []
+        ctsStore.setCustomerList([])
     }
 }
 // 获取所有客户数据
@@ -385,7 +385,7 @@ const clearCheckoutForm = () => {  // 清空退住申请表单
     addCheckoutForm.checkoutReason = ''
     addCheckoutForm.bedNumber = ''
 }
-const addCheckoutRegistration = async () => {
+const addCheckoutRegistration = async () => {   // 添加外出申请
     addCheckoutForm.nurseId = ctsStore.getCurrentNurseId.value
     const res = await axios.post('/checkoutRegistration/add', addCheckoutForm)
     if (res.data.status === 200) {

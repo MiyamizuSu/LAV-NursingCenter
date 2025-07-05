@@ -546,19 +546,10 @@ watch(selectedCustomerType, (newType: any) => {
 })
 
 const isDark = ref(false)
-// document.documentElement.classList.add('dark')  // 启用暗黑模式
-// document.documentElement.classList.remove('dark') // 关闭暗黑模式
-// const toggleDarkMode = () => {
-//   isDark.value = !isDark.value
-// }
 watch(isDark, (newVal) => {
   localStorage.setItem('theme', newVal ? 'dark' : 'light')
   document.documentElement.classList.toggle('dark', newVal)
-  // console.log('当前模式', isDark.value)
-  // console.log('存储的模式', localStorage.getItem('theme'))
 })
-
-
 
 onMounted(async () => {
   const savedTheme = localStorage.getItem('theme')
