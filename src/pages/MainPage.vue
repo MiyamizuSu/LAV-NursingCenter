@@ -17,7 +17,7 @@ import AvgTag from '@/components/custom/AvgTag.vue';
 import { useRouter } from 'vue-router';
 import { Apple, Bed, CircleUserRound, HeartPlus, ShieldUser, SquareActivity } from 'lucide-vue-next';
 import type { Key } from '@/lib/type';
-import { onMounted, reactive, ref, type Component } from 'vue';
+import { onMounted, reactive, ref, watch, type Component } from 'vue';
 import { axiosInstance as axios } from '@/lib/core'
 import { toast } from 'vue-sonner';
 import type { sidebarItem } from '@/components/custom/type';
@@ -77,7 +77,7 @@ const logout = () => {
             }
             sessionStorage.removeItem("userType")
             ElMessage({ message: "已退出登录", type: "info" })
-            router.push('/login')
+            router.push('/home')
         } else {
             ElMessage({ message: res.data.msg, type: "error" })
         }
@@ -179,7 +179,7 @@ const adminState = {
         食品管理: '/foodManage',
         设置服务对象: '/serviceObjectSetting',
         服务关注: '/serviceFocus',
-        基础信息维护: '/basicInfromationMaintain'
+        基础信息维护: '/basicInformationMaintain'
     }
 }
 
@@ -212,6 +212,12 @@ const nurseState = {
     }
 }
 
+const isDark = ref(false)
+watch(isDark, (newVal) => {
+    localStorage.setItem('theme', newVal ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', newVal)
+})
+
 
 onMounted(() => {
     const userType = sessionStorage.getItem('userType')
@@ -240,35 +246,63 @@ onMounted(() => {
 
                         </div>
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <Avatar>
-                                <AvatarFallback>
-                                    头像
-                                </AvatarFallback>
-                                <AvatarImage src="">
-                                </AvatarImage>
-                            </Avatar>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuLabel>个人资料</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <span>档案</span>
-                                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>设置</span>
-                                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem @click="logout">
-                                    <span>退出</span>
-                                    <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div class="flex items-center space-x-2">
+                        <Switch v-model="isDark">
+                            <template #thumb>
+                                <div class="flex items-center justify-center w-full h-full">
+                                    <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-moon-icon lucide-moon size-3">
+                                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        class="lucide lucide-sun-medium-icon lucide-sun-medium size-3">
+                                        <circle cx="12" cy="12" r="4" />
+                                        <path d="M12 3v1" />
+                                        <path d="M12 20v1" />
+                                        <path d="M3 12h1" />
+                                        <path d="M20 12h1" />
+                                        <path d="m18.364 5.636-.707.707" />
+                                        <path d="m6.343 17.657-.707.707" />
+                                        <path d="m5.636 5.636.707.707" />
+                                        <path d="m17.657 17.657.707.707" />
+                                    </svg>
+                                </div>
+                            </template>
+                        </Switch>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <Avatar>
+                                    <AvatarFallback>
+                                        头像
+                                    </AvatarFallback>
+                                    <AvatarImage src="">
+                                    </AvatarImage>
+                                </Avatar>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>个人资料</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuGroup>
+                                    <DropdownMenuItem>
+                                        <span>档案</span>
+                                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                        <span>设置</span>
+                                        <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem @click="logout">
+                                        <span>退出</span>
+                                        <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
         </div>
