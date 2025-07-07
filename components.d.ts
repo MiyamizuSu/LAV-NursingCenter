@@ -14,7 +14,6 @@ declare module 'vue' {
     AvatarImage: typeof import('./src/components/ui/avatar/AvatarImage.vue')['default']
     AvgTag: typeof import('./src/components/custom/AvgTag.vue')['default']
     Badge: typeof import('./src/components/ui/badge/Badge.vue')['default']
-    Bed: typeof import('./src/components/custom/blaylout/Bed.vue')['default']
     BedComponent: typeof import('./src/components/custom/blaylout/BedComponent.vue')['default']
     Blayout: typeof import('./src/components/custom/blaylout/Blayout.vue')['default']
     BlyaoutContent: typeof import('./src/components/custom/blaylout/BlyaoutContent.vue')['default']

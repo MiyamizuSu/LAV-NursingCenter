@@ -13,6 +13,11 @@ else {
 export const axiosInstance = axios.create({
     baseURL: baseUrl,
     timeout: 1000,
+    // proxy: {
+    //     protocol: 'http2',
+    //     host: 'localhost',
+    //     port: 9000,
+    // }
 })
 
 //请求拦截器

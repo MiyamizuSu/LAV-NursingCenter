@@ -11,8 +11,9 @@ import { useCustomerProgramsStore } from '@/lib/store';
 const router = useRouter()
 const customerProgramsStore = useCustomerProgramsStore()
 
-onMounted(() => {
-    currentCustomer.value = customerProgramsStore.getCurrentCustomer.value
+onMounted(async () => {
+    currentCustomer.value = await customerProgramsStore.getCurrentCustomer.value
+    console.log(currentCustomer.value)
     loadData()
 })
 
@@ -218,7 +219,7 @@ const addToSelected = (program: NursingProgram) => {
         purchaseDate: formatDate(new Date()),
         totalCount: 1,
         usedCount: 0,
-        expirationDate: formatDate(addDays(new Date(), 31))
+        expirationDate: formatDate(addDays(new Date(), 92))
     })
     // loadAvailablePrograms()
 }
@@ -528,40 +529,39 @@ const loadData = () => {
             <div style="background-color: #007bff; margin-top: 5vh; width: 100%; height: 3vh; align-content: center;">
                 <label style="text-align: center; color: white; font-size: 16px; font-weight: bold;">已选的护理项目</label>
             </div>
-            <el-table :data="selectedServices" :border="true" :stripe="true" style="width: 100%;"
-                @selection-change="handleSelectionChange">
+            <el-table :data="selectedServices" :stripe="true" style="width: 100%;"
+                @selection-change="handleSelectionChange" :fit="true">
                 <!-- <el-table-column type="selection" width="50" ></el-table-column> -->
-                <el-table-column type="index" label="序号" width="60" style="text-align: center;">
+                <el-table-column type="index" label="序号" align="center">
                 </el-table-column>
-                <el-table-column property="programCode" label="编号" width="120">
+                <el-table-column property="programCode" label="编号" align="center">
                 </el-table-column>
-                <el-table-column property="programName" label="名称" width="125">
+                <el-table-column property="programName" label="名称" align="center">
                 </el-table-column>
-                <el-table-column label="价格" width="110">
+                <el-table-column label="价格" align="center">
                     <template #default="scope">
                         <span v-if="scope.row.programPrice > 0">{{ scope.row.programPrice }}元/次</span>
                         <span v-else>免费</span>
                     </template>
                 </el-table-column>
-                <el-table-column property="executionPeriod" label="执行周期" width="100">
+                <el-table-column property="executionPeriod" label="执行周期" align="center">
                 </el-table-column>
-                <el-table-column property="executionTimes" label="执行次数" width="90">
+                <el-table-column property="executionTimes" label="执行次数" align="center">
                 </el-table-column>
-                <el-table-column property="purchaseDate" label="服务购买日期" width="130">
+                <el-table-column property="purchaseDate" label="服务购买日期" align="center">
                 </el-table-column>
-                <el-table-column label="购买数量" width="100">
+                <el-table-column label="购买数量" align="center">
                     <template #default="scope">
-                        <el-input v-model="scope.row.totalCount" type="number" placeholder="请输入购买数量"
-                            style="width: 100%;"></el-input>
+                        <el-input-number v-model="scope.row.totalCount" :min="1" controls-position="right" style="width: 80px;" />
                     </template>
                 </el-table-column>
-                <el-table-column label="服务到期日期" width="200">
+                <el-table-column label="服务到期日期" align="center">
                     <template #default="scope">
                         <el-date-picker v-model="scope.row.expirationDate" type="date" value-on-clear=""
                             value-format="YYYY-MM-DD" placeholder="选择服务到期日期" style="width: 100%;"></el-date-picker>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="130" style="text-align: center;">
+                <el-table-column label="操作" align="center">
                     <template #default="scope">
                         <el-button type="danger" @click="deleteFromSelected(scope.row)"
                             style="margin-left: 2vh;">移除</el-button>

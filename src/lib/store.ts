@@ -1,7 +1,8 @@
 import { computed, reactive, ref, type Reactive } from "vue";
 import { defineStore } from "pinia";
 import type { CheckoutRegistration, Customer, OutingRegistration, SpareBed } from "@/pages/ctm/type";
-import type { Bed, BedUser, Room, User } from "./type";
+import type { Bed, BedUser, Room, User, Customer as MyCustomer, NursingLevel } from "./type";
+
 export const usecustomerManagementStore = defineStore('customManagentStore', () => {
   const customerList = ref<Customer[]>([])
   const allCustomerList = ref<Customer[]>([])
@@ -137,13 +138,12 @@ export const useNursingCustomersStore = defineStore('nursingCustomersStore', () 
   }
 })
 export const useCustomerProgramsStore = defineStore('customerProgramsStore', () =>{
-  const currentCustomer = ref({} as Customer)
+  const currentCustomer = ref({} as MyCustomer)
   const getCurrentCustomer = computed(() => currentCustomer)
-  const setCurrentCustomer = (newCustomer: Customer) => {
+  const setCurrentCustomer = (newCustomer: MyCustomer) => {
     currentCustomer.value = newCustomer
   }
   return {
     getCurrentCustomer, setCurrentCustomer
   }
 })
-

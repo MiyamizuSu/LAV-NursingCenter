@@ -274,7 +274,7 @@ const loadProgramsUnderLevel = () => {
                         purchaseDate: formatDate(new Date()),
                         totalCount: 1,
                         usedCount: 0,
-                        expirationDate: formatDate(addDays(new Date(), 31))
+                        expirationDate: formatDate(addDays(new Date(), 92))
                     })
                 }
 
@@ -398,8 +398,7 @@ const loadData = () => {
                     </el-table-column>
                     <el-table-column label="购买数量" width="125">
                         <template #default="scope">
-                            <el-input v-model="scope.row.totalCount" type="number" placeholder="请输入购买数量"
-                                style="width: 100%;"></el-input>
+                            <el-input-number v-model="scope.row.totalCount" placeholder="请输入购买数量" :min="1" controls-position="right"  />
                         </template>
                     </el-table-column>
                     <el-table-column label="服务到期日期" width="200">
@@ -422,6 +421,4 @@ const loadData = () => {
     </el-main>
 </template>
 
-<style lang="css" scoped>
-</style>
 <style src="./scopedStyle.css"></style>
