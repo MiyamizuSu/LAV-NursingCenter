@@ -117,6 +117,17 @@ export const useBedManagementStore=defineStore("bedUseStore",()=>{
     getUsedBeds,getUsingBeds,setUsingBeds,getFloorBeds,setFloorBedsWithCache,setFloorBedsWithNoneCache,getRooms,setRoom,setUsedBeds
   }
 })
+
+export const useUserManagementStore=defineStore("userManagementStore",()=>{
+  const userList = ref<User[]>([])
+  const getUserList=computed(()=>userList);
+  function setUserList(newList:User[]){
+    userList.value=newList
+  }
+  return {
+    getUserList,setUserList
+  }
+})
 export const useLevelProgramStore = defineStore('levelProgramStore', () =>{
   const currentLevel = ref({} as NursingLevel)
   const getCurrentLevel = computed(() => currentLevel)

@@ -25,6 +25,7 @@ export type CheckoutRegistration ={  // 退住申请类
     reviewStatus: number
     reviewTime: string
     checkoutType: number
+    rejectReason?: string
 }
 export type OutingRegistration = { // 外出申请
     id: number
