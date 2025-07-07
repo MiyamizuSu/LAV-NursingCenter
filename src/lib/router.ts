@@ -23,6 +23,7 @@ import DailyNursing from '@/pages/hts/DailyNursing.vue'
 import FoodManage from '@/pages/mlm/FoodManage.vue'
 import MealReservationManage from '@/pages/mlm/MealReservationManage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
+import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
@@ -30,6 +31,9 @@ import { axiosInstance as axios } from '@/lib/core'
 
 import type { User } from './type'
 export const routes: RouteRecordRaw[] = [
+    {
+        path:'/home', component:HomePage
+    },
     {
         path: '/login', component: LoginPage
     },
@@ -157,11 +161,11 @@ router.beforeEach(async (to, from, next) => {
     const nursePaths = ['/dailyNursing', '/checkOutApplication',
         '/goOutApplication', '/nursingRecord2']
 
-    const nextRoute = ['/login', '/errorPage'];
+    const nextRoute = ['/login', '/errorPage', '/home'];
 
     if (to.path == '/') {
         if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
-            router.push('/login')
+            router.push('/home')
         } else {
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
                 axios.post("/user/load", {}).then(res => {
