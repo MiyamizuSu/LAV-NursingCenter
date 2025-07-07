@@ -57,17 +57,6 @@ axiosInstance.interceptors.request.use(function (config) {
             config.headers['token'] = token;
         }
     }
-    // else if(sessionStorage.getItem('userType')==null) {
-    //     let token = localStorage.getItem('tokenc');
-    //     if (token) {
-    //         config.headers['token'] = token;
-    //     }
-    // }else if(sessionStorage.getItem('customerActive')==null){
-    //     let token = localStorage.getItem('tokenu');
-    //     if (token) {
-    //         config.headers['token'] = token;
-    //     }
-    // }
     return config;
 },
     function (error) {

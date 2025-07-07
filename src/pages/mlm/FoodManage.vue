@@ -48,11 +48,9 @@ const queryFoods = () => {
   axios.post('/food/page', queryParams.value)
     .then(res => {
       const pr = res.data
-      console.log(pr)
       foodList.value = pr.data
       total.value = pr.total
     })
-    .catch(error => console.log(error))
 }
 
 // 删除单个
@@ -210,7 +208,7 @@ const submitForm = () => {
         } else {
           ElMessage.error(pr.msg)
         }
-      }).catch(error => console.log(error))
+      })
 
   })
 }
@@ -328,7 +326,6 @@ const showPriceChart = async () => {
   } catch (error: any) {
 
     ElMessage.error(error.message || '图表初始化失败')
-    console.error(error)
   }
 }
 

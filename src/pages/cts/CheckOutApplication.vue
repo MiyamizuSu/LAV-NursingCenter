@@ -282,10 +282,8 @@ const loadAllCustomers = async () => {
         nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
-        console.log('所有客户数据', res.data.data)
         ctsStore.setAllCustomerList(res.data.data)
     } else {
-        console.log('查询失败')
     }
 }
 const loadCheckoutRegistrations = async () => {
@@ -299,7 +297,6 @@ const loadCheckoutRegistrations = async () => {
         ctsStore.setCheckoutList(res.data.data)
         checkoutPages.value.totalCheckout = res.data.total
     } else {
-        console.log('查询退住信息失败')
         ctsStore.getCheckoutList.value = []
     }
 }
@@ -360,20 +357,17 @@ const onCustomerChange = (id: number) => {
         addCheckoutForm.customerId = customer.customerId
         addCheckoutForm.bedNumber = customer.bedNumber
         addCheckoutForm.checkinDate = customer.checkinDate
-        console.log('客户信息：', customer)
     } else {
         addCheckoutForm.customerName = '';
-        console.log('未找到客户信息')
     }
 }
 const submitCheckoutFormVisible = ref(false)  // 确认提交表单可见性
 const checkCheckoutForm = () => {   // 检查表单
     ruleFormRef.value?.validate((valid: any) => {
         if (valid) {
-            console.log("表单验证通过");
             submitCheckoutFormVisible.value = true;
         } else {
-            console.log("表单验证未通过");
+
         }
     })
 }

@@ -169,7 +169,6 @@ const loadData = () => {
     axios.post("/user/load", {}).then(res => {
         if (res.data.status == 200) {
             currentUser.value = res.data.data
-            // console.log("currentUser: ", currentUser.value)
         }
     })
 
@@ -178,18 +177,9 @@ const loadData = () => {
             if (res.data.status == 200) {
                 tableData.value = res.data.data
                 total.value = res.data.total
-                console.log(tableData.value)
-
-                // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 tableData.value = res.data.data
                 total.value = res.data.total
-                console.log(tableData.value)
-                // ElNotification({
-                //     title: 'Error',
-                //     message: res.data.msg,
-                //     type: 'error',
-                // })
             }
         })
 }

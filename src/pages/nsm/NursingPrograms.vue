@@ -265,13 +265,9 @@ const loadData = () => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
                 total.value = res.data.total
-                console.log(allPrograms.value)
-
-                // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 allPrograms.value = res.data.data
                 total.value = res.data.total
-                console.log(allPrograms.value)
                 ElNotification({
                     title: '没有符合条件的数据',
                     message: res.data.msg,

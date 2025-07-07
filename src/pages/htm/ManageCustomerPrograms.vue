@@ -75,7 +75,6 @@ let multipleSelection = ref([] as CustomerNursingService[])
 
 const handleSelectionChange = (val: CustomerNursingService[]) => {
     multipleSelection.value = val
-    console.log(multipleSelection.value)
 }
 
 // 控制添加对话框
@@ -359,7 +358,6 @@ const loadAvailablePrograms = () => {
             if (res.data.status == 200) {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total
-                console.log(availablePrograms.value)
             } else {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total

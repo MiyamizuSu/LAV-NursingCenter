@@ -60,13 +60,6 @@ const handleCurrentChange1 = (val: number) => {
     queryEntity1.value.current = val
     loadData()
 }
-
-// // 监听
-// watch(queryEntity1, (oldVal, newVal) => {
-//     console.log(newVal)
-//     loadData()
-// })
-
 const judgeContains = (programId: number) => {
     for (let program of currentPrograms.value) {
         if (program.id == programId) {
@@ -117,17 +110,12 @@ const addToLevel = (program: NursingLevel) => {
 
 const loadData = () => {
     currentLevel.value = JSON.parse(route.query.currentLevel as string)
-    console.log(currentLevel.value)
     queryEntity1.value.levelId = currentLevel.value.id
-
     axios.post("/nursingProgram/page", queryEntity0.value)
         .then(res => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
                 total0.value = res.data.total
-                console.log("allPrograms: ", allPrograms.value)
-
-                // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 ElNotification({
                     title: 'Error',
@@ -142,9 +130,6 @@ const loadData = () => {
             if (res.data.status == 200) {
                 currentPrograms.value = res.data.data
                 total1.value = res.data.total
-                console.log("currentPrograms: ", currentPrograms.value)
-
-                // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 ElNotification({
                     title: 'Error',

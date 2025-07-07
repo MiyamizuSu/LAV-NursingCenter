@@ -64,9 +64,10 @@ const changeDialogOpen = ref<boolean>(false)
 const curCustomer = ref<BedUser>();
 const bedUpdateRequest = reactive<BedChangeRequestBody>({
     endDate: '',
-    customerId: NaN
+    id: NaN
 })
 const bed_room_map: Reactive<Map<string, string[]>> = reactive(new Map())
+
 function handleCalendarValueChange(v: DateValue | undefined) {
     bedUpdateRequest.endDate = v?.toString() ?? '';
 }
@@ -131,7 +132,7 @@ function responseAdaptor(adapted: BedUser[][], sources: any[]) {
     for (let i = 0; i < sources.length; i++) {
         const source = sources[i];
         const b: BedUser = {
-            Id: i + 1,
+            Id: source.id,
             customerId: source.customerId,
             name: source.customerName,
             gender: source.customerGender ? '男' : '女',
@@ -150,15 +151,34 @@ function handleBedSelect(v: AcceptableValue) {
 }
 async function onSubmit() {
     bedExchangeRequest.value.customerId = curCustomer.value?.Id as number
-    const {promise,resolve,reject}=Promise.withResolvers<undefined>();
-    toast.promise(promise,{
-        loading:'提交中...',
-        success:()=>`床位更改完成`,
-        error:()=>'发生了错误'
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '提交中...',
+        success: () => `床位更改完成`,
+        error: () => '发生了错误'
     })
     const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
     resolve(undefined);
-    diglogOpen.value=false;
+    diglogOpen.value = false;
+}
+function handleCurRecordSelect(e: '正在使用' | '使用历史') {
+    curRecordSelect.value = e
+}
+async function handleBedUpdate() {
+    bedUpdateRequest.id = curCustomer.value?.Id as number
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise,{
+        loading:'床位信息更新中',
+        success:()=>'床位信息更新完毕',
+        error:()=>"发生了错误"
+    })
+    const res=await axiosInstance.post('/bedUsageRecord/update',bedUpdateRequest);
+    resolve(undefined)
+    changeDialogOpen.value=false;
+    const bedData: BedUser[][] = [[], []];
+    responseAdaptor(bedData, await xhrBedMessage());
+    bdmStore.setUsingBeds(bedData[1]);
+    bdmStore.setUsedBeds(bedData[0]);
 }
 onMounted(async () => {
     const bedData: BedUser[][] = [[], []];
@@ -166,9 +186,6 @@ onMounted(async () => {
     bdmStore.setUsingBeds(bedData[1]);
     bdmStore.setUsedBeds(bedData[0]);
 })
-function handleCurRecordSelect(e: '正在使用' | '使用历史') {
-    curRecordSelect.value = e
-}
 const columns: ColumnDef<BedUser>[] = [
     {
         id: 'userID',
@@ -232,7 +249,6 @@ const rowSelection = ref({})
 const expanded = ref<ExpandedState>({})
 const datatable = useVueTable({
     get data() {
-        console.log(bdmStore.getUsingBeds.value)
         return curRecordSelect.value === '正在使用' ? bdmStore.getUsingBeds.value : bdmStore.getUsedBeds.value
     },
     columns,
@@ -246,14 +262,14 @@ const datatable = useVueTable({
     onColumnVisibilityChange: updaterOrValue => valueUpdater(updaterOrValue, columnVisibility),
     onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
     onExpandedChange: updaterOrValue => valueUpdater(updaterOrValue, expanded),
-    
+
     state: {
         get sorting() { return sorting.value },
         get columnFilters() { return columnFilters.value },
         get columnVisibility() { return columnVisibility.value },
         get rowSelection() { return rowSelection.value },
         get expanded() { return expanded.value },
-        
+
     },
 })
 datatable.setPageSize(8)
@@ -358,9 +374,9 @@ datatable.setPageSize(8)
                                                         新房号
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <Select @update:model-value="handleRoomSelect" >
+                                                        <Select @update:model-value="handleRoomSelect">
                                                             <SelectTrigger class="min-w-[10rem]">
-                                                                <SelectValue placeholder="请选择一个房间" >
+                                                                <SelectValue placeholder="请选择一个房间">
 
                                                                 </SelectValue>
                                                             </SelectTrigger>
@@ -383,7 +399,7 @@ datatable.setPageSize(8)
                                                         新床号
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <Select @update:model-value="handleBedSelect" >
+                                                        <Select @update:model-value="handleBedSelect">
                                                             <SelectTrigger class="min-w-[10rem]">
                                                                 <SelectValue placeholder="请选择一个床位">
 
@@ -419,7 +435,7 @@ datatable.setPageSize(8)
                                                                 </div>
                                                                 <div>
                                                                     <span>{{ `${bedExchangeRequest.startDate}`
-                                                                    }}</span>
+                                                                        }}</span>
                                                                 </div>
                                                             </div>
                                                         </PopoverTrigger>
@@ -514,7 +530,7 @@ datatable.setPageSize(8)
                             </PopoverContent>
                         </Popover>
                         <div class="flex justify-end">
-                            <DynamicButton @click.prevent=""> 提交</DynamicButton>
+                            <DynamicButton @click.prevent="handleBedUpdate"> 提交</DynamicButton>
                         </div>
 
                     </div>

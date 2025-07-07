@@ -27,7 +27,6 @@ const handleWindowClose = () => {
 let checkInterval: number;
 
 const checkTokenValidity = () => {
-    console.log("check")
     if(sessionStorage.getItem('userType')!=null){
         axios.post('user/load',{})
     }else if(sessionStorage.getItem('customerActive')!=null){

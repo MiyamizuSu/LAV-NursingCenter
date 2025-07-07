@@ -10,16 +10,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import type { BedMes, BedResponse, BedType } from './type';
+import type { BedMes } from './type';
 import { computed, onMounted, ref } from 'vue';
 import { useBedManagementStore } from '@/lib/store';
-import type { Adapter, Bed, Key } from '@/lib/type';
+import type { Bed } from '@/lib/type';
 import { xhrWithAdapter } from '@/lib/core';
-import Blayout from '@/components/custom/blaylout/Blayout.vue';
-import BlyaoutContent from '@/components/custom/blaylout/BlyaoutContent.vue';
-import BlayoutTitle from "@/components/custom/blaylout/BlyaoutTitle.vue"
-import BedComponent from '@/components/custom/blaylout/BedComponent.vue';
-import type { AcceptableValue } from 'reka-ui';
 import { bedsAdapter } from './helper';
 const bdmStore = useBedManagementStore();
 
