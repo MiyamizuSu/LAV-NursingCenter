@@ -50,3 +50,4 @@ export function encodeWithTimestampToBase64(str: string): string {
   const base64 = btoa(String.fromCharCode(...uint8Array))
   return base64
 }
+

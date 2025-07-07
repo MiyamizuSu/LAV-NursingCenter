@@ -30,7 +30,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import axios from 'axios'
+import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { useCustomerNurseStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
@@ -273,7 +273,7 @@ const loadCustomers = async () => {
         ctsStore.setCustomerList(res.data.data)
         customerPages.value.totalCustomer = res.data.total
     } else {
-        ctsStore.getCustomerList.value = []
+        ctsStore.setCustomerList([])
     }
 }
 // 获取所有客户数据
@@ -282,10 +282,9 @@ const loadAllCustomers = async () => {
         nurseId: ctsStore.getCurrentNurseId.value
     })
     if (res.data.status === 200) {
-        console.log('所有客户数据', res.data.data)
         ctsStore.setAllCustomerList(res.data.data)
     } else {
-        console.log('查询失败')
+        ctsStore.setAllCustomerList([])
     }
 }
 const loadCheckoutRegistrations = async () => {
@@ -299,7 +298,6 @@ const loadCheckoutRegistrations = async () => {
         ctsStore.setCheckoutList(res.data.data)
         checkoutPages.value.totalCheckout = res.data.total
     } else {
-        console.log('查询退住信息失败')
         ctsStore.getCheckoutList.value = []
     }
 }
@@ -351,6 +349,7 @@ const addCheckoutForm = reactive({ // 暂存审批信息
     checkoutDate: '',
     checkoutReason: '',
     bedNumber: '',
+    nurseId: -1,
 })
 const selectedCustomer = ref(null)  // 已在下拉框选中的客户
 const onCustomerChange = (id: number) => {
@@ -360,20 +359,15 @@ const onCustomerChange = (id: number) => {
         addCheckoutForm.customerId = customer.customerId
         addCheckoutForm.bedNumber = customer.bedNumber
         addCheckoutForm.checkinDate = customer.checkinDate
-        console.log('客户信息：', customer)
     } else {
         addCheckoutForm.customerName = '';
-        console.log('未找到客户信息')
     }
 }
 const submitCheckoutFormVisible = ref(false)  // 确认提交表单可见性
 const checkCheckoutForm = () => {   // 检查表单
     ruleFormRef.value?.validate((valid: any) => {
         if (valid) {
-            console.log("表单验证通过");
             submitCheckoutFormVisible.value = true;
-        } else {
-            console.log("表单验证未通过");
         }
     })
 }
@@ -391,7 +385,8 @@ const clearCheckoutForm = () => {  // 清空退住申请表单
     addCheckoutForm.checkoutReason = ''
     addCheckoutForm.bedNumber = ''
 }
-const addCheckoutRegistration = async () => {
+const addCheckoutRegistration = async () => {   // 添加外出申请
+    addCheckoutForm.nurseId = ctsStore.getCurrentNurseId.value
     const res = await axios.post('/checkoutRegistration/add', addCheckoutForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
@@ -428,7 +423,7 @@ const deleteCheckoutRegistration = async (checkout: CheckoutRegistration) => {
 }
 
 onMounted(async () => {
-    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
+    ctsStore.setCurrentNurseId(JSON.parse(localStorage.getItem('user1')!).userId)
     await loadCustomers()
     await loadAllCustomers()
     await loadCheckoutRegistrations()
@@ -451,7 +446,7 @@ onMounted(async () => {
                                 stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
                                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                                 <path d="M3 3v5h5" />
-                            </svg> 
+                            </svg>
                         </template>
                     </InteractiveHoverButton>
                 </div>
@@ -482,7 +477,7 @@ onMounted(async () => {
                     客户信息
                 </div>
                 <div class="rounded-b-md border">
-                    <Table>
+                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
                         <TableHeader>
                             <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -541,7 +536,7 @@ onMounted(async () => {
                     外出申请审批
                 </div>
                 <div class="rounded-b-md border overflow-auto" style="max-height: calc(100vh - 240px);">
-                    <Table>
+                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
                         <TableHeader>
                             <TableRow v-for="headerGroup in checkoutTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -637,7 +632,8 @@ onMounted(async () => {
                 </el-form>
             </el-dialog>
 
-            <el-dialog v-model="submitCheckoutFormVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
+            <el-dialog v-model="submitCheckoutFormVisible" title="提示" width="500" top="40vh" :z-index="3000"
+                append-to-body>
                 <span>确定提交该退住申请吗？</span>
                 <template #footer>
                     <div class="dialog-footer">
