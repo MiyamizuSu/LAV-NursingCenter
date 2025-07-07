@@ -601,8 +601,8 @@ const loadData = () => {
                     <label>{{ editForm.totalCount - editForm.usedCount }}</label>
                 </el-form-item>
                 <el-form-item label="新增数量：" prop="addCount" label-width="120px">
-                    <el-input type="number" v-model.number="addCount" placeholder="请输入新增数量"
-                        style="width: 350px;"></el-input>
+                    <!-- <el-input type="number" v-model.number="addCount" placeholder="请输入新增数量" style="width: 350px;" /> -->
+                    <el-input-number v-model="addCount" :min="1" controls-position="right" style="width: 200px;" />
                 </el-form-item>
                 <el-form-item label="总数量：" label-width="120px">
                     <label>{{ editForm.totalCount - editForm.usedCount + addCount }}</label>

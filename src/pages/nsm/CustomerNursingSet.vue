@@ -398,7 +398,7 @@ const loadData = () => {
                     </el-table-column>
                     <el-table-column label="购买数量" width="125">
                         <template #default="scope">
-                            <el-input-number v-model="scope.row.totalCount" placeholder="请输入购买数量" :min="1" controls-position="right"  />
+                            <el-input-number v-model="scope.row.totalCount" :min="1" controls-position="right" style="width: 80px;" />
                         </template>
                     </el-table-column>
                     <el-table-column label="服务到期日期" width="200">
