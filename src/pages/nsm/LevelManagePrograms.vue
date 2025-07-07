@@ -166,7 +166,7 @@ const loadData = () => {
 <template>
     <el-container style="align-items: center; width: 100%; margin: 0%;">
         <el-card shadow="hover" class="section-card" style="width: 100%;">
-            <p >
+            <p>
                 <!-- 搜索框 -->
                 <el-input v-model="queryEntity0.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
                 <Button @click="loadData" style="margin-left: 2vh;">查询</Button>
@@ -195,7 +195,8 @@ const loadData = () => {
                         </el-table-column>
                         <el-table-column property="executionPeriod" label="执行周期" align="center">
                         </el-table-column>
-                        <el-table-column property="executionTimes" label="执行次数" align="center" style="text-align: center;">
+                        <el-table-column property="executionTimes" label="执行次数" align="center"
+                            style="text-align: center;">
                         </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template #default="scope">
@@ -219,7 +220,7 @@ const loadData = () => {
                     <div style="background-color: #007bff; width: 100%; height: 3vh; align-content: center;">
                         <label style="text-align: center; font-size: 16px; font-weight: bold; color: white; ">{{
                             currentLevel.name
-                        }}下的护理项目</label>
+                            }}下的护理项目</label>
                     </div>
                     <el-table :data="currentPrograms" :border="true" :stripe="true" style="width: 100%;" :fit="true">
                         <el-table-column type="index" label="序号" align="center">
@@ -236,7 +237,8 @@ const loadData = () => {
                         </el-table-column>
                         <el-table-column property="executionPeriod" label="执行周期" align="center">
                         </el-table-column>
-                        <el-table-column property="executionTimes" label="执行次数" align="center" style="text-align: center;">
+                        <el-table-column property="executionTimes" label="执行次数" align="center"
+                            style="text-align: center;">
                         </el-table-column>
                         <el-table-column label="操作" align="center">
                             <template #default="scope">

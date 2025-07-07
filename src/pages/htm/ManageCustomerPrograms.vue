@@ -401,85 +401,90 @@ const loadData = () => {
 <template>
     <el-container style="padding: 0; overflow-y: auto;">
         <el-col style="width: 100%;">
-        <el-card shadow="hover" class="section-card" style="width: 100%;">
-            <p style="margin-bottom: 2vh; margin-top: 2vh;">
-                <label style="font-size: 18px; font-weight: bold;">客户护理项目配置 - {{ currentCustomer.name }}</label>
-                <Button @click="goBack()" style="margin-left: 5vh; font-size: 14px;">返回客户列表</Button>
-            </p>
-            <p>
-                <!-- 搜索框 -->
-                <el-input v-model="currentService_queryEntity.programName" clearable placeholder="项目名称"
-                    style="width: 30vh;"></el-input>
-                <Button @click="loadCurrentServices" class="add-button" style="margin-left: 2vh;">查询</Button>
+            <el-card shadow="hover" class="section-card" style="width: 100%;">
+                <p style="margin-bottom: 2vh; margin-top: 2vh;">
+                    <label style="font-size: 18px; font-weight: bold;">客户护理项目配置 - {{ currentCustomer.name }}</label>
+                    <Button @click="goBack()" style="margin-left: 5vh; font-size: 14px;">返回客户列表</Button>
+                </p>
+                <p>
+                    <!-- 搜索框 -->
+                    <el-input v-model="currentService_queryEntity.programName" clearable placeholder="项目名称"
+                        style="width: 30vh;"></el-input>
+                    <Button @click="loadCurrentServices" class="add-button" style="margin-left: 2vh;">查询</Button>
 
-                <Button @click="start_addServices" class="add-button" style="margin-left: 2vh;">添加</Button>
-                <Button @click="start_deleteBatch"
-                    style="margin-left: 2vh; background-color: darkred; font-size: 15px;">批量移除</Button>
-            </p>
-            <br><br>
+                    <Button @click="start_addServices" class="add-button" style="margin-left: 2vh;">添加</Button>
+                    <Button @click="start_deleteBatch"
+                        style="margin-left: 2vh; background-color: darkred; font-size: 15px;">批量移除</Button>
+                </p>
+                <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
-                <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">{{
-                    currentCustomer.name }} - 已购的护理项目</label>
-            </div>
-            <el-table :data="currentServices" :stripe="true" style="width: 100%;" :fit="true"
-                @selection-change="handleSelectionChange">
-                <el-table-column type="selection" align="center"></el-table-column>
-                <el-table-column type="index" label="序号" align="center">
-                </el-table-column>
-                <el-table-column property="programCode" label="项目编号" align="center">
-                </el-table-column>
-                <el-table-column property="programName" label="项目名称" align="center">
-                </el-table-column>
-                <el-table-column label="单次价格" align="center">
-                    <template #default="scope">
-                        <span v-if="scope.row.programPrice > 0">{{ scope.row.programPrice }}元/次</span>
-                        <span v-else>免费</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="余量" align="center">
-                    <template #default="scope">
-                        <span>{{ scope.row.totalCount - scope.row.usedCount }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column property="purchaseDate" label="服务购买日期" align="center">
-                </el-table-column>
-                <el-table-column property="expirationDate" label="服务到期日期" align="center">
-                </el-table-column>
-                <el-table-column label="状态" align="center">
-                    <template #default="scope">
-                        <p>
-                            <Button v-if="scope.row.totalCount - scope.row.usedCount > 5"
-                                style="background-color: green; height: 30px; border-radius: 0%;">正常</Button>
-                            <Button v-else-if="scope.row.totalCount - scope.row.usedCount > 0"
-                                style="background-color: orange; height: 30px; border-radius: 0%;">即将用完</Button>
-                            <Button v-else-if="scope.row.totalCount - scope.row.usedCount == 0"
-                                style="background-color: orangered; height: 30px; border-radius: 0%;">已用完</Button>
-                            <Button v-else style="background-color: red; height: 30px; border-radius: 0%;">已欠费</Button>
-                        </p>
-                        <p style="margin-top: 1vh; ">
-                            <Button v-if="new Date(scope.row.expirationDate) > new Date()"
-                                style="background-color: green; height: 30px; border-radius: 0%;">未到期</Button>
-                            <Button v-else style="background-color: red;  height: 30px; border-radius: 0%;">已到期</Button>
-                        </p>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" align="center">
-                    <template #default="scope">
-                        <p> <el-button @click="start_deleteService(scope.row)" style="color: red; ">移除</el-button> </p>
-                        <p style="margin-top: 1vh;"> <el-button @click="start_renewService(scope.row)"
-                                style="color: deepskyblue; ">续费</el-button> </p>
-                    </template>
-                </el-table-column>
-            </el-table>
+                <div
+                    style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+                    <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">{{
+                        currentCustomer.name }} - 已购的护理项目</label>
+                </div>
+                <el-table :data="currentServices" :stripe="true" style="width: 100%;" :fit="true"
+                    @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" align="center"></el-table-column>
+                    <el-table-column type="index" label="序号" align="center">
+                    </el-table-column>
+                    <el-table-column property="programCode" label="项目编号" align="center">
+                    </el-table-column>
+                    <el-table-column property="programName" label="项目名称" align="center">
+                    </el-table-column>
+                    <el-table-column label="单次价格" align="center">
+                        <template #default="scope">
+                            <span v-if="scope.row.programPrice > 0">{{ scope.row.programPrice }}元/次</span>
+                            <span v-else>免费</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="余量" align="center">
+                        <template #default="scope">
+                            <span>{{ scope.row.totalCount - scope.row.usedCount }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="purchaseDate" label="服务购买日期" align="center">
+                    </el-table-column>
+                    <el-table-column property="expirationDate" label="服务到期日期" align="center">
+                    </el-table-column>
+                    <el-table-column label="状态" align="center">
+                        <template #default="scope">
+                            <p>
+                                <Button v-if="scope.row.totalCount - scope.row.usedCount > 5"
+                                    style="background-color: green; height: 30px; border-radius: 0%;">正常</Button>
+                                <Button v-else-if="scope.row.totalCount - scope.row.usedCount > 0"
+                                    style="background-color: orange; height: 30px; border-radius: 0%;">即将用完</Button>
+                                <Button v-else-if="scope.row.totalCount - scope.row.usedCount == 0"
+                                    style="background-color: orangered; height: 30px; border-radius: 0%;">已用完</Button>
+                                <Button v-else
+                                    style="background-color: red; height: 30px; border-radius: 0%;">已欠费</Button>
+                            </p>
+                            <p style="margin-top: 1vh; ">
+                                <Button v-if="new Date(scope.row.expirationDate) > new Date()"
+                                    style="background-color: green; height: 30px; border-radius: 0%;">未到期</Button>
+                                <Button v-else
+                                    style="background-color: red;  height: 30px; border-radius: 0%;">已到期</Button>
+                            </p>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template #default="scope">
+                            <p> <el-button @click="start_deleteService(scope.row)" style="color: red; ">移除</el-button>
+                            </p>
+                            <p style="margin-top: 1vh;"> <el-button @click="start_renewService(scope.row)"
+                                    style="color: deepskyblue; ">续费</el-button> </p>
+                        </template>
+                    </el-table-column>
+                </el-table>
 
-            <el-pagination :current-page="currentService_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
-                :default-page-size="currentService_queryEntity.size" @update:page-size="currentService_handleSizeChange"
-                @update:current-page="currentService_handleCurrentChange"
-                layout="total, sizes, prev, pager, next, jumper" :total="currentService_total"
-                style="margin-top: 10vh;" />
-        </el-card>
-            
+                <el-pagination :current-page="currentService_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
+                    :default-page-size="currentService_queryEntity.size"
+                    @update:page-size="currentService_handleSizeChange"
+                    @update:current-page="currentService_handleCurrentChange"
+                    layout="total, sizes, prev, pager, next, jumper" :total="currentService_total"
+                    style="margin-top: 10vh;" />
+            </el-card>
+
         </el-col>
 
         <!-- 添加客户护理项目服务页面弹框 -->
@@ -552,7 +557,8 @@ const loadData = () => {
                 </el-table-column>
                 <el-table-column label="购买数量" align="center">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.totalCount" :min="1" controls-position="right" style="width: 80px;" />
+                        <el-input-number v-model="scope.row.totalCount" :min="1" controls-position="right"
+                            style="width: 80px;" />
                     </template>
                 </el-table-column>
                 <el-table-column label="服务到期日期" align="center">
@@ -622,6 +628,5 @@ const loadData = () => {
     </el-container>
 </template>
 
-<style lang="css" scoped>
-</style>
+<style lang="css" scoped></style>
 <style src="./scopedStyle.css"></style>
