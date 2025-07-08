@@ -183,7 +183,7 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
                         onClick: () => openUpdateReturnedDateForm(row.original)
                     }, '登记回院时间')
                 ])
-            } 
+            }
             return null
         }
     },
@@ -286,7 +286,7 @@ const loadAllCustomers = async () => {
     if (res.data.status === 200) {
         ctsStore.setAllCustomerList(res.data.data)
     } else {
-        ctsStore.setAllCustomerList([])
+        console.log('查询失败')
     }
 }
 
@@ -403,8 +403,7 @@ const addOutingForm = reactive({ // 暂存审批信息
     reviewStatus: -1,
     rejectReason: '',
     reviewTime: '',
-    actualReturnDate: '',
-    nurseId: -1
+    actualReturnDate: ''
 })
 const selectedCustomer = ref(null)
 const onCustomerChange = (id: number) => {
@@ -412,15 +411,20 @@ const onCustomerChange = (id: number) => {
     if (customer) {
         addOutingForm.customerName = customer.name;
         addOutingForm.customerId = customer.customerId
+        console.log('客户信息：', customer)
     } else {
         addOutingForm.customerName = '';
+        console.log('未找到客户信息')
     }
 }
 const submitOutingFormVisible = ref(false)  // 确认提交表单可见性
 const checkAddOutingForm = () => {   // 检查表单
     ruleFormRef.value?.validate((valid) => {
         if (valid) {
+            console.log("表单验证通过");
             submitOutingFormVisible.value = true;
+        } else {
+            console.log("表单验证未通过");
         }
     })
 }
@@ -444,7 +448,7 @@ const clearOutingForm = () => {
     addOutingForm.reviewTime = ''
 }
 const addOutingRegistration = async () => {
-    addOutingForm.nurseId = ctsStore.getCurrentNurseId.value
+    console.log('提交外出申请', addOutingForm)
     const res = await axios.post('/outingRegistration/add', addOutingForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')
@@ -524,11 +528,15 @@ const updateReturnDateConfirmVisible = ref(false)
 const checkUpdateActualReturnDate = () => {
     ruleFormRef.value?.validate((valid) => {
         if (valid) {
+            console.log("表单验证通过");
             updateReturnDateConfirmVisible.value = true
+        } else {
+            console.log("表单验证未通过");
         }
     })
 }
 const updateActualReturnDate = async () => {
+    console.log('提交回院时间', updateReturnDateForm)
     const res = await axios.post('/outingRegistration/update', updateReturnDateForm)
     if (res.data.status === 200) {
         ElMessage.success('登记成功')
@@ -542,7 +550,7 @@ const updateActualReturnDate = async () => {
 }
 
 onMounted(async () => {
-    ctsStore.setCurrentNurseId(JSON.parse(localStorage.getItem('user1')!).userId)
+    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()
@@ -596,7 +604,7 @@ onMounted(async () => {
                     客户信息
                 </div>
                 <div class="rounded-b-md border">
-                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
+                    <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
@@ -655,7 +663,7 @@ onMounted(async () => {
                     外出申请审批
                 </div>
                 <div class="rounded-b-md border overflow-auto" style="max-height: calc(100vh - 240px);">
-                    <Table class="bg-white rounded-b-md dark:bg-slate-800">
+                    <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in outingTable.getHeaderGroups()" :key="headerGroup.id">
                                 <TableHead v-for="header in headerGroup.headers" :key="header.id">
