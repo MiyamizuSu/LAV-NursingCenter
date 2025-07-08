@@ -265,13 +265,11 @@ const loadData = () => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
                 total.value = res.data.total
-                console.log(allPrograms.value)
 
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 allPrograms.value = res.data.data
                 total.value = res.data.total
-                console.log(allPrograms.value)
                 ElNotification({
                     title: '没有符合条件的数据',
                     message: res.data.msg,
@@ -284,143 +282,135 @@ const loadData = () => {
 </script>
 
 <template>
-    <!-- <p style="margin-top: 0; text-align: center; font-size: 20px; font-weight: bolder;">护理项目管理</p> -->
-
     <el-container style="align-content: center; overflow-y: auto;">
-        <!-- 表格区域 -->
-        <el-col style=" align-items: center; margin-left: 5%; width: 95%;">
-            <p>
-                <!-- 搜索框 -->
-                <el-input v-model="queryEntity.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
-                <Button @click="loadData" class="add-button"
-                    style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
-                <Button @click="start_addProgram" class="add-button"
-                    style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">添加</Button>
-            </p>
+        <el-col style=" align-items: center; ">
+            <el-card shadow="hover" class="section-card">
+                <p>
+                    <!-- 搜索框 -->
+                    <el-input v-model="queryEntity.name" clearable placeholder="护理项目名称" style="width: 30vh;"></el-input>
+                    <Button @click="loadData"
+                        style="margin-top: 2vh; font-size: 15px; margin-bottom: 2vh; margin-left: 2vh;">查询</Button>
+                    <Button @click="start_addProgram" class="add-button"
+                        style="margin-top: 2vh; margin-bottom: 2vh; margin-left: 2vh;">添加</Button>
+                </p>
 
-            <br>
+                <br>
 
-            <el-row style="margin-top: 1vh;">
-                <Switcher left-value="启用" right-value="停用" @select-value-change="handleChange">
-                </Switcher>
+                <el-row style="margin-top: 1vh;">
+                    <Switcher left-value="启用" right-value="停用" @select-value-change="handleChange">
+                    </Switcher>
 
-                <Button style="font-size: 15px; background-color: red; color: white; margin-left: 2vh;"
-                    @click="start_deleteBatch">批量删除</Button>
-            </el-row>
+                    <Button style="font-size: 15px; background-color: red; color: white; margin-left: 2vh;"
+                        @click="start_deleteBatch">批量删除</Button>
+                </el-row>
 
-            <br>
-            <div
-                style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
-                <label style="text-align: center; color: white; font-size: 15px; ">护理项目列表</label>
-            </div>
-            <el-table :data="allPrograms" :border="true" :stripe="true" style="width: 1300px;"
-                @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="60">
-                </el-table-column>
-                <el-table-column type="index" label="序号" width="80" style="text-align: center;">
-                </el-table-column>
-                <el-table-column property="programCode" label="编号" width="130">
-                </el-table-column>
-                <el-table-column property="name" label="名称" width="130">
-                </el-table-column>
-                <el-table-column label="价格" width="110">
-                    <template #default="scope">
-                        <span v-if="scope.row.price > 0">{{ scope.row.price }}元/次</span>
-                        <span v-else>免费</span>
-                    </template>
-                </el-table-column>
-                <el-table-column property="executionPeriod" label="执行周期" width="120">
-                </el-table-column>
-                <el-table-column property="executionTimes" label="执行次数" width="100" style="text-align: center;">
-                </el-table-column>
-                <el-table-column property="description" label="描述" width="260" show-overflow-tooltip>
-                </el-table-column>
-                <el-table-column label="状态" width="100">
-                    <template #default="scope">
-                        <span v-if="scope.row.status == 1">启用</span>
-                        <span v-else>停用</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" width="210" style="text-align: center;">
-                    <template #default="scope">
-                        <label @click="start_updateProgram(scope.row)"
-                            style="font-size: 15px; color: #007bff; margin-left: 1vh; "><el-icon>
-                                <Edit />
-                            </el-icon> 修改</label>
-                        <label @click="start_deleteProgram(scope.row)"
-                            style="font-size: 15px; color: red; margin-left: 3vh;"><el-icon>
-                                <Delete />
-                            </el-icon> 删除</label>
-                    </template>
-                </el-table-column>
-            </el-table>
+                <br>
+                <div
+                    style="background-color: #007bff; font-size: 16px; font-weight: bold; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+                    <label style="text-align: center; color: white; font-size: 15px; ">护理项目列表</label>
+                </div>
+                <el-table :data="allPrograms" :border="true" :stripe="true" style="width: 100%;" :fit="true"
+                    @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" align="center">
+                    </el-table-column>
+                    <el-table-column type="index" label="序号" width="80" align="center">
+                    </el-table-column>
+                    <el-table-column property="programCode" label="编号" align="center">
+                    </el-table-column>
+                    <el-table-column property="name" label="名称" align="center">
+                    </el-table-column>
+                    <el-table-column label="价格" align="center">
+                        <template #default="scope">
+                            <span v-if="scope.row.price > 0">{{ scope.row.price }}元/次</span>
+                            <span v-else>免费</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="executionPeriod" label="执行周期" align="center">
+                    </el-table-column>
+                    <el-table-column property="executionTimes" label="执行次数" align="center">
+                    </el-table-column>
+                    <el-table-column property="description" label="描述" align="center" show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column label="状态" align="center">
+                        <template #default="scope">
+                            <span v-if="scope.row.status == 1">启用</span>
+                            <span v-else>停用</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" min-width="100">
+                        <template #default="scope">
+                            <el-button @click="start_updateProgram(scope.row)" style="color: #007bff; ">修改</el-button>
+                            <el-button @click="start_deleteProgram(scope.row)"
+                                style="color: red; margin-left: 3vh;">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
 
-            <el-dialog v-model="dialogFormControl.isVisible" :title="dialogFormControl.title"
-                style="width: 540px; height: 600px; overflow-y: auto;" draggable overflow>
-                <el-form :model="editForm" :rules="editProgramRules">
-                    <el-form-item label="编号" prop="programCode" label-width="100px" style="margin-top: 30px;">
-                        <el-input type="text" v-model="editForm.programCode" placeholder="请输入护理项目编号"
-                            style="width: 350px;"></el-input>
-                    </el-form-item>
-                    <el-form-item label="名称" prop="name" label-width="100px">
-                        <el-input type="text" v-model="editForm.name" placeholder="请输入护理项目名称"
-                            style="width: 350px;"></el-input>
-                    </el-form-item>
-                    <el-form-item label="价格" prop="price" label-width="100px">
-                        <el-input type="number" v-model.number="editForm.price" placeholder="请输入护理项目价格"
-                            style="width: 350px;"></el-input>
-                    </el-form-item>
-                    <el-form-item label="执行周期" prop="executionPeriod" label-width="100px">
-                        <el-select v-model="editForm.executionPeriod" placeholder="请选择护理项目执行周期" size="large"
-                            style="width: 350px">
-                            <el-option label="每天" value="每天"></el-option>
-                            <el-option label="每两天" value="每两天"></el-option>
-                            <el-option label="每三天" value="每三天"></el-option>
-                            <el-option label="每四天" value="每四天"></el-option>
-                            <el-option label="每五天" value="每五天"></el-option>
-                            <el-option label="每六天" value="每六天"></el-option>
-                            <el-option label="每周" value="每周"></el-option>
-                            <el-option label="每两周" value="每两周"></el-option>
-                            <el-option label="每三周" value="每三周"></el-option>
-                            <el-option label="每月" value="每月"></el-option>
-                            <el-option label="按需" value="按需"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="执行次数" prop="executionTimes" label-width="100px">
-                        <el-input type="number" v-model.number="editForm.executionTimes" placeholder="请输入护理项目执行次数"
-                            style="width: 350px;"></el-input>
-                    </el-form-item>
-                    <el-form-item label="描述" prop="description" label-width="100px">
-                        <el-input type="textarea" v-model="editForm.description" :autosize="{ minRows: 3, maxRows: 7 }"
-                            placeholder="请输入护理项目描述" style="width: 350px;"></el-input>
-                    </el-form-item>
-                    <el-form-item label="状态" prop="status" label-width="100px">
-                        <el-select v-model="editForm.status" placeholder="请选择护理项目状态" size="large" style="width: 350px">
-                            <el-option label="已启用" :value="1"></el-option>
-                            <el-option label="已停用" :value="0"></el-option>
-                        </el-select>
-                    </el-form-item>
+                <el-dialog v-model="dialogFormControl.isVisible" :title="dialogFormControl.title"
+                    style="width: 540px; height: 600px; overflow-y: auto;" draggable overflow>
+                    <el-form :model="editForm" :rules="editProgramRules">
+                        <el-form-item label="编号" prop="programCode" label-width="100px" style="margin-top: 30px;">
+                            <el-input type="text" v-model="editForm.programCode" placeholder="请输入护理项目编号"
+                                style="width: 350px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="名称" prop="name" label-width="100px">
+                            <el-input type="text" v-model="editForm.name" placeholder="请输入护理项目名称"
+                                style="width: 350px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="价格" prop="price" label-width="100px">
+                            <el-input type="number" v-model.number="editForm.price" placeholder="请输入护理项目价格"
+                                style="width: 350px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="执行周期" prop="executionPeriod" label-width="100px">
+                            <el-select v-model="editForm.executionPeriod" placeholder="请选择护理项目执行周期" size="large"
+                                style="width: 350px">
+                                <el-option label="每天" value="每天"></el-option>
+                                <el-option label="每两天" value="每两天"></el-option>
+                                <el-option label="每三天" value="每三天"></el-option>
+                                <el-option label="每四天" value="每四天"></el-option>
+                                <el-option label="每五天" value="每五天"></el-option>
+                                <el-option label="每六天" value="每六天"></el-option>
+                                <el-option label="每周" value="每周"></el-option>
+                                <el-option label="每两周" value="每两周"></el-option>
+                                <el-option label="每三周" value="每三周"></el-option>
+                                <el-option label="每月" value="每月"></el-option>
+                                <el-option label="按需" value="按需"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="执行次数" prop="executionTimes" label-width="100px">
+                            <el-input type="number" v-model.number="editForm.executionTimes" placeholder="请输入护理项目执行次数"
+                                style="width: 350px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="描述" prop="description" label-width="100px">
+                            <el-input type="textarea" v-model="editForm.description"
+                                :autosize="{ minRows: 3, maxRows: 7 }" placeholder="请输入护理项目描述"
+                                style="width: 350px;"></el-input>
+                        </el-form-item>
+                        <el-form-item label="状态" prop="status" label-width="100px">
+                            <el-select v-model="editForm.status" placeholder="请选择护理项目状态" size="large"
+                                style="width: 350px">
+                                <el-option label="已启用" :value="1"></el-option>
+                                <el-option label="已停用" :value="0"></el-option>
+                            </el-select>
+                        </el-form-item>
 
-                    <div style="margin-top: 50px;">
-                        <el-button type="primary" @click="confirm_commit"
-                            style="margin-left: 30%; margin-right: 20px;">提交</el-button>
-                        <el-button @click="cancel_commit">取消</el-button>
-                    </div>
-                </el-form>
-            </el-dialog>
+                        <div style="margin-top: 50px;">
+                            <el-button type="primary" @click="confirm_commit"
+                                style="margin-left: 30%; margin-right: 20px;">提交</el-button>
+                            <el-button @click="cancel_commit">取消</el-button>
+                        </div>
+                    </el-form>
+                </el-dialog>
 
-            <el-pagination :current-page="queryEntity.current" :page-sizes="[1, 5, 10, 50]"
-                :default-page-size="queryEntity.size" @update:page-size="handleSizeChange"
-                @update:current-page="handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
-                :total="total" style="margin-top: 10vh;" />
+                <el-pagination :current-page="queryEntity.current" :page-sizes="[1, 5, 10, 50]"
+                    :default-page-size="queryEntity.size" @update:page-size="handleSizeChange"
+                    @update:current-page="handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
+                    :total="total" style="margin-top: 10vh;" />
+            </el-card>
         </el-col>
 
     </el-container>
 </template>
 
-<style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
-</style>
+
+<style src="./scopedStyle.css"></style>

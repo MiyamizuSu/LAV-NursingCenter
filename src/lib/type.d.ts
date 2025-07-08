@@ -14,32 +14,29 @@ export type User = {
     email: string
     userType: 0 | 1  // 0-管理员  1-护工
 }
-
 export type Customer = {
     customerId: number
     customerType: 0 | 1 // 0-自理老人  1-护理老人
     nurseId: number
     nursingLevelName: string
     name: string
-    idCard: string
+    idCard?: string
     age: number
     gender: 0 | 1  // 0-女性  1-男性
-    bloodType: string
-    relative: string
-    phoneNumber: string
-    building: string //固定为"606"
-    roomNumber: string
-    bedNumber: string 
-    checkinDate: string
-    expirationDate: string
+    bloodType?: string
+    relative?: string
+    phoneNumber?: string
+    building?: string //固定为"606"
+    roomNumber?: string
+    bedNumber?: string 
+    checkinDate?: string
+    expirationDate?: string
 }
-
 export type NursingLevel = {
     id: number,
     name: string,
     status: number
 }
-
 export type NursingProgram = {
     id: number,
     programCode: string,
@@ -51,7 +48,6 @@ export type NursingProgram = {
     description: string,
     // isDeleted: boolean
 }
-
 export type CustomerNursingService = {
     id: number,
     customerId: number,
@@ -67,7 +63,6 @@ export type CustomerNursingService = {
     usedCount: number,
     expirationDate: string,
 }
-
 export type NursingRecord = {
     id: number,
     customerId: number,

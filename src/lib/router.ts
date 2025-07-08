@@ -27,8 +27,8 @@ import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
+import StreamPage from '@/pages/StreamPage.vue'
 import { axiosInstance as axios } from '@/lib/core'
-
 import type { User } from './type'
 import { use } from 'echarts'
 export const routes: RouteRecordRaw[] = [
@@ -141,6 +141,10 @@ export const routes: RouteRecordRaw[] = [
     {
         path: "/mealReservation",
         component: MealReservation
+    },
+    {
+        path: "/stream",
+        component: StreamPage
     }
 ]
 export const router = createRouter({
@@ -222,7 +226,8 @@ router.beforeEach(async (to, from, next) => {
                 })
             }
         }
-    } else if (to.path === '/mealReservation') {
+    } 
+  else if (to.path === '/mealReservation') {
         // console.log("mealReservation")
         let customerJson = ''
         if (sessionStorage.getItem('customerActive') == '1') {
@@ -235,25 +240,22 @@ router.beforeEach(async (to, from, next) => {
             router.push('/login')
         }
     }
-
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
-        // console.log("路由守卫", sessionStorage.getItem('userType'))
-        // await axios.post('/user/load', {}).then(res => {
-        //     if (res.data.status == 200) {
-        //         let user = res.data.data
-        //         userJson = JSON.stringify(user)
-        //         sessionStorage.setItem("userType", user.userType)
-        //         if (user.userType == 0) {
-        //             localStorage.setItem('user0', userJson)
-        //             localStorage.setItem('AdminUsing', "1")
-        //         } else if (user.userType == 1) {
-        //             localStorage.setItem('user1', userJson)
-        //             localStorage.setItem('NurseUsing', "1")
-        //         }
-        //     }
-        // })
-        // console.log("路由", userJson)
+        await axios.post('/user/load', {}).then(res => {
+            if (res.data.status == 200) {
+                let user = res.data.data
+                userJson = JSON.stringify(user)
+                sessionStorage.setItem("userType", user.userType)
+                if (user.userType == 0) {
+                    localStorage.setItem('user0', userJson)
+                    localStorage.setItem('AdminUsing', "1")
+                } else if (user.userType == 1) {
+                    localStorage.setItem('user1', userJson)
+                    localStorage.setItem('NurseUsing', "1")
+                }
+            }
+        })
         if (sessionStorage.getItem('userType') == '0') {
             userJson = localStorage.getItem('user0') as string
             localStorage.setItem('AdminUsing', "1")
