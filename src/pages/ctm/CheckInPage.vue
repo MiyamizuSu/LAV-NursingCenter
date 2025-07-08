@@ -37,7 +37,7 @@ import Switcher from '@/components/custom/Switcher.vue'
 import { ElButton, ElInput } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { Customer } from './type'
+import type { Customer } from '@/lib/type'
 import { usecustomerManagementStore } from '@/lib/store'
 import { Switch } from '@/components/ui/switch'
 import { motion } from 'motion-v'
@@ -423,7 +423,8 @@ const onSubmit = async () => {
     await loadCustomers()
     clearForm()
   } else {
-    ElMessage.error('添加失败')
+    ElMessage.error(res.data.msg)
+    addCustomerVisible.value = false
   }
 }
 
@@ -810,13 +811,13 @@ function change(e: string) {
         <el-form-item label="入住时间：" prop="checkinDate">
           <el-col :span="11">
             <el-date-picker v-model="form.checkinDate" type="date" placeholder="选择一个日期" style="width: 100%"
-              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" value-on-clear=""/>
           </el-col>
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">
           <el-col :span="11">
             <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%"
-              format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" value-on-clear="" />
           </el-col>
         </el-form-item>
         <!-- 分隔符 -->
@@ -930,7 +931,8 @@ function change(e: string) {
         </el-form-item>
         <el-form-item label="合同到期时间：" prop="expirationDate">
           <el-col :span="11">
-            <el-date-picker v-model="form.expirationDate" type="date" placeholder="选择一个日期" style="width: 100%" />
+            <el-date-picker v-model="form.expirationDate" type="date" value-format="YYYY-MM-DD" value-on-clear=""
+            placeholder="选择一个日期" style="width: 100%" />
           </el-col>
         </el-form-item>
         <!-- 分隔符 -->

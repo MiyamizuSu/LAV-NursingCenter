@@ -13,6 +13,11 @@ else {
 export const axiosInstance = axios.create({
     baseURL: baseUrl,
     timeout: 1000,
+    // proxy: {
+    //     protocol: 'http2',
+    //     host: 'localhost',
+    //     port: 9000,
+    // }
 })
 
 //请求拦截器
@@ -72,7 +77,7 @@ axiosInstance.interceptors.request.use(function (config) {
 },
     function (error) {
         return Promise.reject(error);
-    });
+});
 
 //响应拦截器
 axiosInstance.interceptors.response.use(function (response) {

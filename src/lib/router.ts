@@ -27,8 +27,8 @@ import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
+import StreamPage from '@/pages/StreamPage.vue'
 import { axiosInstance as axios } from '@/lib/core'
-
 import type { User } from './type'
 import { use } from 'echarts'
 export const routes: RouteRecordRaw[] = [
@@ -141,6 +141,10 @@ export const routes: RouteRecordRaw[] = [
     {
         path: "/mealReservation",
         component: MealReservation
+    },
+    {
+        path: "/stream",
+        component: StreamPage
     }
 ]
 export const router = createRouter({
@@ -222,7 +226,8 @@ router.beforeEach(async (to, from, next) => {
                 })
             }
         }
-    } else if (to.path === '/mealReservation') {
+    } 
+  else if (to.path === '/mealReservation') {
         // console.log("mealReservation")
         let customerJson = ''
         if (sessionStorage.getItem('customerActive') == '1') {
@@ -235,10 +240,8 @@ router.beforeEach(async (to, from, next) => {
             router.push('/login')
         }
     }
-
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
-        // console.log("路由守卫", sessionStorage.getItem('userType'))
         await axios.post('/user/load', {}).then(res => {
             if (res.data.status == 200) {
                 let user = res.data.data
@@ -253,7 +256,13 @@ router.beforeEach(async (to, from, next) => {
                 }
             }
         })
-        // console.log("路由", userJson)
+        if (sessionStorage.getItem('userType') == '0') {
+            userJson = localStorage.getItem('user0') as string
+            localStorage.setItem('AdminUsing', "1")
+        } else if (sessionStorage.getItem('userType') == '1') {
+            userJson = localStorage.getItem('user1') as string
+            localStorage.setItem('NurseUsing', "1")
+        }
 
         if (userJson == null || userJson == undefined || userJson == '') {
             // console.log("路由守卫", userJson)

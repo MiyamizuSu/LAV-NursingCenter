@@ -42,10 +42,10 @@ const floorBedMessages: BedMes[] = [
     }
 ]
 const bedTypeImgUrl = {
-    总量: '/src/assets/all.jpg',
-    空闲: '/src/assets/free.jpg',
-    有人: '/src/assets/busy.jpg',
-    外出: '/src/assets/out.jpg',
+    总量: '/src/assets/all.png',
+    空闲: '/src/assets/free.png',
+    有人: '/src/assets/busy.png',
+    外出: '/src/assets/out.png',
 }
 const curSelectFloorVal = ref(1)
 async function selectValChange(v: any) {

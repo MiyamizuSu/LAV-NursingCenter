@@ -59,6 +59,7 @@ const login = () => {
             // localStorage.removeItem('tokenc')
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
+                    // sessionStorage.setItem("user", JSON.stringify(res.data.data))
                     // 登录成功
                     // console.log(res.data.data.userType)
                     if (res.data.data.userType == 0) {
@@ -120,7 +121,7 @@ const loginAsCustomer = () => {
 </script>
 
 <template>
-    
+
     <div class="flex justify-center items-center h-screen w-screen overflow-auto ">
         <motion.div :initial="{
             x: -100,

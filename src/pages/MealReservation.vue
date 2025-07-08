@@ -15,6 +15,7 @@ interface MealItem {
   foodPrice: number
   foodImageUrl: string
   quantity: number
+  monthlySales?: number
 }
 
 interface OrderItem {
@@ -74,7 +75,7 @@ onMounted(async () => {
     if (pr.status === 200) {
       mealData.value = pr.data.reduce((acc: Record<string, MealItem[]>, item: MealItem) => {
         if (!acc[item.foodType]) acc[item.foodType] = []
-        acc[item.foodType].push({ ...item, quantity: 0 })
+        acc[item.foodType].push({ ...item, quantity: 0, monthlySales: 0 })
         return acc
       }, {})
     } else {
@@ -84,6 +85,32 @@ onMounted(async () => {
     ElMessage.error('网络请求异常')
 
   }
+
+  // 月售量获取逻辑
+  const currentDate = new Date()
+  // 当月第一天 00:00:00
+  const startTime = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01 00:00:00`
+  // 当月最后一天 23:59:59
+  const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+  const endTime = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')} 23:59:59`
+
+  // 为每个膳食项获取月售量
+  await Promise.all(
+    Object.values(mealData.value).flat().map(async (item) => {
+      try {
+        const { data } = await axios.post('/mealItem/getPurchaseByIdAndTime', {
+          mealItemId: item.id,
+          startTime,
+          endTime
+        })
+        if (data.status === 200) {
+          item.monthlySales = data.data
+        }
+      } catch (error) {
+        console.error('获取月售量失败:', error)
+      }
+    })
+  )
 })
 // 滚动方法
 const scrollToType = (type: string) => {
@@ -135,7 +162,10 @@ const submitOrder = async () => {
     await axios.post('/mealReservation/add', {
       mealItemIds: cart.value.map(c => c.mealItemId),
       purchaseCounts: cart.value.map(c => c.purchaseCount),
-      purchaseTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      purchaseTime: new Date(new Date().getTime() + 8 * 60 * 60 * 1000) // 添加8小时时区偏移
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' '),
       customerId: customerId,
     })
     ElMessage.success('预定成功')
@@ -151,7 +181,7 @@ const submitOrder = async () => {
 // 获取订单数据
 const fetchOrders = async () => {
   try {
-    const { data } = await axios.post('http://localhost:9000/mealReservation/getByCustomerId', {
+    const { data } = await axios.post('/mealReservation/getByCustomerId', {
       customerId: customerId,
     })
     if (data.status === 200) {
@@ -204,7 +234,7 @@ const logout = () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    
+
     axios.post("/customer/logout", {}).then(res => {
       if (res.data.status == 200) {
         localStorage.removeItem("customer")
@@ -217,7 +247,7 @@ const logout = () => {
         ElMessage({ message: res.data.msg, type: "error" })
       }
     })
-  }).catch(() => {})
+  }).catch(() => { })
 }
 </script>
 
@@ -229,9 +259,9 @@ const logout = () => {
         <el-tab-pane label="膳食预订" name="reservation" />
         <el-tab-pane label="我的订单" name="orders" />
       </el-tabs>
-      <el-button circle >
+      <el-button circle>
         <el-icon>
-          <SwitchButton @click="logout"/>
+          <SwitchButton @click="logout" />
         </el-icon>
       </el-button>
     </div>
@@ -254,6 +284,7 @@ const logout = () => {
             <div class="meal-info">
               <h4>{{ item.foodName }}</h4>
               <div class="price">¥{{ item.foodPrice }}</div>
+              <span class="monthly-sales">月售{{ item.monthlySales || 0 }}</span>
             </div>
             <div class="quantity-control">
               <button v-if="item.quantity > 0" @click.stop="updateQuantity(item, -1)" class="btn minus"></button>
@@ -717,11 +748,19 @@ const logout = () => {
     color: #ff9900;
   }
 }
+
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
   background: #fff;
+}
+
+.monthly-sales {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  display: block;
 }
 </style>

@@ -6,12 +6,14 @@ import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageB
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
+import { useCustomerProgramsStore } from '@/lib/store';
 
 onMounted(() => {
     loadData()
 })
 
 const router = useRouter()
+const customerProgramsStore = useCustomerProgramsStore()
 
 // 客户分页数据
 let allCustomers = ref([] as Customer[])
@@ -42,13 +44,8 @@ const manageCustomerPrograms = (customer: Customer) => {
         ElMessage({ message: "请先配置该客户的护理级别！", type: "warning" })
         return;
     }
-
-    router.push({
-        path: '/main/manageCustomerPrograms',
-        query: {
-            currentCustomer: JSON.stringify(customer)
-        }
-    })
+    customerProgramsStore.setCurrentCustomer(customer)
+    router.push('/main/manageCustomerPrograms')
 }
 
 const loadCustomers = () => {
@@ -75,58 +72,57 @@ const loadData = () => {
 </script>
 
 <template>
-    <el-container style="align-content: center; overflow-y: auto;">
-        <!-- <p style="margin-top: -5vh; text-align: center; font-size: 20px; font-weight: bold;">护理记录</p> -->
-        <el-col style="margin-left: 5%; width: 95%;">
-            <p>
-                <!-- 搜索框 -->
-                <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名"
-                    style="width: 30vh;"></el-input>
-                <Button @click="loadCustomers" class="add-button" style="margin-left: 2vh;">查询</Button>
-            </p>
-            <br><br>
+    <el-container style="overflow-y: auto; padding: 0;">
+        <el-col style="width: 100%;">
+            <el-card shadow="hover" class="section-card">
+                <p>
+                    <!-- 搜索框 -->
+                    <el-input v-model="customer_queryEntity.name" clearable placeholder="客户姓名"
+                        style="width: 30vh;"></el-input>
+                    <Button @click="loadCustomers" class="add-button" style="margin-left: 2vh;">查询</Button>
+                </p>
+                <br><br>
 
-            <div style="background-color: #007bff; margin-top: 2vh; width: 1300px; height: 3vh; align-content: center;">
-                <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">客户信息列表</label>
-            </div>
-            <el-table :data="allCustomers" :stripe="true" style="width: 1300px;">
-                <el-table-column type="index" label="序号" width="110">
-                </el-table-column>
-                <el-table-column property="name" label="客户姓名" width="150">
-                </el-table-column>
-                <el-table-column property="age" label="年龄" width="130">
-                </el-table-column>
-                <el-table-column label="性别" width="130">
-                    <template #default="scope">
-                        <span v-if="scope.row.gender == 1">男</span>
-                        <span v-else>女</span>
-                    </template>
-                </el-table-column>
-                <el-table-column property="bedNumber" label="床位号" width="150">
-                </el-table-column>
-                <el-table-column property="nursingLevelName" label="护理级别" width="150">
-                </el-table-column>
-                <el-table-column property="phoneNumber" label="联系电话" width="180">
-                </el-table-column>
-                <el-table-column label="操作" width="300" style="text-align: center;">
-                    <template #default="scope">
-                        <Button @click="manageCustomerPrograms(scope.row)"
-                            style="background-color: #007bff; color: white;">配置护理项目</Button>
-                    </template>
-                </el-table-column>
-            </el-table>
+                <div
+                    style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
+                    <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">客户信息列表</label>
+                </div>
+                <el-table :data="allCustomers" :stripe="true" style="width: 100%;" :fit="true">
+                    <el-table-column type="index" label="序号" align="center">
+                    </el-table-column>
+                    <el-table-column property="name" label="客户姓名" align="center">
+                    </el-table-column>
+                    <el-table-column property="age" label="年龄" align="center">
+                    </el-table-column>
+                    <el-table-column label="性别" align="center">
+                        <template #default="scope">
+                            <span v-if="scope.row.gender == 1">男</span>
+                            <span v-else>女</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="bedNumber" label="床位号" align="center">
+                    </el-table-column>
+                    <el-table-column property="nursingLevelName" label="护理级别" align="center">
+                    </el-table-column>
+                    <el-table-column property="phoneNumber" label="联系电话" align="center">
+                    </el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template #default="scope">
+                            <el-button @click="manageCustomerPrograms(scope.row)"
+                                style="color: #007bff;">配置护理项目</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
 
-            <el-pagination :current-page="customer_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
-                :default-page-size="customer_queryEntity.size" @update:page-size="customer_handleSizeChange"
-                @update:current-page="customer_handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
-                :total="customer_total" style="margin-top: 10vh;" />
+                <el-pagination :current-page="customer_queryEntity.current" :page-sizes="[1, 5, 10, 50]"
+                    :default-page-size="customer_queryEntity.size" @update:page-size="customer_handleSizeChange"
+                    @update:current-page="customer_handleCurrentChange" layout="total, sizes, prev, pager, next, jumper"
+                    :total="customer_total" style="margin-top: 10vh;" />
+            </el-card>
+
         </el-col>
     </el-container>
 </template>
 
-<style lang="css" scoped>
-.add-button {
-    background-color: #007bff;
-    font-size: 16px;
-}
-</style>
+<style lang="css" scoped></style>
+<style src="./scopedStyle.css"></style>
