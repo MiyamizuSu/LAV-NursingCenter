@@ -27,9 +27,8 @@ import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
-import { axiosInstance as axios } from '@/lib/core'
-
 import type { User } from './type'
+import { axiosInstance } from './core'
 export const routes: RouteRecordRaw[] = [
     {
         path:'/home', component:HomePage
@@ -168,7 +167,7 @@ router.beforeEach(async (to, from, next) => {
             router.push('/home')
         } else {
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
-                axios.post("/user/load", {}).then(res => {
+                axiosInstance.post("/user/load", {}).then((res:any) => {
                     if (res.data.status == 200) {
                         if (res.data.data.userType == 0) {
                             if (localStorage.getItem('AdminUsing') == null) {
@@ -193,7 +192,7 @@ router.beforeEach(async (to, from, next) => {
                 })
             }
             else if (localStorage.getItem('tokenc') != null && localStorage.getItem('tokenc') != undefined) {
-                axios.post("/customer/load", {}).then(res => {
+                axiosInstance.post("/customer/load", {}).then((res:any) => {
                     if (res.data.status == 200) {
                         if (localStorage.getItem('customerUsing') == null) {
                             localStorage.setItem('customer', JSON.stringify(res.data.data))
@@ -221,7 +220,7 @@ router.beforeEach(async (to, from, next) => {
 
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
-        await axios.post('/user/load', {}).then(res => {
+        await axiosInstance.post('/user/load', {}).then(res => {
             if (res.data.status == 200) {
                 let user = res.data.data
                 userJson = JSON.stringify(user)

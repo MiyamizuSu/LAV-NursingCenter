@@ -7,7 +7,6 @@ type StrictDate = `${Year}-${Month}-${Day}`
 export type User = {
     userId: number
     account: string
-    password: string
     name: string
     phoneNumber: string
     gender: 0 | 1  // 0-女性  1-男性

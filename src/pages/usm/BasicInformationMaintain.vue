@@ -4,9 +4,11 @@ import type {
     ColumnDef,
     ColumnFiltersState,
     ExpandedState,
+    Row,
     SortingState,
     VisibilityState,
 } from '@tanstack/vue-table'
+import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import {
     FlexRender,
     getCoreRowModel,
@@ -16,7 +18,7 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { h, nextTick, onMounted, reactive, ref, watch, type Ref } from 'vue'
+import { h, onMounted, ref } from 'vue'
 import { cn, debounce } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -30,14 +32,58 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { axiosInstance as axios } from '@/lib/core'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { useCustomerNurseStore, useUserManagementStore } from '@/lib/store'
+import {  axiosInstance } from '@/lib/core'
+import { useUserManagementStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
 import type { User } from '@/lib/type'
 import { motion } from 'motion-v'
 import { Checkbox } from '@/components/ui/checkbox'
+import DynamicButton from '@/components/custom/DynamicButton.vue'
+import { DialogPortal, DialogRoot } from 'reka-ui'
+import DialogContent from '@/components/ui/dialog/DialogContent.vue'
+import DialogTitle from '@/components/ui/dialog/DialogTitle.vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+import { Form, useForm } from 'vee-validate'
+import { FormField, FormMessage } from '@/components/ui/form'
+import FormItem from '@/components/ui/form/FormItem.vue'
+import FormLabel from '@/components/ui/form/FormLabel.vue'
+import FormControl from '@/components/ui/form/FormControl.vue'
+import IInput from '@/components/ui/insput/IInput.vue'
+import RadioGroup from '@/components/ui/radio-group/RadioGroup.vue'
+import RadioGroupItem from '@/components/ui/radio-group/RadioGroupItem.vue'
+import Label from '@/components/ui/label/Label.vue'
+import { toast } from 'vue-sonner'
+import Popover from '@/components/ui/popover/Popover.vue'
+import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
+import PopoverContent from '@/components/ui/popover/PopoverContent.vue'
+const curUser = ref<User>({
+    userId: NaN,
+    account: '',
+    name: '',
+    phoneNumber: '',
+    gender: 0,
+    email: '',
+    userType: 0
+})
+const userMessageSchema = toTypedSchema(z.object({
+    account: z.string().min(1, "请输入用户名"),
+    name: z.string().min(1, "请输入用户真实姓名"),
+    phoneNumber: z.string().length(11, '请输入正确的手机号'),
+    gender: z.number(),
+    email: z.string().email('请输入正确的邮箱地址')
+}))
 
+const { isFieldDirty } = useForm({
+    validationSchema: userMessageSchema
+})
+const updateDialogOpen = ref<boolean>(false);
+const removePopoverOpen = ref<boolean>(false);
+const handleUpdateDialogOpen = (row: Row<User>) => {
+    updateDialogOpen.value = true
+    curUser.value = row.original;
+    console.log(curUser.value)
+}
 const usmStore = useUserManagementStore()
 const userPages = ref({
     currentPage: 1,
@@ -108,20 +154,51 @@ const userColumns: ColumnDef<User>[] = [
         cell: ({ row }) =>
             h('div', { class: 'flex gap-2' }, [
                 h(
-                    'button',
+                    DynamicButton,
                     {
-                        class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-                        // onClick: () => openUpdateForm(row.original),
+                        onclick: () => handleUpdateDialogOpen(row)
                     },
                     '修改'
                 ),
                 h(
-                    'button',
+                    Popover,
                     {
-                        class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
-                        // onClick: () => openDeleteForm(row.original),
+
                     },
-                    '移除'
+                    [
+                        h(
+                            PopoverTrigger,
+                            {
+
+                            },
+                            [
+                                h(
+                                    DynamicButton,
+                                    {
+
+                                    },
+                                    '删除'
+                                )
+                            ]
+                        ),
+                        h(
+                            PopoverContent,
+                            {
+                                class:"flex flex-row gap-4 items-center"
+                            },
+                            [
+                                '请确认是否删除',
+                                h(
+                                    DynamicButton,
+                                    {
+                                        onclick:()=>handleRemoveUser(row.original.userId)
+                                    },
+                                    '确认'
+                                )
+                            ]
+                        )
+                    ]
+
                 ),
             ]),
     },
@@ -161,17 +238,17 @@ const changeUserPage = (page: number) => {
 }
 const searchName = ref('')   // 搜索框输入
 // 重置搜索框
-const resetUsers = () => {
+function resetUsers() {
     searchName.value = ''
     loadUsers()
 }
-const onInput = async (event: Event) => {
+async function onInput(event: Event) {
     const deLoad = debounce(loadUsers)
     deLoad()
 }
 // 获取分页用户数据
-const loadUsers = async () => {
-    const res = await axios.post('/user/page', {
+async function loadUsers() {
+    const res = await axiosInstance.post('/user/page', {
         current: userPages.value.currentPage,
         size: userPages.value.pageSize,
         name: searchName.value,
@@ -184,10 +261,45 @@ const loadUsers = async () => {
         usmStore.setUserList([])
     }
 }
-
-
-
-onMounted(async () => {
+async function handleRemoveUser(userId: number) {
+    const {promise,resolve,reject}= Promise.withResolvers<undefined>();
+    toast.promise(promise,{
+        loading:'删除中...',
+        success:()=> '删除成功',
+        error:(reason:string)=>reason
+    })
+    const res=await axiosInstance.post('/user/delete',{
+        userId:userId
+    })
+    console.log(res)
+    if(res.data.status!==200){
+        reject(res.data.msg)
+    }
+    else{
+        resolve(undefined);
+    }
+}
+async function handleUpdateSubmit(userValue: User) {
+    userValue.userId = curUser.value.userId;
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        success: () => "修改成功",
+        error: "修改失败,请联系管理员"
+    })
+    const res = await axiosInstance.post('/user/update', userValue)
+    if (res.status !== 200) {
+        reject()
+    }
+    else {
+        resolve(undefined)
+    }
+    updateDialogOpen.value = false
+    await loadUsers()
+}
+async function handleAddNewUser(){
+    
+}
+onMounted(async function () {
     await loadUsers()
 })
 </script>
@@ -321,6 +433,138 @@ onMounted(async () => {
                 </Button>
             </div>
         </div>
+        <DialogRoot v-model:open="updateDialogOpen">
+            <DialogPortal>
+                <DialogContent>
+                    <DialogTitle>
+                        修改用户信息
+                    </DialogTitle>
+                    <Form @submit="(values: any) => handleUpdateSubmit(values)" :initial-values="curUser"
+                        :validation-schema="userMessageSchema">
+                        <div class="flex flex-col  gap-6">
+                            <div>
+                                <FormField v-slot="{ componentField }" name="account" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            用户名
+                                        </FormLabel>
+                                        <FormControl>
+                                            <IInput v-bind="componentField">
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                    </FormItem>
+                                    <FormMessage />
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="name" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            真实姓名
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                    </FormItem>
+                                    <FormMessage />
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="phoneNumber"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            电话号码
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="email" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            邮箱地址
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField name="gender" type="radio" v-slot="{ componentField }"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            用户性别
+                                        </FormLabel>
+                                        <FormControl>
+                                            <RadioGroup :default-value="curUser.gender" v-bind="componentField">
+                                                <div class="flex flex-row gap-9">
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="man" :value="1"></RadioGroupItem>
+                                                        <Label for="man">男</Label>
+                                                    </div>
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="woman" :value="0"></RadioGroupItem>
+                                                        <Label for="woman">女</Label>
+                                                    </div>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField name="userType" type="radio" v-slot="{ componentField }"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            员工类型
+                                        </FormLabel>
+                                        <FormControl>
+                                            <RadioGroup :default-value="curUser.userType" v-bind="componentField">
+                                                <div class="flex flex-row gap-6">
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="nurse" :value="1"></RadioGroupItem>
+                                                        <Label for="nurse">护工</Label>
+                                                    </div>
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="admin" :value="0"></RadioGroupItem>
+                                                        <Label for="admin">管理员</Label>
+                                                    </div>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div class="flex flex-row justify-end">
+                                <DynamicButton type="submit">
+                                    提交
+                                </DynamicButton>
+                            </div>
+
+                        </div>
+
+                    </Form>
+                </DialogContent>
+            </DialogPortal>
+        </DialogRoot>
     </div>
 
 
