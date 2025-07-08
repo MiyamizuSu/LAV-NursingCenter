@@ -177,13 +177,17 @@ const outingColumns: ColumnDef<OutingRegistration>[] = [
                     }, '撤销申请')
                 ])
             } else if (reviewStatus === 2) {
-                return h('div', { class: 'flex flex-wrap gap-2 basis-1/6 shrink-0 grow text-right justify-end' }, [
-                    h('button', {
-                        class: 'px-2 py-1 text-xs text-white rounded transition whitespace-nowrap bg-[#67C23A]',
-                        onClick: () => openUpdateReturnedDateForm(row.original)
-                    }, '登记回院时间')
-                ])
-            } 
+                if (row.getValue('actualReturnDate') === '') {
+                    return h('div', { class: 'flex flex-wrap gap-2 basis-1/6 shrink-0 grow text-right justify-end' }, [
+                        h('button', {
+                            class: 'px-2 py-1 text-xs text-white rounded transition whitespace-nowrap bg-[#67C23A]',
+                            onClick: () => openUpdateReturnedDateForm(row.original)
+                        }, '登记回院时间')
+                    ])
+                } else {
+                    return null
+                }
+            }
             return null
         }
     },
@@ -756,7 +760,8 @@ onMounted(async () => {
                 </el-form>
             </el-dialog>
 
-            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
+            <el-dialog v-model="submitOutingFormVisible" title="提示" width="500" top="40vh" :z-index="3000"
+                append-to-body>
                 <span>确定提交该外出申请吗？</span>
                 <template #footer>
                     <div class="dialog-footer">
@@ -808,7 +813,8 @@ onMounted(async () => {
             </el-form>
         </el-dialog>
 
-        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh" :z-index="3000" append-to-body>
+        <el-dialog v-model="updateReturnDateConfirmVisible" title="提示" width="500" top="40vh" :z-index="3000"
+            append-to-body>
             <span>确定登记实际回院时间吗？</span>
             <template #footer>
                 <div class="dialog-footer">
