@@ -381,6 +381,7 @@ const logout = () => {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 120px);
+  background: #fff;
 }
 
 :deep(.el-tabs) {
