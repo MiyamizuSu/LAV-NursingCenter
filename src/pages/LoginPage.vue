@@ -11,7 +11,7 @@ import CardContent from '@/components/ui/card/CardContent.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
-import { axiosInstance as axios } from '@/lib/core'
+import { axiosInstance as axios, createWebSocket, resetWebSocket } from '@/lib/core'
 import { ElMessage } from 'element-plus'
 import DynamicButton from '@/components/custom/DynamicButton.vue'
 import { toast } from 'vue-sonner'
@@ -35,25 +35,15 @@ const user1 = ref<UserMes>({
     password: ''
 })
 
-const jump = () => {
-    router.push('/main')
-}
-
-const simpleLogin = async () => {
-    const res = await axios.post("/user/login", user1.value)
-    console.log(res)
-    jump()
-
-}
-
-const login = () => {
+async function login() {
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
     toast.promise(promise, {
         loading: '登陆中...',
         success: () => '登陆成功',
         error: (reason: string) => reason
     })
-    axios.post("/user/login", user1.value).then(response => {
+    try {
+        const response = await axios.post("/user/login", user1.value)
         let rb = response.data;
         if (rb.status == 200) {
             // 取得登录成功的用户的令牌
@@ -61,31 +51,36 @@ const login = () => {
             // 把用户令牌存入前端Session中
             sessionStorage.removeItem('customerActive')
             localStorage.setItem('tokenu', token)
-            axios.post("/user/load", {}).then(res => {
-                if (res.data.status == 200) {
-                    // 登录成功
-                    if (res.data.data.userType == 0) {
-                        localStorage.setItem('tokenu0', token)
-                        localStorage.setItem('user0', JSON.stringify(res.data.data))
-                        sessionStorage.setItem('userType', res.data.data.userType)
-                        localStorage.setItem('AdminUsing', "1")
-                    } else {
-                        localStorage.setItem('tokenu1', token)
-                        localStorage.setItem('user1', JSON.stringify(res.data.data))
-                        sessionStorage.setItem('userType', res.data.data.userType)
-                        localStorage.setItem('NurseUsing', "1")
-                    }
-                    resolve(undefined)
-                    router.push('/main')
+            const res = await axios.post("/user/load", {})
+            if (res.data.status == 200) {
+                // 登录成功
+                if (res.data.data.userType == 0) {
+                    localStorage.setItem('tokenu0', token)
+                    localStorage.setItem('user0', JSON.stringify(res.data.data))
+                    sessionStorage.setItem('userType', res.data.data.userType)
+                    localStorage.setItem('AdminUsing', "1")
+                } else {
+                    localStorage.setItem('tokenu1', token)
+                    localStorage.setItem('user1', JSON.stringify(res.data.data))
+                    sessionStorage.setItem('userType', res.data.data.userType)
+                    localStorage.setItem('NurseUsing', "1")
                 }
-            })
-        } 
+                const wb = await createWebSocket( res.data.data.userId)
+                resetWebSocket(wb)
+                resolve(undefined)
+                router.push('/main')
+            }
+        }
         else {
             reject('登陆失败')
         }
-    }).catch(()=>{
+    }
+    catch(e) {
+        console.log(e)
         reject('请检查网络设置')
-    })
+    }
+
+
 }
 const loginAsCustomer = () => {
     axios.post("/customer/login", {

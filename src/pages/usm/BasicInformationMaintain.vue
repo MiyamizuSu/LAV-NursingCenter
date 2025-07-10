@@ -58,6 +58,9 @@ import Popover from '@/components/ui/popover/Popover.vue'
 import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
 import PopoverContent from '@/components/ui/popover/PopoverContent.vue'
 import type { AxiosResponse } from 'axios'
+
+
+const searchName = ref('')   // 搜索框输入
 const curUser = ref<User>({
     userId: NaN,
     account: '',
@@ -255,7 +258,7 @@ const changeUserPage = (page: number) => {
     userPages.value.currentPage = page
     loadUsers()
 }
-const searchName = ref('')   // 搜索框输入
+
 // 重置搜索框
 function resetUsers() {
     searchName.value = ''
@@ -349,7 +352,7 @@ async function handleBatchDelete() {
         }))
     })
     try {
-    const res = await Promise.all(deleteTasks)
+        const res = await Promise.all(deleteTasks)
         if (res.every(item => item.data.status === 200)) {
             resolve(undefined)
         }
@@ -357,11 +360,10 @@ async function handleBatchDelete() {
             reject('批量删除失败')
         }
     }
-    catch(e)
-    {
+    catch (e) {
         reject('批量删除失败')
     }
-
+    await loadUsers();
 }
 async function handleAddNewUser() {
     handleUpdateDialogOpen()

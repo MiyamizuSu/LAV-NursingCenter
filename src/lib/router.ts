@@ -27,9 +27,10 @@ import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
+import StreamPage from '@/pages/StreamPage.vue'
 import type { User } from './type'
 import { axiosInstance } from './core'
-import StreamPage from '@/pages/StreamPage.vue'
+
 export const routes: RouteRecordRaw[] = [
     {
         path:'/home', component:HomePage

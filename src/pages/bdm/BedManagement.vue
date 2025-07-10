@@ -62,39 +62,12 @@ const bdmStore = useBedManagementStore();
 const diglogOpen = ref<boolean>(false)
 const changeDialogOpen = ref<boolean>(false)
 const curCustomer = ref<BedUser>();
+const bed_room_map: Reactive<Map<string, string[]>> = reactive(new Map())
+const curRecordSelect = ref<'正在使用' | '使用历史'>('正在使用')
 const bedUpdateRequest = reactive<BedChangeRequestBody>({
     endDate: '',
     id: NaN
 })
-const bed_room_map: Reactive<Map<string, string[]>> = reactive(new Map())
-
-function handleCalendarValueChange(v: DateValue | undefined) {
-    bedUpdateRequest.endDate = v?.toString() ?? '';
-}
-
-async function generateRoomsWithBeds() {
-    const response = await axiosInstance.post("/room/listAll");
-    const rooms = response.data.data as RoomResponse[];
-    const rooms_cacheable: Room[] = []
-    for (let room of rooms) {
-        const r: Room = {
-            id: room.id,
-            roomNumber: room.roomNumber
-        }
-        rooms_cacheable.push(r);
-    }
-
-    bdmStore.setRoom(rooms_cacheable)
-    for (let room of rooms_cacheable) {
-        const response = await xhrWithAdapter('/bed/listSpareByRoomNumber', {
-            roomNumber: room.roomNumber
-        }, bedsAdapter)
-        const room_bedsNumber = response.map((item) => {
-            return item.bNumber
-        })
-        bed_room_map.set(room.roomNumber, room_bedsNumber);
-    }
-}
 const bedExchangeRequest = ref<BedExchangeRequest>({
     customerId: NaN,
     roomNumber: '',
@@ -102,7 +75,6 @@ const bedExchangeRequest = ref<BedExchangeRequest>({
     startDate: '',
     endDate: ''
 })
-const curRecordSelect = ref<'正在使用' | '使用历史'>('正在使用')
 const startDateChange = (e: any) => {
     e as CalendarDate
     bedExchangeRequest.value.startDate = dateConverter(e)
@@ -111,81 +83,6 @@ const endDateChange = (e: any) => {
     e as CalendarDate
     bedExchangeRequest.value.endDate = dateConverter(e)
 }
-async function openDialog(row: Row<BedUser>) {
-    diglogOpen.value = true
-    if (bdmStore.getRooms === undefined) {
-        await generateRoomsWithBeds()
-    }
-    curCustomer.value = row.original
-}
-function openChangeDialog(row: Row<BedUser>) {
-    changeDialogOpen.value = true;
-    curCustomer.value = row.original;
-    bedUpdateRequest.endDate = curCustomer.value.endUsedTime
-}
-async function xhrBedMessage() {
-    const res = (await axios.post('/bedUsageRecord/listAll')).data
-    return res.data as any[]
-}
-//0使用历史 1使用中
-function responseAdaptor(adapted: BedUser[][], sources: any[]) {
-    for (let i = 0; i < sources.length; i++) {
-        const source = sources[i];
-        const b: BedUser = {
-            Id: source.id,
-            customerId: source.customerId,
-            name: source.customerName,
-            gender: source.customerGender ? '男' : '女',
-            bedMes: source.bedNumber,
-            startUsedTime: source.startDate,
-            endUsedTime: source.endDate || '没有结束',
-        }
-        adapted[source.status].push(b);
-    }
-}
-function handleRoomSelect(v: AcceptableValue) {
-    bedExchangeRequest.value.roomNumber = v as string;
-}
-function handleBedSelect(v: AcceptableValue) {
-    bedExchangeRequest.value.bedNumber = v as string;
-}
-async function onSubmit() {
-    bedExchangeRequest.value.customerId = curCustomer.value?.Id as number
-    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
-    toast.promise(promise, {
-        loading: '提交中...',
-        success: () => `床位更改完成`,
-        error: () => '发生了错误'
-    })
-    const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
-    resolve(undefined);
-    diglogOpen.value = false;
-}
-function handleCurRecordSelect(e: '正在使用' | '使用历史') {
-    curRecordSelect.value = e
-}
-async function handleBedUpdate() {
-    bedUpdateRequest.id = curCustomer.value?.Id as number
-    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
-    toast.promise(promise,{
-        loading:'床位信息更新中',
-        success:()=>'床位信息更新完毕',
-        error:()=>"发生了错误"
-    })
-    const res=await axiosInstance.post('/bedUsageRecord/update',bedUpdateRequest);
-    resolve(undefined)
-    changeDialogOpen.value=false;
-    const bedData: BedUser[][] = [[], []];
-    responseAdaptor(bedData, await xhrBedMessage());
-    bdmStore.setUsingBeds(bedData[1]);
-    bdmStore.setUsedBeds(bedData[0]);
-}
-onMounted(async () => {
-    const bedData: BedUser[][] = [[], []];
-    responseAdaptor(bedData, await xhrBedMessage());
-    bdmStore.setUsingBeds(bedData[1]);
-    bdmStore.setUsedBeds(bedData[0]);
-})
 const columns: ColumnDef<BedUser>[] = [
     {
         id: 'userID',
@@ -273,6 +170,107 @@ const datatable = useVueTable({
     },
 })
 datatable.setPageSize(7)
+async function generateRoomsWithBeds() {
+    const response = await axiosInstance.post("/room/listAll");
+    const rooms = response.data.data as RoomResponse[];
+    const rooms_cacheable: Room[] = []
+    for (let room of rooms) {
+        const r: Room = {
+            id: room.id,
+            roomNumber: room.roomNumber
+        }
+        rooms_cacheable.push(r);
+    }
+
+    bdmStore.setRoom(rooms_cacheable)
+    for (let room of rooms_cacheable) {
+        const response = await xhrWithAdapter('/bed/listSpareByRoomNumber', {
+            roomNumber: room.roomNumber
+        }, bedsAdapter)
+        const room_bedsNumber = response.map((item) => {
+            return item.bNumber
+        })
+        bed_room_map.set(room.roomNumber, room_bedsNumber);
+    }
+}
+async function openDialog(row: Row<BedUser>) {
+    diglogOpen.value = true
+    if (bdmStore.getRooms === undefined) {
+        await generateRoomsWithBeds()
+    }
+    curCustomer.value = row.original
+}
+function openChangeDialog(row: Row<BedUser>) {
+    changeDialogOpen.value = true;
+    curCustomer.value = row.original;
+    bedUpdateRequest.endDate = curCustomer.value.endUsedTime
+}
+async function xhrBedMessage() {
+    const res = (await axios.post('/bedUsageRecord/listAll')).data
+    return res.data as any[]
+}
+//0使用历史 1使用中
+function responseAdaptor(adapted: BedUser[][], sources: any[]) {
+    for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
+        const b: BedUser = {
+            Id: source.id,
+            customerId: source.customerId,
+            name: source.customerName,
+            gender: source.customerGender ? '男' : '女',
+            bedMes: source.bedNumber,
+            startUsedTime: source.startDate,
+            endUsedTime: source.endDate || '没有结束',
+        }
+        adapted[source.status].push(b);
+    }
+}
+function handleCalendarValueChange(v: DateValue | undefined) {
+    bedUpdateRequest.endDate = v?.toString() ?? '';
+}
+function handleRoomSelect(v: AcceptableValue) {
+    bedExchangeRequest.value.roomNumber = v as string;
+}
+function handleBedSelect(v: AcceptableValue) {
+    bedExchangeRequest.value.bedNumber = v as string;
+}
+async function onSubmit() {
+    bedExchangeRequest.value.customerId = curCustomer.value?.Id as number
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '提交中...',
+        success: () => `床位更改完成`,
+        error: () => '发生了错误'
+    })
+    const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
+    resolve(undefined);
+    diglogOpen.value = false;
+}
+function handleCurRecordSelect(e: '正在使用' | '使用历史') {
+    curRecordSelect.value = e
+}
+async function handleBedUpdate() {
+    bedUpdateRequest.id = curCustomer.value?.Id as number
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '床位信息更新中',
+        success: () => '床位信息更新完毕',
+        error: () => "发生了错误"
+    })
+    const res = await axiosInstance.post('/bedUsageRecord/update', bedUpdateRequest);
+    resolve(undefined)
+    changeDialogOpen.value = false;
+    const bedData: BedUser[][] = [[], []];
+    responseAdaptor(bedData, await xhrBedMessage());
+    bdmStore.setUsingBeds(bedData[1]);
+    bdmStore.setUsedBeds(bedData[0]);
+}
+onMounted(async () => {
+    const bedData: BedUser[][] = [[], []];
+    responseAdaptor(bedData, await xhrBedMessage());
+    bdmStore.setUsingBeds(bedData[1]);
+    bdmStore.setUsedBeds(bedData[0]);
+})
 </script>
 
 <template>
@@ -328,7 +326,8 @@ datatable.setPageSize(7)
                     @click="datatable.previousPage()">
                     上一页
                 </Button>
-                <Button variant="outline" size="sm" :disabled="!datatable.getCanNextPage()" @click="datatable.nextPage()">
+                <Button variant="outline" size="sm" :disabled="!datatable.getCanNextPage()"
+                    @click="datatable.nextPage()">
                     下一页
                 </Button>
             </div>
@@ -435,7 +434,7 @@ datatable.setPageSize(7)
                                                                 </div>
                                                                 <div>
                                                                     <span>{{ `${bedExchangeRequest.startDate}`
-                                                                        }}</span>
+                                                                    }}</span>
                                                                 </div>
                                                             </div>
                                                         </PopoverTrigger>

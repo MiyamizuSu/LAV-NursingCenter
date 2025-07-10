@@ -17,7 +17,6 @@ import type { Bed } from '@/lib/type';
 import { xhrWithAdapter } from '@/lib/core';
 import { bedsAdapter } from './helper';
 const bdmStore = useBedManagementStore();
-
 const floorBedMessages: BedMes[] = [
     {
         bedType: "总量",
@@ -70,7 +69,6 @@ onMounted(async () => {
         bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value, floorBed);
     }
 })
-
 </script>
 
 <template>
