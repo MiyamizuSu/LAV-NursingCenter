@@ -167,7 +167,7 @@ router.beforeEach(async (to, from, next) => {
         '/goOutApplication', '/nursingRecord2']
 
     const nextRoute = ['/login', '/errorPage', '/home'];
-
+        
     if (to.path == '/') {
         if(localStorage.getItem('isRemember')!='true'){
             router.push('/home')

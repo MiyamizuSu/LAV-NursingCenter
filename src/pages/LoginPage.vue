@@ -40,7 +40,7 @@ const user1 = ref<UserMes>({
     rememberMe: false
 })
 
-async function userlogin() {
+const userLogin=async ()=> {
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
     toast.promise(promise, {
         loading: '登陆中...',

@@ -41,7 +41,6 @@ const checkTokenValidity = async () => {
 };
 
 onMounted(() => {
-  router.push('/login')
   checkInterval = setInterval(checkTokenValidity, 60000); // 每1分钟检查一次
 });
 
