@@ -32,16 +32,16 @@ const handleWindowClose = () => {
 
 let checkInterval: number;
 
-const checkTokenValidity = () => {
+const checkTokenValidity = async () => {
     if(sessionStorage.getItem('userType')!=null){
-        axiosInstance.post('user/load',{})
+         await axiosInstance.post('user/load',{})
     }else if(sessionStorage.getItem('customerActive')!=null){
-        axiosInstance.post('customer/load',{})
+         await axiosInstance.post('customer/load',{})
     }
 };
 
 onMounted(() => {
-  router.push('/main')
+  router.push('/login')
   checkInterval = setInterval(checkTokenValidity, 60000); // 每1分钟检查一次
 });
 

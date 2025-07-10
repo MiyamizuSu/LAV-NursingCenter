@@ -272,7 +272,7 @@ const datatable = useVueTable({
 
     },
 })
-datatable.setPageSize(8)
+datatable.setPageSize(7)
 </script>
 
 <template>
@@ -324,13 +324,13 @@ datatable.setPageSize(8)
                 </TableBody>
             </Table>
             <div class="flex items-center justify-end py-4 space-x-2 mr-9 ">
-                <DynamicButton variant="outline" size="sm" :disabled="!datatable.getCanPreviousPage()"
+                <Button variant="outline" size="sm" :disabled="!datatable.getCanPreviousPage()"
                     @click="datatable.previousPage()">
-                    Previous
-                </DynamicButton>
-                <DynamicButton size="sm" :disabled="!datatable.getCanNextPage()" @click="datatable.nextPage()">
-                    Next
-                </DynamicButton>
+                    上一页
+                </Button>
+                <Button variant="outline" size="sm" :disabled="!datatable.getCanNextPage()" @click="datatable.nextPage()">
+                    下一页
+                </Button>
             </div>
         </div>
         <DialogRoot v-model:open="diglogOpen" !default-open>

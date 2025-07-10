@@ -14,7 +14,7 @@ import { motion } from 'motion-v'
 import { axiosInstance as axios } from '@/lib/core'
 import { ElMessage } from 'element-plus'
 import DynamicButton from '@/components/custom/DynamicButton.vue'
-import { toast} from 'vue-sonner'
+import { toast } from 'vue-sonner'
 const router = useRouter()
 
 type UserMes = {
@@ -47,21 +47,23 @@ const simpleLogin = async () => {
 }
 
 const login = () => {
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '登陆中...',
+        success: () => '登陆成功',
+        error: (reason: string) => reason
+    })
     axios.post("/user/login", user1.value).then(response => {
         let rb = response.data;
         if (rb.status == 200) {
             // 取得登录成功的用户的令牌
             let token = rb.data;
-            // console.log('token: ', token)
             // 把用户令牌存入前端Session中
             sessionStorage.removeItem('customerActive')
             localStorage.setItem('tokenu', token)
-            // localStorage.removeItem('tokenc')
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
-                    // sessionStorage.setItem("user", JSON.stringify(res.data.data))
                     // 登录成功
-                    // console.log(res.data.data.userType)
                     if (res.data.data.userType == 0) {
                         localStorage.setItem('tokenu0', token)
                         localStorage.setItem('user0', JSON.stringify(res.data.data))
@@ -73,16 +75,16 @@ const login = () => {
                         sessionStorage.setItem('userType', res.data.data.userType)
                         localStorage.setItem('NurseUsing', "1")
                     }
-
-                    ElMessage({ message: "登录成功！", type: "success" })
+                    resolve(undefined)
                     router.push('/main')
                 }
             })
-
-        } else {
-            // 登录失败
-            ElMessage({ message: rb.msg, type: "error" })
+        } 
+        else {
+            reject('登陆失败')
         }
+    }).catch(()=>{
+        reject('请检查网络设置')
     })
 }
 const loginAsCustomer = () => {

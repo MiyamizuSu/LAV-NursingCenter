@@ -27,9 +27,9 @@ import HomePage from '@/pages/HomePage.vue'
 import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
-import StreamPage from '@/pages/StreamPage.vue'
 import type { User } from './type'
 import { axiosInstance } from './core'
+import StreamPage from '@/pages/StreamPage.vue'
 export const routes: RouteRecordRaw[] = [
     {
         path:'/home', component:HomePage
@@ -226,7 +226,7 @@ router.beforeEach(async (to, from, next) => {
     }
     else if (nextRoute.indexOf(to.path) == -1) {
         let userJson = ''
-        await axios.post('/user/load', {}).then(res => {
+        await axiosInstance.post('/user/load', {}).then(res => {
             if (res.data.status == 200) {
                 let user = res.data.data
                 userJson = JSON.stringify(user)

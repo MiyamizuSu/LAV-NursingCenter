@@ -32,7 +32,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import {  axiosInstance } from '@/lib/core'
+import { axiosInstance } from '@/lib/core'
 import { useUserManagementStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
 import type { User } from '@/lib/type'
@@ -57,6 +57,7 @@ import { toast } from 'vue-sonner'
 import Popover from '@/components/ui/popover/Popover.vue'
 import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
 import PopoverContent from '@/components/ui/popover/PopoverContent.vue'
+import type { AxiosResponse } from 'axios'
 const curUser = ref<User>({
     userId: NaN,
     account: '',
@@ -66,6 +67,7 @@ const curUser = ref<User>({
     email: '',
     userType: 0
 })
+
 const userMessageSchema = toTypedSchema(z.object({
     account: z.string().min(1, "请输入用户名"),
     name: z.string().min(1, "请输入用户真实姓名"),
@@ -78,11 +80,28 @@ const { isFieldDirty } = useForm({
     validationSchema: userMessageSchema
 })
 const updateDialogOpen = ref<boolean>(false);
-const removePopoverOpen = ref<boolean>(false);
-const handleUpdateDialogOpen = (row: Row<User>) => {
-    updateDialogOpen.value = true
-    curUser.value = row.original;
-    console.log(curUser.value)
+const dialogUsingMode = ref<'add' | 'update'>('add')
+const defaultUser: User = {
+    userId: NaN,
+    account: '',
+    name: '',
+    phoneNumber: '',
+    gender: 1,
+    email: '',
+    userType: 1
+}
+const handleUpdateDialogOpen = (row?: Row<User>) => {
+    if (row !== undefined) {
+        dialogUsingMode.value = 'update'
+        updateDialogOpen.value = true
+        curUser.value = row?.original as User;
+    }
+    else {
+        dialogUsingMode.value = 'add'
+        updateDialogOpen.value = true
+        curUser.value = defaultUser
+    }
+
 }
 const usmStore = useUserManagementStore()
 const userPages = ref({
@@ -184,14 +203,14 @@ const userColumns: ColumnDef<User>[] = [
                         h(
                             PopoverContent,
                             {
-                                class:"flex flex-row gap-4 items-center"
+                                class: "flex flex-row gap-4 items-center"
                             },
                             [
                                 '请确认是否删除',
                                 h(
                                     DynamicButton,
                                     {
-                                        onclick:()=>handleRemoveUser(row.original.userId)
+                                        onclick: () => handleRemoveUser(row.original.userId)
                                     },
                                     '确认'
                                 )
@@ -262,42 +281,91 @@ async function loadUsers() {
     }
 }
 async function handleRemoveUser(userId: number) {
-    const {promise,resolve,reject}= Promise.withResolvers<undefined>();
-    toast.promise(promise,{
-        loading:'删除中...',
-        success:()=> '删除成功',
-        error:(reason:string)=>reason
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '删除中...',
+        success: () => '删除成功',
+        error: (reason: string) => reason
     })
-    const res=await axiosInstance.post('/user/delete',{
-        userId:userId
+    const res = await axiosInstance.post('/user/delete', {
+        userId: userId
     })
-    console.log(res)
-    if(res.data.status!==200){
+    if (res.data.status !== 200) {
         reject(res.data.msg)
     }
-    else{
+    else {
         resolve(undefined);
     }
 }
 async function handleUpdateSubmit(userValue: User) {
-    userValue.userId = curUser.value.userId;
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
-    toast.promise(promise, {
-        success: () => "修改成功",
-        error: "修改失败,请联系管理员"
-    })
-    const res = await axiosInstance.post('/user/update', userValue)
-    if (res.status !== 200) {
-        reject()
+    if (dialogUsingMode.value === 'update') {
+        userValue.userId = curUser.value.userId;
+        toast.promise(promise, {
+            loading: '修改中...',
+            success: () => "修改成功",
+            error: "修改失败,请联系管理员"
+        })
+        const res = await axiosInstance.post('/user/update', userValue)
+        if (res.status !== 200) {
+            reject()
+        }
+        else {
+            resolve(undefined)
+        }
     }
     else {
-        resolve(undefined)
+        toast.promise(promise, {
+            loading: '添加中...',
+            success: () => "添加成功",
+            error: "添加失败,请联系管理员"
+        })
+        const res = await axiosInstance.post('/user/add', userValue)
+        if (res.data.status !== 200) {
+            reject()
+        }
+        else {
+            resolve(undefined);
+        }
     }
     updateDialogOpen.value = false
     await loadUsers()
 }
-async function handleAddNewUser(){
-    
+async function handleBatchDelete() {
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    const deleteTasks: Promise<AxiosResponse>[] = [];
+    if (userTable.getSelectedRowModel().rows.length === 0) {
+        toast.warning('你还未选择任何一项');
+        return;
+    }
+    toast.promise(promise, {
+        loading: () => '批量删除执行中',
+        success: '批量删除完成',
+        error: (reason: string) => reason
+    })
+    userTable.getSelectedRowModel().rows.forEach((row) => {
+        deleteTasks.push(axiosInstance.post("/user/delete", {
+            userId: row.original.userId
+        }))
+    })
+    try {
+    const res = await Promise.all(deleteTasks)
+        if (res.every(item => item.data.status === 200)) {
+            resolve(undefined)
+        }
+        else {
+            reject('批量删除失败')
+        }
+    }
+    catch(e)
+    {
+        reject('批量删除失败')
+    }
+
+}
+async function handleAddNewUser() {
+    handleUpdateDialogOpen()
+
 }
 onMounted(async function () {
     await loadUsers()
@@ -330,8 +398,8 @@ onMounted(async function () {
             </div>
             <div class="ml-auto">
                 <motion.div :whilePress="{ scale: 0.9, rotate: 3 }">
-                    <InteractiveHoverButton @click="" text="添加" text-before-color="#71C9CE" text-after-color="#CBF1F5"
-                        before-color="#CBF1F5" after-color="#71C9CE">
+                    <InteractiveHoverButton @click="handleAddNewUser" text="添加" text-before-color="#71C9CE"
+                        text-after-color="#CBF1F5" before-color="#CBF1F5" after-color="#71C9CE">
                         <template #svgIcon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -349,8 +417,8 @@ onMounted(async function () {
         <div class="mb-5 flex items-center gap-4">
             <div class="ml-auto">
                 <motion.div :whilePress="{ scale: 0.9, rotate: 3 }">
-                    <InteractiveHoverButton @click="" text="批量删除" text-before-color="#FF4F0F" text-after-color="#FFE3BB"
-                        before-color="#FFE3BB" after-color="#FF4F0F">
+                    <InteractiveHoverButton @click="handleBatchDelete" text="批量删除" text-before-color="#FF4F0F"
+                        text-after-color="#FFE3BB" before-color="#FFE3BB" after-color="#FF4F0F">
                         <template #svgIcon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
