@@ -165,11 +165,14 @@ router.beforeEach(async (to, from, next) => {
     const nextRoute = ['/login', '/errorPage', '/home'];
 
     if (to.path == '/') {
-        if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
+        if(localStorage.getItem('isRemember')!='true'){
+            router.push('/home')
+        }
+        else if (sessionStorage.getItem('userType') == null && sessionStorage.getItem('customerActive') == null && localStorage.getItem('tokenu') == null && localStorage.getItem('tokenc') == null) {
             router.push('/home')
         } else {
-            console.log("/ tokenu: ", localStorage.getItem('tokenu'))
-            console.log("/ tokenc: ", localStorage.getItem('tokenc'))
+            // console.log("/ tokenu: ", localStorage.getItem('tokenu'))
+            // console.log("/ tokenc: ", localStorage.getItem('tokenc'))
             if (localStorage.getItem('tokenu') != null && localStorage.getItem('tokenu') != undefined) {
                 axios.post("/user/load", {}).then(res => {
                     // console.log(res)
@@ -187,7 +190,7 @@ router.beforeEach(async (to, from, next) => {
                                 router.push('/main')
                             } else {
                                 // console.log(localStorage.getItem('AdminUsing'))
-                                router.push('/login')
+                                router.push('/home')
                             }
                         } else if (res.data.data.userType == 1) {
                             // console.log(localStorage.getItem('NurseUsing'))
@@ -197,7 +200,7 @@ router.beforeEach(async (to, from, next) => {
                                 localStorage.setItem('NurseUsing', "1")
                                 router.push('/main')
                             } else {
-                                router.push('/login')
+                                router.push('/home')
                             }
                         }
                     }
@@ -232,7 +235,7 @@ router.beforeEach(async (to, from, next) => {
         }
         console.log(customerJson)
         if (customerJson == null || customerJson == undefined || customerJson == '') {
-            router.push('/login')
+            router.push('/home')
         }
     }
 
@@ -264,7 +267,7 @@ router.beforeEach(async (to, from, next) => {
 
         if (userJson == null || userJson == undefined || userJson == '') {
             // console.log("路由守卫", userJson)
-            router.push('/login')
+            router.push('/home')
         }
         else {
             let user = JSON.parse(userJson!) as User

@@ -46,6 +46,14 @@ const careItemQuery = ref({
   size: 5
 })
 
+const isExpired = (record: CareItem) => {
+  return new Date(record.expirationDate) < new Date();
+};
+
+const isUsedUp = (record: CareItem) => {
+  return record.leftCount <= 0;
+};
+
 // 客户列表数据
 const customers = ref<Customer[]>([])
 const customerTotal = ref(0)
@@ -68,7 +76,6 @@ const careRecordForm = ref({
   nursingTime: '',
   executionCount: 1,
   description: '',
-  nurseName: currentNurse.value.name
 })
 
 //表单验证规则
@@ -86,7 +93,7 @@ const formRules = ref({
       type: 'number',
       min: 1,
       message: '次数必须大于0',
-      trigger: 'change' 
+      trigger: 'change'
     }
   ]
 })
@@ -94,7 +101,7 @@ const formRules = ref({
 // 分页查询客户
 const queryCustomers = () => {
   console.log(currentNurse.value.userId)
-  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, nurseId: currentNurse.value.userId })
+  axios.post('/customer/pageByNurseId', { ...customerQuery.value, nurseId: currentNurse.value.userId })
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {
@@ -107,7 +114,7 @@ const queryCustomers = () => {
 
 // 查询护理项目
 const queryCareItems = () => {
-  axios.post('http://localhost:9000/customerNursingService/page', {
+  axios.post('/customerNursingService/page', {
     ...careItemQuery.value,
     customerId: currentCustomer.value?.customerId
   })
@@ -126,12 +133,11 @@ const queryCareItems = () => {
 const submitCareRecord = () => {
   recordForm.value.validate((valid: boolean) => {
     if (!valid) return
-
     ElMessageBox.confirm('确认创建护理记录？', '提示', {
       confirmButtonText: '立即创建',
       cancelButtonText: '取消'
     }).then(() => {
-      axios.post('http://localhost:9000/nursingRecord/add', careRecordForm.value)
+      axios.post('nursingRecord/add', { ...careRecordForm.value, nurseName: currentNurse.value.name })
         .then(res => {
           if (res.data.status === 200) {
             ElMessage.success('创建成功')
@@ -224,17 +230,32 @@ onMounted(() => {
           <el-table :data="careItems" stripe header-row-class-name="dialog-table-header" :fit="true">
             <el-table-column type="index" label="序号" :min-width="60" align="center" />
             <el-table-column prop="programCode" label="项目编号" align="center" />
-            <el-table-column prop="programName" label="项目名称"  align="center" />
+            <el-table-column prop="programName" label="项目名称" align="center" />
             <el-table-column prop="programPrice" label="价格" align="center">
               <template #default="{ row }">¥{{ row.programPrice }}</template>
             </el-table-column>
             <el-table-column prop="leftCount" label="余量" align="center" />
             <el-table-column prop="expirationDate" label="到期日" align="center" />
-            <el-table-column label="状态" align="center">
+            <el-table-column label="状态" align="center" min-width="100">
               <template #default="{ row }">
-                <el-tag :type="new Date(row.expirationDate) < new Date() ? 'danger'
-                  : row.leftCount <= 0 ? 'warning' : 'success'" effect="plain">
-                  {{ new Date(row.expirationDate) < new Date() ? '已过期' : row.leftCount <= 0 ? '已用完' : '可用' }} </el-tag>
+                <div class="status-container">
+                  <!-- 已过期状态 -->
+                  <el-tag v-if="isExpired(row)" size="small" type="danger" effect="plain">
+                    已到期
+                  </el-tag>
+                  <!-- 未过期状态 -->
+                  <el-tag v-else size="small" type="success" effect="plain">
+                    未到期
+                  </el-tag>
+                  <!-- 已用完状态 -->
+                  <el-tag v-if="isUsedUp(row)" size="small" type="warning" effect="plain" class="ml-1">
+                    已用完
+                  </el-tag>
+                  <!-- 可用状态 -->
+                  <el-tag v-else size="small" type="primary" effect="plain" class="ml-1">
+                    可用{{ row.leftCount }}次
+                  </el-tag>
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="操作" align="center">

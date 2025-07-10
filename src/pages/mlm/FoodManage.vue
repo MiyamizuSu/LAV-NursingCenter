@@ -439,6 +439,7 @@ const generateByAI = async () => {
       console.log(res)
       if (res.data.status == 200) {
         foodForm.value = JSON.parse(res.data.data)
+        foodForm.value.imageUrl=''
       } else {
         ElMessage({ message: res.data.msg, type: "error" })
       }

@@ -241,6 +241,7 @@ const logout = () => {
         localStorage.removeItem('tokenc')
         sessionStorage.removeItem("customerActive")
         localStorage.removeItem("customerUsing")
+        localStorage.removeItem('isRemember')
         ElMessage({ message: "已退出登录", type: "info" })
         router.push('/login')
       } else {
