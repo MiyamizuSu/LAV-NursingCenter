@@ -47,7 +47,6 @@ const handleDeleteConfig = (id: number) => {
         ElMessage.error(pr.msg || '删除失败')
       }
     }).catch(error => {
-      console.log(error)
       ElMessage.error('请求失败')
     })
   })
@@ -102,7 +101,6 @@ const queryCustomers = () => {
         ElMessage.error(pr.msg || '查询失败')
       }
     }).catch(error => {
-      console.log(error)
       ElMessage.error('请求失败')
     })
 }
@@ -123,7 +121,6 @@ const queryMealConfigs = () => {
       ElMessage.error(pr.msg || '查询失败')
     }
   }).catch(error => {
-    console.log(error)
     ElMessage.error('请求失败')
   })
 }
@@ -149,7 +146,6 @@ const handleSubmit = () => {
           ElMessage.error(pr.msg || '操作失败')
         }
       }).catch(error => {
-        console.log(error)
         ElMessage.error('请求失败')
       })
     }
@@ -177,7 +173,6 @@ const handleBatchDeleteConfig = () => {
           ElMessage.error(pr.msg || '删除失败')
         }
       }).catch(error => {
-        console.log(error)
         ElMessage.error('请求失败')
       })
   }).catch(() => {

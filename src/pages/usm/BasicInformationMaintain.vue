@@ -4,9 +4,11 @@ import type {
     ColumnDef,
     ColumnFiltersState,
     ExpandedState,
+    Row,
     SortingState,
     VisibilityState,
 } from '@tanstack/vue-table'
+import { vAutoAnimate } from '@formkit/auto-animate/vue'
 import {
     FlexRender,
     getCoreRowModel,
@@ -16,7 +18,7 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { h, nextTick, onMounted, reactive, ref, watch, type Ref } from 'vue'
+import { h, onMounted, ref } from 'vue'
 import { cn, debounce } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
@@ -30,14 +32,80 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { axiosInstance as axios } from '@/lib/core'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { useCustomerNurseStore, useUserManagementStore } from '@/lib/store'
+import { axiosInstance } from '@/lib/core'
+import { useUserManagementStore } from '@/lib/store'
 import InteractiveHoverButton from '@/components/ui/interactive-hover-button/InteractiveHoverButton.vue'
 import type { User } from '@/lib/type'
 import { motion } from 'motion-v'
 import { Checkbox } from '@/components/ui/checkbox'
+import DynamicButton from '@/components/custom/DynamicButton.vue'
+import { DialogPortal, DialogRoot } from 'reka-ui'
+import DialogContent from '@/components/ui/dialog/DialogContent.vue'
+import DialogTitle from '@/components/ui/dialog/DialogTitle.vue'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
+import { Form, useForm } from 'vee-validate'
+import { FormField, FormMessage } from '@/components/ui/form'
+import FormItem from '@/components/ui/form/FormItem.vue'
+import FormLabel from '@/components/ui/form/FormLabel.vue'
+import FormControl from '@/components/ui/form/FormControl.vue'
+import IInput from '@/components/ui/insput/IInput.vue'
+import RadioGroup from '@/components/ui/radio-group/RadioGroup.vue'
+import RadioGroupItem from '@/components/ui/radio-group/RadioGroupItem.vue'
+import Label from '@/components/ui/label/Label.vue'
+import { toast } from 'vue-sonner'
+import Popover from '@/components/ui/popover/Popover.vue'
+import PopoverTrigger from '@/components/ui/popover/PopoverTrigger.vue'
+import PopoverContent from '@/components/ui/popover/PopoverContent.vue'
+import type { AxiosResponse } from 'axios'
 
+
+const searchName = ref('')   // 搜索框输入
+const curUser = ref<User>({
+    userId: NaN,
+    account: '',
+    name: '',
+    phoneNumber: '',
+    gender: 0,
+    email: '',
+    userType: 0
+})
+
+const userMessageSchema = toTypedSchema(z.object({
+    account: z.string().min(1, "请输入用户名"),
+    name: z.string().min(1, "请输入用户真实姓名"),
+    phoneNumber: z.string().length(11, '请输入正确的手机号'),
+    gender: z.number(),
+    email: z.string().email('请输入正确的邮箱地址')
+}))
+
+const { isFieldDirty } = useForm({
+    validationSchema: userMessageSchema
+})
+const updateDialogOpen = ref<boolean>(false);
+const dialogUsingMode = ref<'add' | 'update'>('add')
+const defaultUser: User = {
+    userId: NaN,
+    account: '',
+    name: '',
+    phoneNumber: '',
+    gender: 1,
+    email: '',
+    userType: 1
+}
+const handleUpdateDialogOpen = (row?: Row<User>) => {
+    if (row !== undefined) {
+        dialogUsingMode.value = 'update'
+        updateDialogOpen.value = true
+        curUser.value = row?.original as User;
+    }
+    else {
+        dialogUsingMode.value = 'add'
+        updateDialogOpen.value = true
+        curUser.value = defaultUser
+    }
+
+}
 const usmStore = useUserManagementStore()
 const userPages = ref({
     currentPage: 1,
@@ -108,20 +176,51 @@ const userColumns: ColumnDef<User>[] = [
         cell: ({ row }) =>
             h('div', { class: 'flex gap-2' }, [
                 h(
-                    'button',
+                    DynamicButton,
                     {
-                        class: 'px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition',
-                        // onClick: () => openUpdateForm(row.original),
+                        onclick: () => handleUpdateDialogOpen(row)
                     },
                     '修改'
                 ),
                 h(
-                    'button',
+                    Popover,
                     {
-                        class: 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition',
-                        // onClick: () => openDeleteForm(row.original),
+
                     },
-                    '移除'
+                    [
+                        h(
+                            PopoverTrigger,
+                            {
+
+                            },
+                            [
+                                h(
+                                    DynamicButton,
+                                    {
+
+                                    },
+                                    '删除'
+                                )
+                            ]
+                        ),
+                        h(
+                            PopoverContent,
+                            {
+                                class: "flex flex-row gap-4 items-center"
+                            },
+                            [
+                                '请确认是否删除',
+                                h(
+                                    DynamicButton,
+                                    {
+                                        onclick: () => handleRemoveUser(row.original.userId)
+                                    },
+                                    '确认'
+                                )
+                            ]
+                        )
+                    ]
+
                 ),
             ]),
     },
@@ -159,19 +258,19 @@ const changeUserPage = (page: number) => {
     userPages.value.currentPage = page
     loadUsers()
 }
-const searchName = ref('')   // 搜索框输入
+
 // 重置搜索框
-const resetUsers = () => {
+function resetUsers() {
     searchName.value = ''
     loadUsers()
 }
-const onInput = async (event: Event) => {
+async function onInput(event: Event) {
     const deLoad = debounce(loadUsers)
     deLoad()
 }
 // 获取分页用户数据
-const loadUsers = async () => {
-    const res = await axios.post('/user/page', {
+async function loadUsers() {
+    const res = await axiosInstance.post('/user/page', {
         current: userPages.value.currentPage,
         size: userPages.value.pageSize,
         name: searchName.value,
@@ -184,10 +283,93 @@ const loadUsers = async () => {
         usmStore.setUserList([])
     }
 }
+async function handleRemoveUser(userId: number) {
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    toast.promise(promise, {
+        loading: '删除中...',
+        success: () => '删除成功',
+        error: (reason: string) => reason
+    })
+    const res = await axiosInstance.post('/user/delete', {
+        userId: userId
+    })
+    if (res.data.status !== 200) {
+        reject(res.data.msg)
+    }
+    else {
+        resolve(undefined);
+    }
+}
+async function handleUpdateSubmit(userValue: User) {
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    if (dialogUsingMode.value === 'update') {
+        userValue.userId = curUser.value.userId;
+        toast.promise(promise, {
+            loading: '修改中...',
+            success: () => "修改成功",
+            error: "修改失败,请联系管理员"
+        })
+        const res = await axiosInstance.post('/user/update', userValue)
+        if (res.status !== 200) {
+            reject()
+        }
+        else {
+            resolve(undefined)
+        }
+    }
+    else {
+        toast.promise(promise, {
+            loading: '添加中...',
+            success: () => "添加成功",
+            error: "添加失败,请联系管理员"
+        })
+        const res = await axiosInstance.post('/user/add', userValue)
+        if (res.data.status !== 200) {
+            reject()
+        }
+        else {
+            resolve(undefined);
+        }
+    }
+    updateDialogOpen.value = false
+    await loadUsers()
+}
+async function handleBatchDelete() {
+    const { promise, resolve, reject } = Promise.withResolvers<undefined>();
+    const deleteTasks: Promise<AxiosResponse>[] = [];
+    if (userTable.getSelectedRowModel().rows.length === 0) {
+        toast.warning('你还未选择任何一项');
+        return;
+    }
+    toast.promise(promise, {
+        loading: () => '批量删除执行中',
+        success: '批量删除完成',
+        error: (reason: string) => reason
+    })
+    userTable.getSelectedRowModel().rows.forEach((row) => {
+        deleteTasks.push(axiosInstance.post("/user/delete", {
+            userId: row.original.userId
+        }))
+    })
+    try {
+        const res = await Promise.all(deleteTasks)
+        if (res.every(item => item.data.status === 200)) {
+            resolve(undefined)
+        }
+        else {
+            reject('批量删除失败')
+        }
+    }
+    catch (e) {
+        reject('批量删除失败')
+    }
+    await loadUsers();
+}
+async function handleAddNewUser() {
+    handleUpdateDialogOpen()
 
-
-
-onMounted(async () => {
+}
+onMounted(async function () {
     await loadUsers()
 })
 </script>
@@ -218,8 +400,8 @@ onMounted(async () => {
             </div>
             <div class="ml-auto">
                 <motion.div :whilePress="{ scale: 0.9, rotate: 3 }">
-                    <InteractiveHoverButton @click="" text="添加" text-before-color="#71C9CE" text-after-color="#CBF1F5"
-                        before-color="#CBF1F5" after-color="#71C9CE">
+                    <InteractiveHoverButton @click="handleAddNewUser" text="添加" text-before-color="#71C9CE"
+                        text-after-color="#CBF1F5" before-color="#CBF1F5" after-color="#71C9CE">
                         <template #svgIcon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -237,8 +419,8 @@ onMounted(async () => {
         <div class="mb-5 flex items-center gap-4">
             <div class="ml-auto">
                 <motion.div :whilePress="{ scale: 0.9, rotate: 3 }">
-                    <InteractiveHoverButton @click="" text="批量删除" text-before-color="#FF4F0F" text-after-color="#FFE3BB"
-                        before-color="#FFE3BB" after-color="#FF4F0F">
+                    <InteractiveHoverButton @click="handleBatchDelete" text="批量删除" text-before-color="#FF4F0F"
+                        text-after-color="#FFE3BB" before-color="#FFE3BB" after-color="#FF4F0F">
                         <template #svgIcon>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -321,6 +503,138 @@ onMounted(async () => {
                 </Button>
             </div>
         </div>
+        <DialogRoot v-model:open="updateDialogOpen">
+            <DialogPortal>
+                <DialogContent>
+                    <DialogTitle>
+                        修改用户信息
+                    </DialogTitle>
+                    <Form @submit="(values: any) => handleUpdateSubmit(values)" :initial-values="curUser"
+                        :validation-schema="userMessageSchema">
+                        <div class="flex flex-col  gap-6">
+                            <div>
+                                <FormField v-slot="{ componentField }" name="account" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            用户名
+                                        </FormLabel>
+                                        <FormControl>
+                                            <IInput v-bind="componentField">
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                    </FormItem>
+                                    <FormMessage />
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="name" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            真实姓名
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                    </FormItem>
+                                    <FormMessage />
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="phoneNumber"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            电话号码
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField v-slot="{ componentField }" name="email" :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            邮箱地址
+                                        </FormLabel>
+                                        <FormControl v-bind="componentField">
+                                            <IInput>
+                                                {{ componentField }}
+                                            </IInput>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField name="gender" type="radio" v-slot="{ componentField }"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            用户性别
+                                        </FormLabel>
+                                        <FormControl>
+                                            <RadioGroup :default-value="curUser.gender" v-bind="componentField">
+                                                <div class="flex flex-row gap-9">
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="man" :value="1"></RadioGroupItem>
+                                                        <Label for="man">男</Label>
+                                                    </div>
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="woman" :value="0"></RadioGroupItem>
+                                                        <Label for="woman">女</Label>
+                                                    </div>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div>
+                                <FormField name="userType" type="radio" v-slot="{ componentField }"
+                                    :validate-on-blur="!isFieldDirty">
+                                    <FormItem v-auto-animate>
+                                        <FormLabel>
+                                            员工类型
+                                        </FormLabel>
+                                        <FormControl>
+                                            <RadioGroup :default-value="curUser.userType" v-bind="componentField">
+                                                <div class="flex flex-row gap-6">
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="nurse" :value="1"></RadioGroupItem>
+                                                        <Label for="nurse">护工</Label>
+                                                    </div>
+                                                    <div class="flex flex-row">
+                                                        <RadioGroupItem id="admin" :value="0"></RadioGroupItem>
+                                                        <Label for="admin">管理员</Label>
+                                                    </div>
+                                                </div>
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                            </div>
+                            <div class="flex flex-row justify-end">
+                                <DynamicButton type="submit">
+                                    提交
+                                </DynamicButton>
+                            </div>
+
+                        </div>
+
+                    </Form>
+                </DialogContent>
+            </DialogPortal>
+        </DialogRoot>
     </div>
 
 

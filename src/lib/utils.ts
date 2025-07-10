@@ -18,7 +18,6 @@ export const uploadFile = (file:File): Promise<AxiosResponse<any>> => Axios.post
 }).then((res) => {
    return res;
 }).catch((error) => {
-  console.error(error);
   throw error;
 })
 

@@ -9,10 +9,11 @@ import HomePage from './pages/HomePage.vue';
 import 'element-plus/dist/index.css'
 import { Toaster } from 'vue-sonner';
 import { onMounted, onUnmounted } from 'vue';
-import { axiosInstance as axios } from '@/lib/core'
+import { axiosInstance } from './lib/core';
+
 
 const router=useRouter()
-// router.push('/main')
+
 
 //关闭窗口时
 window.addEventListener('beforeunload', function (e) {
@@ -31,16 +32,16 @@ const handleWindowClose = () => {
 
 let checkInterval: number;
 
-const checkTokenValidity = () => {
-    console.log("check")
+const checkTokenValidity = async () => {
     if(sessionStorage.getItem('userType')!=null){
-        axios.post('user/load',{})
+         await axiosInstance.post('user/load',{})
     }else if(sessionStorage.getItem('customerActive')!=null){
-        axios.post('customer/load',{})
+         await axiosInstance.post('customer/load',{})
     }
 };
 
 onMounted(() => {
+  router.push('/login')
   checkInterval = setInterval(checkTokenValidity, 60000); // 每1分钟检查一次
 });
 

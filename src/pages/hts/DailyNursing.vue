@@ -109,7 +109,6 @@ const queryCustomers = () => {
         customerTotal.value = pr.total
       }
     })
-    .catch(error => console.log(error))
 }
 
 // 查询护理项目
@@ -126,7 +125,6 @@ const queryCareItems = () => {
         item.leftCount = item.totalCount - item.usedCount
       })
     })
-    .catch(error => console.log(error))
 }
 
 // 提交护理记录方法
@@ -146,7 +144,6 @@ const submitCareRecord = () => {
           }
         })
         .catch(error => {
-          console.log(error)
           ElMessage.error('创建失败')
         })
     })
