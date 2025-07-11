@@ -5,6 +5,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
 import type { User } from '@/lib/type'
+import { debounce } from '@/lib/utils'
 
 // 客户信息接口
 interface Customer {
@@ -127,6 +128,10 @@ onMounted(() => {
   queryCustomers()
 })
 
+const onInput = async (event: Event) => {
+  const deLoad = debounce(queryCustomers)
+  deLoad()
+}
 </script>
 
 <template>
@@ -134,7 +139,8 @@ onMounted(() => {
     <el-col :span="24">
       <!-- 客户查询 -->
       <div style="margin-bottom:20px">
-        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable />
+        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable
+          @input="onInput" />
         <el-button type="primary" @click="queryCustomers">查询</el-button>
       </div>
       <el-row :gutter="20">

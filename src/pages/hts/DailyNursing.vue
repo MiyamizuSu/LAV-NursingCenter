@@ -4,6 +4,7 @@ import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { User } from '@/lib/type'
+import { debounce } from '@/lib/utils'
 
 // 客户信息接口
 interface Customer {
@@ -182,6 +183,11 @@ onMounted(() => {
   queryCustomers()
 })
 
+const onInput = async (event: Event) => {
+  const deLoad = debounce(queryCustomers)
+  deLoad()
+}
+
 </script>
 
 <template>
@@ -190,7 +196,7 @@ onMounted(() => {
       <!-- 客户列表卡片 -->
       <el-card shadow="hover" class="main-card">
         <div class="filter-bar">
-          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px" clearable />
+          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px" clearable @input="onInput" />
           <el-button type="primary" @click="queryCustomers">查询</el-button>
         </div>
 

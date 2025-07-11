@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import * as z from 'zod'
 import { FormField } from '@/components/ui/form'
 import FormControl from '@/components/ui/form/FormControl.vue'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
@@ -16,6 +15,7 @@ import { ElMessage } from 'element-plus'
 import DynamicButton from '@/components/custom/DynamicButton.vue'
 import { toast } from 'vue-sonner'
 import { onMounted, onUnmounted } from 'vue'
+import z from 'zod'
 const router = useRouter()
 
 const isCustomerLogin = ref(false)
@@ -40,7 +40,7 @@ const user1 = ref<UserMes>({
     rememberMe: false
 })
 
-const userLogin=async ()=> {
+const userLogin = async () => {
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
     toast.promise(promise, {
         loading: '登陆中...',
@@ -70,10 +70,9 @@ const userLogin=async ()=> {
                     sessionStorage.setItem('userType', res.data.data.userType)
                     localStorage.setItem('NurseUsing', "1")
                 }
-                const wb = await createWebSocket( res.data.data.userId)
-                    if (user1.value.rememberMe) {
-                        localStorage.setItem('isRemember', 'true')
-                    }
+                const wb = await createWebSocket(res.data.data.userId)
+
+                localStorage.setItem('isRemember', user1.value.rememberMe.toString())
 
                 resetWebSocket(wb)
                 resolve(undefined)
@@ -84,7 +83,7 @@ const userLogin=async ()=> {
             reject('登陆失败')
         }
     }
-    catch(e) {
+    catch (e) {
         console.log(e)
         reject('请检查网络设置')
     }
@@ -111,9 +110,8 @@ const customerLogin = () => {
                     sessionStorage.setItem('customerActive', '1')
                     localStorage.setItem('customerUsing', '1')
                     // 登录成功
-                    if (user1.value.rememberMe) {
-                        localStorage.setItem('isRemember', 'true')
-                    }
+
+                    localStorage.setItem('isRemember', user1.value.rememberMe.toString())
 
                     ElMessage({ message: "登录成功！", type: "success" })
                     router.push('/mealReservation');
