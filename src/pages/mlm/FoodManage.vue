@@ -521,7 +521,7 @@ const onInput = async (event: Event) => {
 
         <!-- 分页 -->
         <el-pagination background v-model:current-page="queryParams.current" v-model:page-size="queryParams.size"
-          :page-sizes="[5, 6, 7, 8, 9]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+          :page-sizes="[5, 6, 7]" :total="total" layout="total, sizes, prev, pager, next, jumper"
           @current-change="queryFoods" @size-change="queryFoods" />
 
       </el-card>
