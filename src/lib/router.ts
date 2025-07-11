@@ -30,6 +30,7 @@ import MealReservation from '@/pages/MealReservation.vue'
 //@ts-ignore
 import StreamPage from '@/pages/StreamPage.vue'
 import type { User } from './type'
+import { use } from 'echarts'
 import { axiosInstance } from './core'
 
 export const routes: RouteRecordRaw[] = [
@@ -157,6 +158,8 @@ export const router = createRouter({
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
     // 管理员专属路径
+    console.log("to.path: ", to.path)
+
     const adminPaths = ['/checkIn', '/checkOut', '/goOut', '/bedLayoutDiagram',
         '/bedManagement', '/nursingLevel', '/nursingPrograms', '/customerNursingSet',
         '/nursingRecord', '/mealCalendar', '/mealSet', '/serviceObjectSetting',
