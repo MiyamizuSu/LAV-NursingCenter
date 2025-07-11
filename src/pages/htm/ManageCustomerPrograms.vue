@@ -624,6 +624,7 @@ const loadData = () => {
             </el-form>
         </el-dialog>
     </el-container>
+
 </template>
 
 <style scoped>
@@ -755,3 +756,4 @@ const loadData = () => {
 }
 
 </style>
+

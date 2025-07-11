@@ -116,6 +116,7 @@ const loadData = () => {
             </el-card>
         </el-col>
     </el-container>
+
 </template>
 
 <style scoped>

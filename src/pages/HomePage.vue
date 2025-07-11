@@ -179,9 +179,14 @@ onBeforeUnmount(() => {
     <div class="">
         <div class="bg-img relative h-screen w-full bg-cover bg-center">
             <div :class="[
-                'flex backBlur w-full z-10 right-0 justify-end fixed top-0 transition-transform duration-300',
+                'flex backBlur w-full z-10 right-0 justify-end fixed top-0 items-center transition-transform duration-300',
                 showNavbar ? 'translate-y-0' : '-translate-y-full'
             ]">
+
+                <div class="ml-10 text-lg font-bold text-white dark:text-black">
+                    东软颐养中心
+                </div>
+                <div class="flex-1"></div>
                 <div class="z-0 flex  justify-end">
                     <div class="flex justify-between mr-5 w-full">
                         <div class=" h-[3em] flex items-center">
@@ -266,10 +271,10 @@ onBeforeUnmount(() => {
                 </div>
             </div>
             <div class="w-full">
-                <div class="flex justify-center items-center w-full h-[80%]">
+                <!-- <div class="flex justify-center items-center w-full h-[80%]">
                     <Carousel3D :items="items" :width="600" :height="400"></Carousel3D>
-                </div>
-                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-2/5">
+                </div> -->
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <CardContainer>
                         <CardBody
                             class="group/card relative size-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 sm:w-[50rem] h-[40rem] dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]">
@@ -299,7 +304,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 服务特色 -->
-        <div class="relative bg-white dark:bg-black w-full">
+        <div class="mt-10 relative bg-white dark:bg-black w-full">
             <div class="max-w-6xl mx-auto px-4">
                 <h2 class="text-3xl font-semibold text-center mb-12 text-gray-800 dark:text-white">我们的服务</h2>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -388,11 +393,11 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 入住流程 -->
-        <div class="py-20 bg-white dark:bg-black">
+        <div class="mt-10 py-20 bg-white dark:bg-black">
             <div class="max-w-4xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-semibold mb-10 text-gray-800 dark:text-white">入住流程</h2>
                 <div class="h-fit w-full">
-                    <Timeline :items="checkinProcess" description="简单而便捷的入住流程">
+                    <Timeline :items="checkinProcess">
                         <template v-for="(item, index) in checkinProcess" :key="item.id + 'template'" #[item.id]>
                             <div class="relative w-full pl-20 pr-4 md:pl-4">
                                 <h3
@@ -453,7 +458,7 @@ onBeforeUnmount(() => {
 }
 
 .bg-img {
-    background-image: url('/src/assets/bg.jpeg');
+    background-image: url('/src/assets/bg_doge.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
