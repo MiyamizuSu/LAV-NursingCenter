@@ -627,6 +627,3 @@ const loadData = () => {
         </el-dialog>
     </el-container>
 </template>
-
-<style lang="css" scoped></style>
-<style src="./scopedStyle.css"></style>

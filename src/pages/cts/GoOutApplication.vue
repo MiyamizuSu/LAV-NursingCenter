@@ -554,7 +554,7 @@ const updateActualReturnDate = async () => {
 }
 
 onMounted(async () => {
-    ctsStore.setCurrentNurseId(JSON.parse(sessionStorage.getItem('user')!).nurseId)
+    ctsStore.setCurrentNurseId(JSON.parse(localStorage.getItem('user1')!).userId)
     await loadCustomers()
     await loadAllCustomers()
     await loadOutingRegistrations()
@@ -607,7 +607,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     客户信息
                 </div>
-                <div class="rounded-b-md border">
+                <div class="bg-white rounded-b-md border dark:bg-slate-800">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
@@ -666,7 +666,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     外出申请审批
                 </div>
-                <div class="rounded-b-md border overflow-auto" style="max-height: calc(100vh - 240px);">
+                <div class="bg-white rounded-b-md border overflow-auto dark:bg-slate-800" style="max-height: calc(100vh - 240px);">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in outingTable.getHeaderGroups()" :key="headerGroup.id">

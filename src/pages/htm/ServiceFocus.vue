@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { type User, type Customer } from '@/lib/type.d';
-import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageBox } from 'element-plus'
+import { ElMain, ElMessage, ElNotification, ElTable, ElButton, ElCol, ElMessageBox, ElTableColumn } from 'element-plus'
 import Button from '@/components/ui/button/Button.vue';
 import { useRouter } from 'vue-router';
 import { axiosInstance as axios } from '@/lib/core'
@@ -95,10 +95,10 @@ const loadData = () => {
                     <el-table-column property="age" label="年龄" align="center">
                     </el-table-column>
                     <el-table-column label="性别" align="center">
-                        <template #default="scope">
+                        <!-- <template #default="scope">
                             <span v-if="scope.row.gender == 1">男</span>
                             <span v-else>女</span>
-                        </template>
+                        </template> -->
                     </el-table-column>
                     <el-table-column property="bedNumber" label="床位号" align="center">
                     </el-table-column>
@@ -106,7 +106,7 @@ const loadData = () => {
                     </el-table-column>
                     <el-table-column property="phoneNumber" label="联系电话" align="center">
                     </el-table-column>
-                    <el-table-column label="操作" align="center">
+                    <el-table-column label="操作" >
                         <template #default="scope">
                             <el-button @click="manageCustomerPrograms(scope.row)"
                                 style="color: #007bff;">配置护理项目</el-button>
@@ -123,6 +123,3 @@ const loadData = () => {
         </el-col>
     </el-container>
 </template>
-
-<style lang="css" scoped></style>
-<style src="./scopedStyle.css"></style>

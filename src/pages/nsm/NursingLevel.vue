@@ -308,4 +308,3 @@ const loadData = () => {
 </template>
 
 
-<style src="./scopedStyle.css"></style>

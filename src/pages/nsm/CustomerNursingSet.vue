@@ -423,4 +423,3 @@ const loadData = () => {
     </el-main>
 </template>
 
-<style src="./scopedStyle.css"></style>
