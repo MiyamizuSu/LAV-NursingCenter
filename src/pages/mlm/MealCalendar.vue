@@ -145,7 +145,7 @@ const handleBatchDelete = () => {
         selectedRows.value = []; // 清空选中项
         query();
       }
-    }).catch(error => console.log(error));
+    })
   }).catch(() => {
     ElMessage.info('已取消删除');
   });
@@ -193,7 +193,7 @@ const query = () => {
     let pr = response.data
     arr.value = pr.data
     total.value = pr.total
-  }).catch(error => console.log(error))
+  })
 }
 
 const add = () => {
@@ -208,7 +208,7 @@ const add = () => {
     } else {
       ElMessage.error(pr.msg)
     }
-  }).catch(error => console.log(error))
+  })
 }
 
 const update = () => {
@@ -222,7 +222,7 @@ const update = () => {
     } else {
       ElMessage.error(pr.msg)
     }
-  }).catch(error => console.log(error))
+  })
 }
 
 const listFoodByType = () => {
@@ -234,7 +234,7 @@ const listFoodByType = () => {
     } else[
       foods.value = []
     ]
-  }).catch(error => console.log(error))
+  })
 }
 
 const remove = (id: number) => {
@@ -250,7 +250,7 @@ const remove = (id: number) => {
         ElMessage.success('删除成功')
         query()
       }
-    }).catch(error => console.log(error))
+    })
   }).catch(() => {
     ElMessage.info('已取消删除')
   })
@@ -265,7 +265,6 @@ onMounted(() => {
   let user = sessionStorage.getItem('user')
   if (user) {
     currentUser.value = JSON.parse(user)
-    console.log(currentUser.value)
   }
   init()
 })

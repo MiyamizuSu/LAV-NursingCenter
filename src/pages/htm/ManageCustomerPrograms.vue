@@ -365,7 +365,6 @@ const loadAvailablePrograms = () => {
             if (res.data.status == 200) {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total
-                // console.log(availablePrograms.value)
             } else {
                 availablePrograms.value = res.data.data
                 availableProgram_total.value = res.data.total

@@ -384,8 +384,6 @@ const loadData = () => {
             if (res.data.status == 200) {
                 allPrograms.value = res.data.data
                 total.value = res.data.total
-
-                // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 allPrograms.value = res.data.data
                 total.value = res.data.total

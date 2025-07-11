@@ -6,7 +6,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, type UploadRequestOptions } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { uploadFile } from '@/lib/utils'
-import { Loading } from '@element-plus/icons-vue'
+import { Loading, MagicStick } from '@element-plus/icons-vue'
 import Compressor from 'compressorjs';
 
 interface Food {
@@ -41,18 +41,20 @@ const typeOptions = [
 ]
 const chartDialogVisible = ref(false)
 let chartInstance: echarts.ECharts | null = null
+const salesChartDialogVisible = ref(false)
+let salesChartInstance: echarts.ECharts | null = null
 const isUploading = ref(false)
+const isAILoading = ref(false)
+const totalSales = ref(0)
 
 // 分页查询
 const queryFoods = () => {
   axios.post('/food/page', queryParams.value)
     .then(res => {
       const pr = res.data
-      console.log(pr)
       foodList.value = pr.data
       total.value = pr.total
     })
-    .catch(error => console.log(error))
 }
 
 // 删除单个
@@ -210,7 +212,7 @@ const submitForm = () => {
         } else {
           ElMessage.error(pr.msg)
         }
-      }).catch(error => console.log(error))
+      })
 
   })
 }
@@ -328,13 +330,130 @@ const showPriceChart = async () => {
   } catch (error: any) {
 
     ElMessage.error(error.message || '图表初始化失败')
+  }
+}
+
+const showSalesChart = async () => {
+  try {
+    // 获取时间范围
+    const currentDate = new Date()
+    const startTime = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01 00:00:00`
+    const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+    const endTime = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')} 23:59:59`
+
+    // 获取所有食品列表
+    const { data } = await axios.post('/food/list', {})
+    const foods = data.data
+
+    // 获取每个食品的销量和价格
+    const salesData = await Promise.all(
+      foods.map(async (food: Food) => {
+        const res = await axios.post('/food/getPurchaseByIdAndTime', {
+          foodId: food.id,
+          startTime,
+          endTime
+        })
+        return {
+          name: food.name,
+          sales: (res.data.data || 0) * food.price // 计算销售额
+        }
+      })
+    )
+
+    // 合并同名食品销售额
+    const mergedSales = salesData.reduce((acc: Record<string, number>, item) => {
+      acc[item.name] = (acc[item.name] || 0) + item.sales
+      return acc
+    }, {})
+
+    // 转换图表数据并排序
+    const chartData = Object.entries(mergedSales)
+      .map(([name, sales]) => ({ name, sales }))
+      .sort((a, b) => b.sales - a.sales)
+
+    // 计算总销售额
+     totalSales.value = chartData.reduce((sum, item) => sum + item.sales, 0)
+
+    // 初始化图表
+    salesChartDialogVisible.value = true
+    nextTick(() => {
+      const chartDom = document.getElementById('salesChart')
+      if (!chartDom) return
+
+      salesChartInstance?.dispose()
+      salesChartInstance = echarts.init(chartDom)
+
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          formatter: (params: any) => {
+            const data = params[0]
+            return `${data.name}<br/>销售额: ￥${data.value.toFixed(2)}`
+          }
+        },
+        xAxis: {
+          type: 'category',
+          data: chartData.map(item => item.name),
+          axisLabel: { rotate: 45 }
+        },
+        yAxis: {
+          axisLabel: {
+            formatter: (value: number) => `￥${value}`
+          }
+        },
+        series: [{
+          data: chartData.map(item => item.sales),
+          type: 'bar',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#ffd666' },
+              { offset: 0.5, color: '#ffa940' },
+              { offset: 1, color: '#ffa940' }
+            ])
+          }
+        }]
+      }
+      salesChartInstance?.setOption(option)
+    })
+  } catch (error) {
+    ElMessage.error('获取销售额数据失败')
     console.error(error)
+  }
+}
+
+// AI生成方法
+const generateByAI = async () => {
+  if (!foodForm.value.name) {
+    ElMessage.warning('请输入食品名称')
+    return
+  }
+
+  try {
+    isAILoading.value = true
+    await axios.post('/food/aiObj', {
+      query: `帮我新建食品-${foodForm.value.name}`
+    }).then(res => {
+      console.log(res)
+      if (res.data.status == 200) {
+        foodForm.value = JSON.parse(res.data.data)
+      } else {
+        ElMessage({ message: res.data.msg, type: "error" })
+      }
+    })
+    nextTick(() => {
+      formRef.value?.clearValidate()
+    })
+  } catch (error) {
+    ElMessage.error('AI生成失败')
+  } finally {
+    isAILoading.value = false
   }
 }
 
 onBeforeUnmount(() => {
   if (chartInstance) {
     chartInstance.dispose()
+    salesChartInstance?.dispose()
     chartInstance = null
   }
 })
@@ -365,13 +484,16 @@ onMounted(() => {
           <el-button type="warning" @click="showPriceChart" style="margin-left: 10px">
             价格统计
           </el-button>
+          <el-button type="info" @click="showSalesChart" style="margin-left: 10px">
+            食品销量
+          </el-button>
         </div>
 
         <!-- 数据表格 -->
         <el-table :data="foodList" :fit="true" @selection-change="(rows: Food[]) => selectedFoods = rows"
           style="width:100%">
           <el-table-column align="center" type="selection" />
-          <el-table-column align="center" type="index" label="序号" :min-width="50"/>
+          <el-table-column align="center" type="index" label="序号" :min-width="50" />
           <el-table-column align="center" prop="name" label="食品名称" />
           <el-table-column align="center" label="图片">
             <template #default="{ row }">
@@ -399,16 +521,38 @@ onMounted(() => {
       </el-card>
     </el-col>
   </el-container>
+
   <!-- 价格统计对话框 -->
-  <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow :key="chartDialogVisible.toString() + Date.now()" >
+  <el-dialog v-model="chartDialogVisible" title="价格统计(同名食品平均价格)" width="800" draggable overflow
+    :key="chartDialogVisible.toString() + Date.now()">
     <div id="priceChart" style="width: 100%; height: 500px;"></div>
   </el-dialog>
 
+  <!-- 销量统计对话框 -->
+  <el-dialog v-model="salesChartDialogVisible" title="本月食品销售额统计" width="800" draggable overflow
+  :key="salesChartDialogVisible.toString() + Date.now()">
+  <template #title>
+    <div class="chart-title-container">
+      <span>本月食品销售额统计</span>
+      <span class="total-sales-title">
+        总销售额：￥{{ totalSales?.toLocaleString('zh-CN', { minimumFractionDigits: 2 }) }}
+      </span>
+    </div>
+  </template>
+  <div id="salesChart" style="width: 100%; height: 500px;"></div>
+</el-dialog>
+
   <!-- 创建/编辑对话框 -->
-  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" draggable overflow :key="Number(dialogVisible)" >
+  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" draggable overflow
+    :key="Number(dialogVisible)">
     <el-form :model="foodForm" :rules="formRules" ref="formRef" label-width="80px">
       <el-form-item prop="name" label="食品名称">
-        <el-input v-model="foodForm.name" />
+        <el-input clearable v-model="foodForm.name" placeholder="输入食品名称后点击右侧魔棒图标生成" @keyup.enter="generateByAI">
+          <template #append>
+            <el-button v-if="formType === 'create'" :icon="MagicStick" @click="generateByAI" :loading="isAILoading"
+              title="AI智能生成" />
+          </template>
+        </el-input>
       </el-form-item>
       <el-form-item prop="type" label="食品类型">
         <el-select v-model="foodForm.type" :multiple="formType === 'create'" clearable placeholder="请选择">
@@ -428,8 +572,8 @@ onMounted(() => {
       <el-form-item prop="imageUrl" label="食品图片">
         <el-row :gutter="10" class="w-full">
           <el-col :span="14">
-            <el-input v-model="foodForm.imageUrl" placeholder="或直接输入图片URL"
-              @change="formRef.validateField('imageUrl')" />
+            <el-input v-model="foodForm.imageUrl" placeholder="或直接输入图片URL" @change="formRef.validateField('imageUrl')"
+              clearable />
           </el-col>
 
         </el-row>
@@ -481,7 +625,7 @@ onMounted(() => {
   margin-bottom: 20px;
   margin-right: 30px;
   padding: 16px;
-  
+
   :deep(.el-card__body) {
     padding: 20px;
   }
@@ -576,5 +720,23 @@ onMounted(() => {
 #priceChart {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+}
+
+#salesChart {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+}
+
+.chart-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.total-sales-title {
+  font-size: 16px;
+  color: #67C23A;
+  font-weight: 500;
 }
 </style>

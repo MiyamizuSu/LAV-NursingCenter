@@ -138,10 +138,7 @@ const loadUsers = () => {
             if (res.data.status == 200) {
                 nursingCustomers.value = res.data.data
                 customer_total.value = res.data.total
-                console.log(nursingCustomers.value)
-                // ElMessage({message: "加载成功！", type: "success"})
                 selectedCustomer.value = nursingCustomers.value[0]
-                console.log(selectedCustomer.value)
                 loadRecords()
             } else {
                 ElNotification({
@@ -160,8 +157,6 @@ const loadRecords = () => {
             if (res.data.status == 200) {
                 currentRecords.value = res.data.data
                 record_total.value = res.data.total
-
-                console.log(currentRecords.value)
             } else {
                 currentRecords.value = res.data.data
                 record_total.value = res.data.total

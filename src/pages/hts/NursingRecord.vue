@@ -65,7 +65,6 @@ const queryCustomers = () => {
         customerTotal.value = pr.total
       }
     })
-    .catch(error => console.log(error))
 }
 
 // 查询护理记录
@@ -80,12 +79,10 @@ const queryRecords = (customerId: number, customerName: string) => {
         recordTotal.value = pr.total
       }
     })
-    .catch(error => console.log(error))
 }
 
 // 删除护理记录
 const handleDelete = (id: number) => {
-  console.log(id)
   ElMessageBox.confirm('确认移除该护理记录？', '警告', {
     confirmButtonText: '确认移除',
     cancelButtonText: '取消',
@@ -98,7 +95,6 @@ const handleDelete = (id: number) => {
           queryRecords(recordQuery.value.customerId, currentCustomerName.value)
         }
       })
-      .catch(error => console.log(error))
   })
 }
 
@@ -123,7 +119,6 @@ const handleBatchDelete = () => {
           selectedRecords.value = []
         }
       })
-      .catch(error => console.log(error))
   })
 }
 
