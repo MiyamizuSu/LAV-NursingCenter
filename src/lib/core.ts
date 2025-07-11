@@ -16,7 +16,7 @@ else {
 
 export const axiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 1000,
+    timeout: 20000,
 })
 
 //请求拦截器
