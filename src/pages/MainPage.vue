@@ -76,6 +76,7 @@ const logout = () => {
                 localStorage.removeItem("NurseUsing")
             }
             sessionStorage.removeItem("userType")
+            localStorage.removeItem('isRemember')
             ElMessage({ message: "已退出登录", type: "info" })
             router.push('/home')
         } else {

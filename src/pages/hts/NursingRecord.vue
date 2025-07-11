@@ -5,6 +5,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
 import type { User } from '@/lib/type'
+import { debounce } from '@/lib/utils'
 
 // 客户信息接口
 interface Customer {
@@ -57,7 +58,7 @@ const selectedRecords = ref<NursingRecord[]>([])
 
 // 分页查询客户
 const queryCustomers = () => {
-  axios.post('http://localhost:9000/customer/pageByNurseId', { ...customerQuery.value, nurseId: currentNurse.value.userId })
+  axios.post('/customer/pageByNurseId', { ...customerQuery.value, nurseId: currentNurse.value.userId })
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {
@@ -71,7 +72,7 @@ const queryCustomers = () => {
 const queryRecords = (customerId: number, customerName: string) => {
   recordQuery.value.customerId = customerId
   currentCustomerName.value = customerName
-  axios.post('http://localhost:9000/nursingRecord/page', recordQuery.value)
+  axios.post('/nursingRecord/page', recordQuery.value)
     .then(res => {
       const pr = res.data
       if (pr.status === 200) {
@@ -88,7 +89,7 @@ const handleDelete = (id: number) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    axios.post(`http://localhost:9000/nursingRecord/delete`, { id })
+    axios.post(`/nursingRecord/delete`, { id })
       .then(res => {
         if (res.data.status === 200) {
           ElMessage.success('移除成功')
@@ -111,7 +112,7 @@ const handleBatchDelete = () => {
     type: 'warning'
   }).then(() => {
     const ids = selectedRecords.value.map(item => item.id)
-    axios.post('http://localhost:9000/nursingRecord/deleteBatch', { ids })
+    axios.post('/nursingRecord/deleteBatch', { ids })
       .then(res => {
         if (res.data.status === 200) {
           ElMessage.success(`已删除${ids.length}条记录`)
@@ -127,6 +128,10 @@ onMounted(() => {
   queryCustomers()
 })
 
+const onInput = async (event: Event) => {
+  const deLoad = debounce(queryCustomers)
+  deLoad()
+}
 </script>
 
 <template>
@@ -134,7 +139,8 @@ onMounted(() => {
     <el-col :span="24">
       <!-- 客户查询 -->
       <div style="margin-bottom:20px">
-        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable />
+        <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width:200px;margin-right:10px" clearable
+          @input="onInput" />
         <el-button type="primary" @click="queryCustomers">查询</el-button>
       </div>
       <el-row :gutter="20">

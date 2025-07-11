@@ -5,6 +5,7 @@ import { onMounted, ref, nextTick } from 'vue'
 import { ElMessage, ElMessageBox, ElTable, ElButton, ElInput, ElForm, ElDialog, ElContainer } from 'element-plus'
 import { Search, Plus, Delete } from '@element-plus/icons-vue'
 import type { User } from '@/lib/type'
+import { debounce } from '@/lib/utils'
 
 export interface Food {
   id: number,
@@ -282,6 +283,11 @@ const handleChange = () => {
   listFoodByType()
 }
 
+const onInput = async (event: string) => {
+  const deLoad = debounce(query)
+  deLoad()
+}
+
 </script>
 
 <template>
@@ -290,7 +296,7 @@ const handleChange = () => {
       <!-- 查询操作栏 -->
       <el-card shadow="hover" class="section-card">
         <div class="flex-container">
-          <el-input v-model="queryEntity.foodName" placeholder="食品名称" style="width: 240px" clearable
+          <el-input v-model="queryEntity.foodName" placeholder="食品名称" style="width: 240px" clearable @input="onInput"
             :prefix-icon="Search" />
           <el-select v-model="queryEntity.weekDay" placeholder="请选择周期" style="width: 200px;" clearable multiple>
             <el-option v-for="option in weekDayOptions" :key="option.value" :label="option.label"
