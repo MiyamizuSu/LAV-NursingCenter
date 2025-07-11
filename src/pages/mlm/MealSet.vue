@@ -313,7 +313,7 @@ const onInput = async (event: Event) => {
         <el-input v-model="mealConfigForm.name" clearable />
       </el-form-item>
       <el-form-item label="详细描述" prop="description">
-        <el-input v-model="mealConfigForm.description" type="textarea" auto-size="{ minRows: 2, maxRows: 8 }"
+        <el-input v-model="mealConfigForm.description" type="textarea" :autosize="{ minRows: 2, maxRows: 8 }"
           :show-word-limit="true" :maxlength="200" :key="dialogVisible" />
       </el-form-item>
     </el-form>

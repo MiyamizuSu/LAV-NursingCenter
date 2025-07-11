@@ -520,6 +520,7 @@ const onInput = async (event: string) => {
   align-items: center;
   gap: 12px;
   padding: 8px 0;
+  margin-bottom: 20px;
 }
 
 .button-group {
