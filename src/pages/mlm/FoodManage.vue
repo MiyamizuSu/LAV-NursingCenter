@@ -8,6 +8,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { uploadFile } from '@/lib/utils'
 import { Loading, MagicStick } from '@element-plus/icons-vue'
 import Compressor from 'compressorjs';
+import { debounce } from '@/lib/utils'
 
 interface Food {
   id: number
@@ -372,7 +373,7 @@ const showSalesChart = async () => {
       .sort((a, b) => b.sales - a.sales)
 
     // 计算总销售额
-     totalSales.value = chartData.reduce((sum, item) => sum + item.sales, 0)
+    totalSales.value = chartData.reduce((sum, item) => sum + item.sales, 0)
 
     // 初始化图表
     salesChartDialogVisible.value = true
@@ -436,6 +437,7 @@ const generateByAI = async () => {
       console.log(res)
       if (res.data.status == 200) {
         foodForm.value = JSON.parse(res.data.data)
+        foodForm.value.imageUrl = ''
       } else {
         ElMessage({ message: res.data.msg, type: "error" })
       }
@@ -464,6 +466,10 @@ onMounted(() => {
   // emitter.on('urlChange', e => foodForm.value.imageUrl=e as string)
 })
 
+const onInput = async (event: Event) => {
+  const deLoad = debounce(queryFoods)
+  deLoad()
+}
 </script>
 
 <template>
@@ -472,7 +478,7 @@ onMounted(() => {
       <el-card shadow="hover" class="section-card">
         <!-- 查询条件 -->
         <div class="query-bar">
-          <el-input v-model="queryParams.name" placeholder="食品名称" style="width:200px" clearable />
+          <el-input v-model="queryParams.name" placeholder="食品名称" style="width:200px" clearable @input="onInput" />
           <el-select v-model="queryParams.type" placeholder="食品类型" clearable multiple style="width:200px;margin:0 10px">
             <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -530,17 +536,17 @@ onMounted(() => {
 
   <!-- 销量统计对话框 -->
   <el-dialog v-model="salesChartDialogVisible" title="本月食品销售额统计" width="800" draggable overflow
-  :key="salesChartDialogVisible.toString() + Date.now()">
-  <template #title>
-    <div class="chart-title-container">
-      <span>本月食品销售额统计</span>
-      <span class="total-sales-title">
-        总销售额：￥{{ totalSales?.toLocaleString('zh-CN', { minimumFractionDigits: 2 }) }}
-      </span>
-    </div>
-  </template>
-  <div id="salesChart" style="width: 100%; height: 500px;"></div>
-</el-dialog>
+    :key="salesChartDialogVisible.toString() + Date.now()">
+    <template #title>
+      <div class="chart-title-container">
+        <span>本月食品销售额统计</span>
+        <span class="total-sales-title">
+          总销售额：￥{{ totalSales?.toLocaleString('zh-CN', { minimumFractionDigits: 2 }) }}
+        </span>
+      </div>
+    </template>
+    <div id="salesChart" style="width: 100%; height: 500px;"></div>
+  </el-dialog>
 
   <!-- 创建/编辑对话框 -->
   <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新建食品' : '编辑食品'" draggable overflow
