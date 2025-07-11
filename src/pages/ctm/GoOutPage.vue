@@ -34,8 +34,6 @@ import type { Customer, OutingRegistration } from './type'
 import { usecustomerManagementStore } from '@/lib/store'
 import dayjs from 'dayjs'
 import { debounce } from '@/lib/utils'
-import { E } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ'
-
 const ctmStore = usecustomerManagementStore()
 const outingPages = ref({
     currentPage: 1,

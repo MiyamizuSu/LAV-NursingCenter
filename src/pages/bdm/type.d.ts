@@ -11,7 +11,7 @@ export type CalendarDate={
     day: number,
 }
 export type BedChangeRequestBody = {
-    customerId: number,
+    id: number,
     endDate: string
 }
 export type BedResponse = {

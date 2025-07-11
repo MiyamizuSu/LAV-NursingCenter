@@ -61,7 +61,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Motion, useScroll, useTransform } from "motion-v";
+import { motion, useScroll, useTransform } from "motion-v";
 import { nextTick, onMounted, ref, watch, type HTMLAttributes } from "vue";
 
 interface Props {

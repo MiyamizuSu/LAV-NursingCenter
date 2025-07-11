@@ -9,6 +9,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 import ElementPlus from 'unplugin-element-plus/vite'
 export default defineConfig({
+  server:{
+    host: "0.0.0.0", // 监听所有地址
+    port: 5173 // 可选：指定端口号
+  },
   plugins: [vue(),tailwindcss(),vueDevTools(),ElementPlus({}),
     AutoImport({
       resolvers: [ElementPlusResolver()],

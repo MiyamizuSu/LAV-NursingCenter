@@ -4,6 +4,7 @@ import { axiosInstance as axios } from '@/lib/core'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Delete, Search, Edit, CircleClose } from '@element-plus/icons-vue'
+import { debounce } from '@/lib/utils'
 
 // 客户相关
 interface Customer {
@@ -47,7 +48,6 @@ const handleDeleteConfig = (id: number) => {
         ElMessage.error(pr.msg || '删除失败')
       }
     }).catch(error => {
-      console.log(error)
       ElMessage.error('请求失败')
     })
   })
@@ -102,7 +102,6 @@ const queryCustomers = () => {
         ElMessage.error(pr.msg || '查询失败')
       }
     }).catch(error => {
-      console.log(error)
       ElMessage.error('请求失败')
     })
 }
@@ -123,7 +122,6 @@ const queryMealConfigs = () => {
       ElMessage.error(pr.msg || '查询失败')
     }
   }).catch(error => {
-    console.log(error)
     ElMessage.error('请求失败')
   })
 }
@@ -149,7 +147,6 @@ const handleSubmit = () => {
           ElMessage.error(pr.msg || '操作失败')
         }
       }).catch(error => {
-        console.log(error)
         ElMessage.error('请求失败')
       })
     }
@@ -177,7 +174,6 @@ const handleBatchDeleteConfig = () => {
           ElMessage.error(pr.msg || '删除失败')
         }
       }).catch(error => {
-        console.log(error)
         ElMessage.error('请求失败')
       })
   }).catch(() => {
@@ -199,6 +195,11 @@ onMounted(() => {
     queryCustomers()
   }
 })
+
+const onInput = async (event: Event) => {
+  const deLoad = debounce(queryCustomers)
+  deLoad()
+}
 </script>
 
 <template>
@@ -207,7 +208,7 @@ onMounted(() => {
       <!-- 客户查询 -->
       <el-card shadow="hover" class="section-card" v-if="!currentCustomerId">
         <div class="filter-bar">
-          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px;" clearable />
+          <el-input v-model="customerQuery.name" placeholder="客户姓名" style="width: 200px;" clearable @input="onInput" />
           <el-select v-model="customerQuery.customerType" placeholder="客户类型" style="width: 200px; margin-left: 10px"
             clearable>
             <el-option label="自理老人" :value="0" />

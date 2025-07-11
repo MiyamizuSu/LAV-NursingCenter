@@ -19,7 +19,7 @@ interface MealItem {
 }
 
 interface OrderItem {
-  deleted: unknown
+  // deleted: unknown
   id: number
   mealItemId: number
   purchaseCount: number
@@ -241,6 +241,7 @@ const logout = () => {
         localStorage.removeItem('tokenc')
         sessionStorage.removeItem("customerActive")
         localStorage.removeItem("customerUsing")
+        localStorage.removeItem('isRemember')
         ElMessage({ message: "已退出登录", type: "info" })
         router.push('/login')
       } else {
@@ -349,10 +350,10 @@ const logout = () => {
               <span class="preview-total">总价：¥{{ group.total }}</span>
               <div class="status-container">
                 <span class="status-tag" :class="{
-                  completed: group.items.every(i => i.deleted),
-                  pending: !group.items.every(i => i.deleted)
+                  completed: group.items.every(i => i.isDeleted),
+                  pending: !group.items.every(i => i.isDeleted)
                 }" style="font-size: 12px; padding: 2px 6px">
-                  {{group.items.every(i => i.deleted) ? '已完成' : '未完成'}}
+                  {{group.items.every(i => i.isDeleted) ? '已完成' : '未完成'}}
                 </span>
               </div>
             </div>
@@ -380,6 +381,7 @@ const logout = () => {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 120px);
+  background: #fff;
 }
 
 :deep(.el-tabs) {

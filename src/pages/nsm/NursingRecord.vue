@@ -138,10 +138,7 @@ const loadUsers = () => {
             if (res.data.status == 200) {
                 nursingCustomers.value = res.data.data
                 customer_total.value = res.data.total
-                console.log(nursingCustomers.value)
-                // ElMessage({message: "加载成功！", type: "success"})
                 selectedCustomer.value = nursingCustomers.value[0]
-                console.log(selectedCustomer.value)
                 loadRecords()
             } else {
                 ElNotification({
@@ -160,8 +157,6 @@ const loadRecords = () => {
             if (res.data.status == 200) {
                 currentRecords.value = res.data.data
                 record_total.value = res.data.total
-
-                console.log(currentRecords.value)
             } else {
                 currentRecords.value = res.data.data
                 record_total.value = res.data.total
@@ -275,7 +270,124 @@ const loadData = () => {
     </el-container>
 </template>
 
-<style lang="css" scoped>
+<style scoped>
+.add-button {
+  background-color: #007bff;
+  font-size: 16px;
+}
+
+.delete-button {
+  background-color: red;
+  color: white;
+}
+
+.container {
+  padding: 16px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 60px);
+}
+
+.query-bar {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.el-table {
+  :deep(.el-table__cell) {
+    min-width: 80px;
+    /* 设置最小列宽 */
+  }
+
+  :deep(.cell) {
+    white-space: nowrap;
+    /* 防止文字换行 */
+  }
+
+  :deep(th),
+  :deep(td) {
+    padding: 8px 12px !important;
+  }
+}
+
+.el-pagination {
+  margin: 16px 0;
+}
+
+:deep(.el-dialog) {
+  border-radius: 12px;
+
+  .el-form-item {
+    margin-bottom: 18px;
+
+    &__label {
+      font-weight: 500;
+      color: #606266;
+    }
+  }
+}
+
+.status-tag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+
+  &--active {
+    background: #e8f4ff;
+    color: #409eff;
+  }
+
+  &--inactive {
+    background: #fff0f0;
+    color: #f56c6c;
+  }
+}
+
+.el-select {
+  width: 100%;
+}
+
+.el-button {
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+  }
+}
+
+.flex-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.el-button {
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(28, 126, 255, 0.2);
+  }
+
+  &--danger:hover {
+    box-shadow: 0 2px 6px rgba(245, 108, 108, 0.2);
+  }
+}
+
+
 .section-card {
     border-radius: 12px;
     margin-bottom: 16px;
