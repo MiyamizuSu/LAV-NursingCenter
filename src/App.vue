@@ -11,7 +11,6 @@ import { Toaster } from 'vue-sonner';
 import { onMounted, onUnmounted } from 'vue';
 import { axiosInstance } from './lib/core';
 
-
 const router=useRouter()
 
 
@@ -41,7 +40,6 @@ const checkTokenValidity = async () => {
 };
 
 onMounted(() => {
-  router.push('/login')
   checkInterval = setInterval(checkTokenValidity, 60000); // 每1分钟检查一次
 });
 

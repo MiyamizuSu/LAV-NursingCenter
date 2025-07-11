@@ -243,4 +243,4 @@ const loadData = () => {
 </template>
 
 
-<style src="./scopedStyle.css"></style>
+<style src="./scopedStyle.css" scoped></style>

@@ -170,6 +170,7 @@ const columnVisibility = ref<VisibilityState>({})
 const rowSelection = ref({})
 const expanded = ref<ExpandedState>({})
 const table = useVueTable({
+  //@ts-ignore
   get data() {
     return ctmStore.getCustomerList.value
   },
