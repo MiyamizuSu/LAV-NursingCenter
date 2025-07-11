@@ -60,8 +60,6 @@ const login = () => {
             axios.post("/user/load", {}).then(res => {
                 if (res.data.status == 200) {
                     // sessionStorage.setItem("user", JSON.stringify(res.data.data))
-                    // 登录成功
-                    // console.log(res.data.data.userType)
                     if (res.data.data.userType == 0) {
                         localStorage.setItem('tokenu0', token)
                         localStorage.setItem('user0', JSON.stringify(res.data.data))

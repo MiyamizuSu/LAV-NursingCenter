@@ -119,7 +119,6 @@ const addToLevel = (program: NursingLevel) => {
 const loadData = () => {
     // currentLevel.value = JSON.parse(route.query.currentLevel as string)
     currentLevel.value = levelProgramStore.getCurrentLevel.value
-    // console.log(currentLevel.value)
     queryEntity1.value.levelId = currentLevel.value.id
 
     axios.post("/nursingProgram/page", queryEntity0.value)
@@ -128,7 +127,6 @@ const loadData = () => {
                 allPrograms.value = res.data.data
                 total0.value = res.data.total
                 // console.log("allPrograms: ", allPrograms.value)
-
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 allPrograms.value = res.data.data
@@ -147,16 +145,10 @@ const loadData = () => {
                 currentPrograms.value = res.data.data
                 total1.value = res.data.total
                 // console.log("currentPrograms: ", currentPrograms.value)
-
                 // ElMessage({message: "数据加载成功！", type: "success"})
             } else {
                 currentPrograms.value = res.data.data
                 total1.value = res.data.total
-                ElNotification({
-                    title: 'Error',
-                    message: res.data.msg,
-                    type: 'error',
-                })
             }
         })
 }

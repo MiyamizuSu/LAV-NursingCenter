@@ -229,7 +229,7 @@ const loadData = () => {
             <el-card shadow="hover" class="section-card">
                 <p style="margin-top: 2vh; margin-bottom: 2vh;">
                     <Button @click="start_addLevel" class="add-button">添加护理级别</Button>
-                    <Button @click="router.push('/stream')">去和AI对话</Button>
+                    <!-- <Button @click="router.push('/stream')">去和AI对话</Button> -->
                 </p>
 
                 <Switcher left-value="启用" right-value="停用" @select-value-change="handleChange">

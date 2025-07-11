@@ -12,7 +12,7 @@ else {
 
 export const axiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 1000,
+    timeout: 10000,
     // proxy: {
     //     protocol: 'http2',
     //     host: 'localhost',
@@ -101,7 +101,7 @@ axiosInstance.interceptors.response.use(function (response) {
 },
     function (error) {
         return Promise.reject(error);
-    });
+});
 
 export async function xhrWithAdapter<S extends object | object[], T extends object | object[]>(url: string, requestBody: object, adapter: Adapter<S, T>, axios: AxiosInstance = axiosInstance): Promise<T> {
     const response = (await axios.post<S>(url, requestBody)).data as { data: any };
