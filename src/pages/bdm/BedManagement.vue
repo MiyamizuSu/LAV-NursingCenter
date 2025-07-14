@@ -303,7 +303,7 @@ onMounted(async () => {
 
             </Switcher>
         </div>
-        <div class="flex w-full flex-col">
+        <div class="flex w-full flex-col pr-6">
             <Table class="rounded-b-md rounded-t-md bg-white">
                 <TableHeader>
                     <TableRow v-for="headerGroup in datatable.getHeaderGroups()" :id="headerGroup.id">
