@@ -200,7 +200,7 @@ const onInput = async (event: Event) => {
           <el-button type="primary" @click="queryCustomers">查询</el-button>
         </div>
 
-        <el-table :data="customers" style="width: 100%;" stripe header-row-class-name="table-header" :fit="true"
+        <el-table class="shadow-md rounded-t-md rounded-b-md" :data="customers" style="width: 100%;" stripe header-row-class-name="table-header" :fit="true"
           row-class-name="table-row">
           <el-table-column align="center" type="index" label="序号" width="60" />
           <el-table-column align="center" prop="name" label="姓名" />
@@ -372,7 +372,6 @@ const onInput = async (event: Event) => {
 
 .dialog-card {
   border-radius: 8px;
-
   :deep(.el-card__body) {
     padding: 20px;
   }

@@ -76,7 +76,7 @@ onMounted(async () => {
         <div id="header" class="flex space-x-4">
             <div class="flex items-center">
                 <Select @update:model-value="selectValChange" :default-value="curSelectFloorVal">
-                    <SelectTrigger>
+                    <SelectTrigger class="backdrop-blur-md">
                         <SelectValue placeholder="选择楼层"></SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -98,17 +98,17 @@ onMounted(async () => {
             </div>
         </div>
         <div class="flex h-full max-w-full ml-4 mr-4">
-            <div class="border border-gray-300 rounded flex w-full max-h-full flex-row gap-10 items-center">
+            <div class="border border-gray-300 rounded flex w-full max-h-full flex-row gap-10 items-center bg-white rounded-t-xl rounded-b-xl">
                 <div v-for="[rNumber, beds] in Array.from(useFloorBeds.entries())" :key="rNumber"
                     class="border border-gray-300 rounded flex-1 ">
-                    <div class="border border-gray-400 rounded border-b flex justify-center">
+                    <div class="border border-gray-400 rounded border-b flex justify-center bg-white">
                         <p>
                             {{ rNumber }}
                         </p>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2  shadow-md bg-white rounded-b-md">
                         <div v-for="bed in beds" :key="bed.bNumber" class="flex items-center flex-col p-2">
-                            <img :src="bedTypeImgUrl[bed.bStatus]" class="min-w-[30px] max-w-[50px]" />
+                            <img :src="bedTypeImgUrl[bed.bStatus]" class="min-w-[30px] max-w-[50px]"/>
                             <p>{{ bed.bNumber }}</p>
                         </div>
                     </div>

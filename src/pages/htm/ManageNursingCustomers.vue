@@ -203,7 +203,7 @@ const loadData = () => {
             <br>
             <!-- 左右表格区域 -->
             <el-row style="margin-top: 2vh; width: 100%;">
-                <el-card style="width: 48%; height: 70vh; overflow-y: auto;">
+                <div style="width: 48%; height: 70vh; overflow-y: auto;">
                     <!-- 搜索框 -->
                     <p>
                         <el-input v-model="availableCustomer_queryEntity.name" clearable placeholder="客户姓名"
@@ -212,11 +212,15 @@ const loadData = () => {
                     </p>
                     <br>
 
-                    <div
+                    <!-- <div
                         style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh;">
                         <label style="text-align: center; color: white; font-size: 15px; "> 无管家的客户信息</label>
+                    </div> -->
+                    <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                        无管家的客户信息
                     </div>
-                    <el-table :data="availableCustomers" :border="true" :stripe="true" style="width: 100%;" :fit="true">
+                    <el-table class="shadow-md rounded-b-md" :data="availableCustomers" :border="true" :stripe="true"
+                        style="width: 100%;" :fit="true">
                         <el-table-column type="index" label="序号" align="center">
                         </el-table-column>
                         <el-table-column property="name" label="姓名" align="center">
@@ -246,9 +250,9 @@ const loadData = () => {
                         @update:current-page="availableCustomer_handleCurrentChange"
                         layout="total, sizes, prev, pager, next, jumper" :total="availableCustomer_total"
                         style="margin-top: 10vh;" />
-                </el-card>
+                </div>
 
-                <el-card style="width: 48%; height: 70vh; margin-left: 4%; overflow-y: auto;">
+                <div style="width: 48%; height: 70vh; margin-left: 4%; overflow-y: auto;">
                     <!-- 搜索框 -->
                     <p>
                         <el-input v-model="currentCustomer_queryEntity.name" clearable placeholder="客户姓名"
@@ -257,12 +261,16 @@ const loadData = () => {
                     </p>
                     <br>
 
-                    <div
+                    <!-- <div
                         style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh;">
                         <label style="text-align: center; color: white; font-size: 15px; "> {{ currentNurse.name }} -
                             服务中的客户</label>
+                    </div> -->
+                    <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                        {{ currentNurse.name }} -
+                        服务中的客户
                     </div>
-                    <el-table :data="currentCustomers" :border="true" :stripe="true" :fit="true" style="width: 100%;"
+                    <el-table class="shadow-md rounded-b-md" :data="currentCustomers" :border="true" :stripe="true" :fit="true" style="width: 100%;"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" align="center"></el-table-column>
                         <el-table-column type="index" label="序号" align="center">
@@ -297,140 +305,10 @@ const loadData = () => {
                         @update:current-page="currentCustomer_handleCurrentChange"
                         layout="total, sizes, prev, pager, next, jumper" :total="currentCustomer_total"
                         style="margin-top: 10vh;" />
-                </el-card>
+                </div>
 
             </el-row>
         </el-card>
 
     </el-container>
 </template>
-
-<style scoped>
-.add-button {
-  background-color: #007bff;
-  font-size: 16px;
-}
-
-.delete-button {
-  background-color: red;
-  color: white;
-}
-
-.container {
-  padding: 16px;
-  background: #f5f7fa;
-  min-height: calc(100vh - 60px);
-}
-
-.query-bar {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.el-table {
-  :deep(.el-table__cell) {
-    min-width: 80px;
-    /* 设置最小列宽 */
-  }
-
-  :deep(.cell) {
-    white-space: nowrap;
-    /* 防止文字换行 */
-  }
-
-  :deep(th),
-  :deep(td) {
-    padding: 8px 12px !important;
-  }
-}
-
-.el-pagination {
-  margin: 16px 0;
-}
-
-:deep(.el-dialog) {
-  border-radius: 12px;
-
-  .el-form-item {
-    margin-bottom: 18px;
-
-    &__label {
-      font-weight: 500;
-      color: #606266;
-    }
-  }
-}
-
-.status-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-
-  &--active {
-    background: #e8f4ff;
-    color: #409eff;
-  }
-
-  &--inactive {
-    background: #fff0f0;
-    color: #f56c6c;
-  }
-}
-
-.el-select {
-  width: 100%;
-}
-
-.el-button {
-  transition: all 0.3s;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
-  }
-}
-
-.section-card {
-  border-radius: 12px;
-  margin-bottom: 16px;
-  margin-right: 30px;
-  padding: 16px;
-
-  :deep(.el-card__body) {
-    padding: 20px;
-  }
-}
-
-.flex-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-}
-
-.button-group {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-
-.el-button {
-  transition: all 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 6px rgba(28, 126, 255, 0.2);
-  }
-
-  &--danger:hover {
-    box-shadow: 0 2px 6px rgba(245, 108, 108, 0.2);
-  }
-}
-
-</style>
