@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
+import { Form, useForm } from 'vee-validate'
 import { FormField } from '@/components/ui/form'
 import FormControl from '@/components/ui/form/FormControl.vue'
 import FormLabel from '@/components/ui/form/FormLabel.vue'
 import IInput from '@/components/ui/insput/IInput.vue'
 import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import { axiosInstance as axios, createWebSocket, resetWebSocket } from '@/lib/core'
@@ -19,6 +19,11 @@ import z from 'zod'
 const router = useRouter()
 
 const isCustomerLogin = ref(false)
+const anic=reactive({
+    x:0,
+    y:0
+})
+
 
 type UserMes = {
     account: string,
@@ -124,7 +129,12 @@ const customerLogin = () => {
         }
     })
 }
-
+function handleFromStateSelect(){
+    isCustomerLogin.value = !(isCustomerLogin.value)
+    anic.y=-100;
+    anic.x=0
+    console.log(anic.y)
+}
 </script>
 
 <template>
@@ -150,16 +160,12 @@ const customerLogin = () => {
             y: 0,
         }" :transition="{
             type: 'spring'
-        }" class="absolute  -translate-x-1/4 z-1">
-
+        }" class="absolute  -translate-x-1/4 z-1 bg-white ">
         </motion.div>
         <motion.div :initial="{
             x: 100,
             y: 100
-        }" :animate="{
-            x: 0,
-            y: 0
-        }" :transition="{
+        }" :animate="anic" :transition="{
             type: 'spring'
         }" class="w-full max-w-md px-4 mx-auto">
 
@@ -174,7 +180,7 @@ const customerLogin = () => {
                         <p class="text-gray-500 text-sm">欢迎回来，请登录您的账号</p>
                     </div>
 
-                    <el-form class="space-y-4" @submit.prevent="isCustomerLogin ? customerLogin : userLogin">
+                    <Form class="space-y-4" @submit.prevent="isCustomerLogin ? customerLogin : userLogin">
                         <FormField v-slot="{ componentField }" name="username">
                             <div class="space-y-2">
                                 <FormLabel class="text-gray-600 font-medium">账号</FormLabel>
@@ -205,20 +211,19 @@ const customerLogin = () => {
                                     class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500/50" />
                                 <span class="text-gray-600 text-sm">记住登录状态</span>
                             </label>
-                            <button type="button" @click="isCustomerLogin = !isCustomerLogin"
+                            <button type="button" @click="handleFromStateSelect"
                                 class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
                                 {{ isCustomerLogin ? '切换到员工登录' : '切换到客户登录' }}
                             </button>
                         </div>
 
-                        <!-- 动态提交按钮 -->
                         <div class="flex justify-end mt-10 ">
                             <DynamicButton class="mt-4  dark:bg-slate-800 rounded-lg"
                                 @Click="isCustomerLogin ? customerLogin() : userLogin()">
-                                {{ isCustomerLogin ? '膳食预定' : '用户登录' }}
+                                {{ isCustomerLogin ? '膳食预定' : '登录' }}
                             </DynamicButton>
                         </div>
-                    </el-form>
+                    </Form>
                 </CardContent>
             </Card>
         </motion.div>

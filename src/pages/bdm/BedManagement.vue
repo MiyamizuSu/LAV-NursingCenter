@@ -17,7 +17,7 @@ import {
     getSortedRowModel,
     useVueTable,
 } from '@tanstack/vue-table'
-import { h, onMounted, reactive, ref, type Reactive } from 'vue'
+import { h, onMounted, reactive, ref, watchEffect, type Reactive } from 'vue'
 import {
     DialogContent,
     DialogTitle
@@ -56,7 +56,7 @@ import SelectContent from '@/components/ui/select/SelectContent.vue'
 import SelectGroup from '@/components/ui/select/SelectGroup.vue'
 import SelectLabel from '@/components/ui/select/SelectLabel.vue'
 import SelectItem from '@/components/ui/select/SelectItem.vue'
-import Button from '@/components/ui/button/Button.vue'
+import { Button } from '@/components/ui/button'
 import { toast } from 'vue-sonner'
 const bdmStore = useBedManagementStore();
 const diglogOpen = ref<boolean>(false)
@@ -123,20 +123,41 @@ const columns: ColumnDef<BedUser>[] = [
     {
         id: 'actions',
         enableHiding: false,
-        cell: ({ row }) => h('div', { class: 'flex-row flex ' }, [
-            h(DynamicButton, {
-                class: '',
-                onclick: () => openDialog(row)
-            }, '床位调换'
-            ),
-            h(DynamicButton, {
-                class: '',
-                onclick: () => openChangeDialog(row)
-            },
-                '修改'
-            )
-        ]
-        )
+        cell: ({ row }) => {
+            if (curRecordSelect.value === '正在使用') {
+                return h('div', { class: 'flex-row flex ' }, [
+                    h(DynamicButton, {
+                        class: '',
+                        onclick: () => openDialog(row)
+                    }, '床位调换'
+                    ),
+                    h(DynamicButton, {
+                        class: '',
+                        onclick: () => openChangeDialog(row)
+                    },
+                        '修改'
+                    )
+                ]
+                )
+            }
+            else {
+                return h('div', { class: 'flex-row flex ' }, [
+                    h(Button, {
+                        class: '',
+                        disabled:true,
+                        variant:'outline'
+                    }, '床位调换'
+                    ),
+                    h(Button, {
+                        class: '',
+                        disabled:true,
+                        variant:'outline',
+                    },
+                        '修改'
+                    )
+                ])
+            }
+        }
     }
 ]
 const sorting = ref<SortingState>([])
@@ -243,6 +264,7 @@ async function onSubmit() {
         error: () => '发生了错误'
     })
     const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
+    console.log(res)
     resolve(undefined);
     diglogOpen.value = false;
 }
@@ -434,7 +456,7 @@ onMounted(async () => {
                                                                 </div>
                                                                 <div>
                                                                     <span>{{ `${bedExchangeRequest.startDate}`
-                                                                    }}</span>
+                                                                        }}</span>
                                                                 </div>
                                                             </div>
                                                         </PopoverTrigger>
