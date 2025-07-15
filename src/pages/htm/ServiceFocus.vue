@@ -83,11 +83,14 @@ const loadData = () => {
                 </p>
                 <br><br>
 
-                <div
+                <!-- <div
                     style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                     <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">客户信息列表</label>
+                </div> -->
+                <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                    客户信息列表
                 </div>
-                <el-table :data="allCustomers" :stripe="true" style="width: 100%;" :fit="true">
+                <el-table class="shadow-md rounded-b-md" :data="allCustomers" :stripe="true" style="width: 100%;" :fit="true">
                     <el-table-column type="index" label="序号" align="center">
                     </el-table-column>
                     <el-table-column property="name" label="客户姓名" align="center">

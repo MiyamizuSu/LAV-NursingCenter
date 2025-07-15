@@ -566,7 +566,7 @@ onMounted(async () => {
         <div>
             <div class="flex items-center py-10 gap-4">
                 <div>
-                    <Input class="w-96" placeholder="客户姓名" v-model="searchName" @input="onInput" />
+                    <Input class="w-96 backdrop-blur-xl shadow-xl" placeholder="客户姓名" v-model="searchName" @input="onInput" />
                 </div>
                 <div>
                     <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
@@ -607,7 +607,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     客户信息
                 </div>
-                <div class="bg-white rounded-b-md border dark:bg-slate-800">
+                <div class="bg-white rounded-b-md border dark:bg-slate-800 shadow-md">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in customerTable.getHeaderGroups()" :key="headerGroup.id">
@@ -666,7 +666,7 @@ onMounted(async () => {
                 <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #409EFF;">
                     外出申请审批
                 </div>
-                <div class="bg-white rounded-b-md border overflow-auto dark:bg-slate-800" style="max-height: calc(100vh - 240px);">
+                <div class="bg-white rounded-b-md border overflow-auto dark:bg-slate-800 shadow-md" style="max-height: calc(100vh - 240px);">
                     <Table>
                         <TableHeader>
                             <TableRow v-for="headerGroup in outingTable.getHeaderGroups()" :key="headerGroup.id">

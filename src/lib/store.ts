@@ -79,12 +79,14 @@ export const useBedManagementStore = defineStore("bedUseStore", () => {
   const floorBeds = ref<Bed[]>([]);
   const _floorBeds_cache: Map<number, Bed[]> = new Map();
   const room_cache = reactive<Room[]>([])
+  const roomListCount=reactive<number[]>([])
   const getUsingBeds = computed(() => usingBeds);
   const getUsedBeds = computed(() => usedBeds);
   const getFloorBeds = computed(() => floorBeds);
   const getRooms = computed(() => {
     return room_cache.length !== 0 ? room_cache : undefined
   });
+  const getRoomListCount=computed(()=>roomListCount);
   function _getCacheOrXhr(floor: number): 1 | 0 {
     if (_floorBeds_cache.has(floor)) {
       floorBeds.value = _floorBeds_cache.get(floor) as Bed[]
@@ -93,6 +95,9 @@ export const useBedManagementStore = defineStore("bedUseStore", () => {
     else {
       return 0;
     }
+  }
+  function setRoomListCount(value:number,index:number){
+    roomListCount[index]=value
   }
   function _update_cache(floor: number) {
     _floorBeds_cache.set(floor, floorBeds.value);
@@ -114,7 +119,7 @@ export const useBedManagementStore = defineStore("bedUseStore", () => {
     usingBeds.value = newUsingBedsList
   }
   return {
-    getUsedBeds, getUsingBeds, setUsingBeds, getFloorBeds, setFloorBedsWithCache, setFloorBedsWithNoneCache, getRooms, setRoom, setUsedBeds
+    getUsedBeds, getUsingBeds, setUsingBeds, getFloorBeds, setFloorBedsWithCache, setFloorBedsWithNoneCache, getRooms, setRoom, setUsedBeds,getRoomListCount,setRoomList: setRoomListCount
   }
 })
 

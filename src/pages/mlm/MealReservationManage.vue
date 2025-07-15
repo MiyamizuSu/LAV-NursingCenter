@@ -146,7 +146,7 @@ onMounted(fetchOrders)
 
           <!-- 分页 -->
           <el-pagination background v-model:current-page="pagination.page" v-model:page-size="pagination.size"
-            :page-sizes="[7, 10, 13]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
+            :page-sizes="[7, 10, 12]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
             @size-change="fetchOrders" @current-change="fetchOrders" />
         </el-card>
       </el-card>

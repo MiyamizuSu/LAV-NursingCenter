@@ -573,7 +573,7 @@ function change(e: string) {
     <div class="flex gap-2 items-center py-4 justify-between">
       <div class="flex items-center gap-2">
         <div>
-          <Input class="max-w-sm" placeholder="客户姓名" v-model="searchName" @input="onInput" />
+          <Input class="max-w-sm backdrop-blur-xl shadow-xl" placeholder="客户姓名" v-model="searchName" @input="onInput" />
         </div>
         <div>
           <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
@@ -633,7 +633,7 @@ function change(e: string) {
       客户信息
     </div>
     <div class="rounded-b-md border">
-      <Table class="bg-white rounded-b-md dark:bg-slate-800">
+      <Table class="rounded-b-md dark:bg-slate-800 bg-white" >
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <TableHead v-for="header in headerGroup.headers" :key="header.id" :data-pinned="header.column.getIsPinned()"

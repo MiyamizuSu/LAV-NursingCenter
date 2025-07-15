@@ -1,11 +1,10 @@
 import type { Adapter, Bed, Key } from "@/lib/type";
-import type { BedResponse, BedType, CalendarDate } from "./type";
+import type { BedMes, BedResponse, BedType, CalendarDate } from "./type";
 const bedStatusMap: { [key: number]: BedType } = {
     0: '空闲',
     1: '外出',
     2: '有人'
 }
-
 export const bedsAdapter: Adapter<{ [key: string]: Array<BedResponse> }, Array<Bed>> = {
     adapt(source) {
         const floorBeds: Array<Bed> = [];
@@ -29,6 +28,23 @@ export const bedsAdapter: Adapter<{ [key: string]: Array<BedResponse> }, Array<B
         return floorBeds
     }
 }
-export const dateConverter=function(source:CalendarDate){
+export const dateConverter = function (source: CalendarDate) {
     return `${source.year}-${source.month}-${source.day}`
+}
+export const bedListCountAdapter = function (source: number[], target: BedMes[]) {
+    source.forEach((item, index) => {
+        target.push(
+            {
+                bedType: bedStatusMap[index],
+                count: item
+            }
+        )
+    })
+    const allCount=target.reduce((pre,cur)=>{
+        return {
+            bedType:'总量',
+            count:pre.count+cur.count
+        }
+    })
+    target.unshift(allCount);
 }
