@@ -122,6 +122,7 @@ const columns: ColumnDef<BedUser>[] = [
     },
     {
         id: 'actions',
+        header: '操作',
         enableHiding: false,
         cell: ({ row }) => {
             if (curRecordSelect.value === '正在使用') {
@@ -297,13 +298,13 @@ onMounted(async () => {
 
 <template>
     <div class="flex flex-col w-full gap-2">
-        <div class="flex">
+        <div class="flex mb-5">
             <Switcher left-value="正在使用" right-value="使用历史" @select-value-change="handleCurRecordSelect">
 
             </Switcher>
         </div>
-        <div class="flex w-full flex-col">
-            <Table>
+        <div class="flex w-full flex-col pr-6">
+            <Table class="rounded-b-md rounded-t-md bg-white">
                 <TableHeader>
                     <TableRow v-for="headerGroup in datatable.getHeaderGroups()" :id="headerGroup.id">
                         <TableHead v-for="header in headerGroup.headers" :key="header.id"

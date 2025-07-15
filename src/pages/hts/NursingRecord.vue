@@ -212,6 +212,7 @@ const onInput = async (event: Event) => {
 <style scoped>
 .section-card {
   margin-bottom: 20px;
+  margin-right: 0px;
   border-radius: 8px;
 
   :deep(.el-card__body) {
