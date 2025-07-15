@@ -433,11 +433,15 @@ const generateByAI = async () => {
     isAILoading.value = true
     await axios.post('/food/aiObj', {
       query: `帮我新建食品-${foodForm.value.name}`
-    }).then(res => {
+    }).then(async res => {
       console.log(res)
       if (res.data.status == 200) {
         foodForm.value = JSON.parse(res.data.data)
         foodForm.value.imageUrl = ''
+        const { data: imgRes } = await axios.get(
+          `https://cn.apihz.cn/api/img/apihzimgbaidu.php?id=10006176&key=da205734de1fa8bcef2fe05220ac04ca&limit=10&page=1&words=${foodForm.value.name}`
+        )
+        foodForm.value.imageUrl = imgRes.res?.[0] || ''
       } else {
         ElMessage({ message: res.data.msg, type: "error" })
       }
