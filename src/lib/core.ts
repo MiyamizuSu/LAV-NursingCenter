@@ -65,7 +65,8 @@ axiosInstance.interceptors.request.use(function (config) {
 },
     function (error) {
         return Promise.reject(error);
-    });
+});
+
 //响应拦截器
 axiosInstance.interceptors.response.use(function (response) {
     // 获取响应之前的动作
@@ -87,7 +88,7 @@ axiosInstance.interceptors.response.use(function (response) {
 },
     function (error) {
         return Promise.reject(error);
-    });
+});
 
 export async function xhrWithAdapter<S extends object | object[], T extends object | object[]>(url: string, requestBody: object, adapter: Adapter<S, T>, axios: AxiosInstance = axiosInstance): Promise<T> {
     const response = (await axios.post<S>(url, requestBody)).data as { data: any };
