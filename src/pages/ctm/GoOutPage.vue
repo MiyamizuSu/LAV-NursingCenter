@@ -396,7 +396,7 @@ onMounted(async () => {
         <div>
             <div class="flex items-center py-10 gap-4">
                 <div>
-                    <Input class="w-96" placeholder="客户姓名" v-model="searchName" @input="onInput" />
+                    <Input class="w-96 backdrop-blur-xl shadow-xl" placeholder="客户姓名" v-model="searchName" @input="onInput" />
                 </div>
                 <div>
                     <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
