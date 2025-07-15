@@ -22,7 +22,7 @@ const initWebSocket = () => {
     } else if (sessionStorage.getItem('userType') == '1') {
         user = JSON.parse(localStorage.getItem('user1')!)
     }
-    let url = axios.defaults.baseURL?.replace("http://", "ws://").replace("https://", "wss://") + "/websocket/" + user.userId.toString()
+    let url = axios.defaults.baseURL?.replace("http://", "ws://").replace("https://", "wss://") + "/webSocket/" + user.userId.toString()
     websocket = new WebSocket(url)
     websocket.onopen = (ev) => {
         // console.log("WebSocket连接成功：", ev);
