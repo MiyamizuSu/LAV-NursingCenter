@@ -77,7 +77,7 @@ const start_deleteRecord = (record: NursingRecord) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingRecord/delete", { id: record.id })
+        axios.post("/nursingRecord/delete", { id: record.id })
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -110,7 +110,7 @@ const start_deleteBatch = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingRecord/deleteBatch", multipleSelection.value)
+        axios.post("/nursingRecord/deleteBatch", multipleSelection.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadRecords()
@@ -133,7 +133,7 @@ const start_deleteBatch = () => {
 }
 
 const loadUsers = () => {
-    axios.post("http://localhost:9000/customer/page", customer_queryEntity.value)
+    axios.post("/customer/page", customer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 nursingCustomers.value = res.data.data
@@ -152,7 +152,7 @@ const loadUsers = () => {
 
 const loadRecords = () => {
     record_queryEntity.value.customerId = selectedCustomer.value.customerId
-    axios.post("http://localhost:9000/nursingRecord/page", record_queryEntity.value)
+    axios.post("/nursingRecord/page", record_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 currentRecords.value = res.data.data
