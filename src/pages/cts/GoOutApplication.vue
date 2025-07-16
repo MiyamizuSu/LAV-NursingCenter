@@ -39,7 +39,7 @@ import type { Customer, OutingRegistration } from './type'
 const ctsStore = useCustomerNurseStore()
 const outingPages = ref({
     currentPage: 1,
-    pageSize: 8,
+    pageSize: 6,
     totalOuting: 0
 })
 const customerPages = ref({
