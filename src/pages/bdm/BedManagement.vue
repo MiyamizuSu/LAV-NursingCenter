@@ -31,10 +31,10 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { useBedManagementStore } from '@/lib/store'
-import type { BedUser, Room } from '@/lib/type'
+import type { Bed, BedUser, Room } from '@/lib/type'
 import { valueUpdater } from '@/components/ui/table/utils'
-import { axiosInstance as axios, axiosInstance, xhrWithAdapter } from '@/lib/core';
-import { cn } from '@/lib/utils'
+import { axiosInstance as axios, axiosInstance, post, xhrWithAdapter } from '@/lib/core';
+import { cn, debounce } from '@/lib/utils'
 import Switcher from '@/components/custom/Switcher.vue';
 import DynamicButton from '@/components/custom/DynamicButton.vue';
 import { DialogPortal, DialogRoot, type AcceptableValue, type DateValue } from 'reka-ui';
@@ -75,6 +75,15 @@ const bedExchangeRequest = ref<BedExchangeRequest>({
     startDate: '',
     endDate: ''
 })
+const searchName = ref('')  // 搜索框输入
+const resetCustomers = () => {
+    searchName.value = ''
+    reload()
+}
+const onInput = async (event: Event) => {
+    const deLoad = debounce(loadBedMessage)
+    deLoad()
+}
 const startDateChange = (e: any) => {
     e as CalendarDate
     bedExchangeRequest.value.startDate = dateConverter(e)
@@ -231,6 +240,24 @@ async function xhrBedMessage() {
     const res = (await axios.post('/bedUsageRecord/listAll')).data
     return res.data as any[]
 }
+async function loadBedMessage() {
+    const res = await post<any[]>('/bedUsageRecord/page', {
+        status: curRecordSelect.value==='正在使用'?1:0,
+        customerName: searchName.value,
+        startDate: '',
+        current: 1,
+        size: 7,
+    })
+    if (res.data.status) {
+        const searchBeds = res.data.data
+        const bedArray: BedUser[][] = [[], []]
+        responseAdaptor(bedArray, searchBeds)
+        console.log(bedArray)
+        bdmStore.setUsedBeds(bedArray[0])
+        bdmStore.setUsingBeds(bedArray[1])
+        
+    }
+}
 //0使用历史 1使用中
 function responseAdaptor(adapted: BedUser[][], sources: any[]) {
     for (let i = 0; i < sources.length; i++) {
@@ -273,6 +300,8 @@ async function onSubmit() {
 }
 function handleCurRecordSelect(e: '正在使用' | '使用历史') {
     curRecordSelect.value = e
+    const d=debounce(resetCustomers)
+    d()
 }
 async function reloadFloorBed(exchangeFloor:number){
     const floorBed = await xhrWithAdapter('/bed/listByFloor', {
@@ -291,7 +320,7 @@ async function handleBedUpdate() {
     const res = await axiosInstance.post('/bedUsageRecord/update', bedUpdateRequest);
     resolve(undefined)
     changeDialogOpen.value = false;
-    reload()
+    reload();
 }
 async function reload() {
     const bedData: BedUser[][] = [[], []];
@@ -300,17 +329,38 @@ async function reload() {
     bdmStore.setUsedBeds(bedData[0]);
 }
 onMounted(async () => {
-    reload()
+    reload();
 })
 </script>
 
 <template>
     <div class="flex flex-col w-full gap-2">
+        <div class="flex items-center py-10 gap-4">
+            <div>
+                <Input class="w-96 backdrop-blur-xl shadow-xl" placeholder="客户姓名" v-model="searchName"
+                    @input="onInput" />
+            </div>
+            <div>
+                <InteractiveHoverButton @click="resetCustomers" text="重置" text-before-color="#95e1d3"
+                    text-after-color="#eaffd0" before-color="#eaffd0" after-color="#95e1d3">
+                    <template #svgIcon>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                            <path d="M3 3v5h5" />
+                        </svg>
+                    </template>
+                </InteractiveHoverButton>
+            </div>
+        </div>
+
         <div class="flex mb-5">
             <Switcher left-value="正在使用" right-value="使用历史" @select-value-change="handleCurRecordSelect">
 
             </Switcher>
         </div>
+        《
         <div class="flex w-full flex-col pr-6">
             <Table class="rounded-b-md rounded-t-md bg-white">
                 <TableHeader>
@@ -465,7 +515,7 @@ onMounted(async () => {
                                                                 </div>
                                                                 <div>
                                                                     <span>{{ `${bedExchangeRequest.startDate}`
-                                                                        }}</span>
+                                                                    }}</span>
                                                                 </div>
                                                             </div>
                                                         </PopoverTrigger>

@@ -328,7 +328,7 @@ onMounted(() => {
     backdrop-filter: blur(8px);
 }
 .bg-img {
-    background-image: url('/src/assets/bg_doge.png');
+    background-image: url('/src/assets/home/home.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
