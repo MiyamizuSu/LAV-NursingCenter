@@ -568,7 +568,6 @@ function change(e: string) {
 </script>
 
 <template>
-
   <!-- 客户信息列表 -->
   <div class="w-full pr-10">
     <div class="flex gap-2 items-center py-4 justify-between">
