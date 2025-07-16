@@ -185,7 +185,6 @@ onBeforeUnmount(() => {
                 'flex backBlur w-full z-10 right-0 justify-end fixed top-0 items-center transition-transform duration-300',
                 showNavbar ? 'translate-y-0' : '-translate-y-full'
             ]">
-
                 <div class="ml-10 text-lg font-bold text-white dark:text-black">
                     东软颐养中心
                 </div>
