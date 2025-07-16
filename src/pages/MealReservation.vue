@@ -168,7 +168,10 @@ const submitOrder = async () => {
         .replace('T', ' '),
       customerId: customerId,
     })
-    ElMessage.success('预定成功')
+    ElMessage.success({
+      message: '预定成功',
+      duration: 1000
+    })
     cart.value = []
     Object.values(mealData.value).forEach(items => {
       items.forEach(item => item.quantity = 0)
@@ -249,6 +252,33 @@ const logout = () => {
       }
     })
   }).catch(() => { })
+}
+
+const cancelOrder = async (order: OrderItem) => {
+  try {
+    const { data } = await axios.post('/mealReservation/cancel', {
+      id: order.id
+    })
+
+    if (data.status === 200) {
+      // 更新本地订单状态
+      order.isDeleted = true
+      ElMessage.success('订单已取消')
+      // 刷新订单列表
+      await fetchOrders()
+    } else {
+      ElMessage.error(data.message || '取消失败')
+    }
+  } catch (error) {
+    ElMessage.error('取消请求失败')
+  }
+}
+
+// 时间判断方法
+const isWithin30Minutes = (createTime: string) => {
+  const createDate = new Date(createTime).getTime()
+  const now = Date.now()
+  return (now - createDate) < 30 * 60 * 1000  // 30分钟
 }
 </script>
 
@@ -368,6 +398,9 @@ const logout = () => {
                 <span class="price">单价：¥{{ order.mealItemDetail?.foodPrice }}</span>
               </div>
             </div>
+            <el-button v-if="!order.isDeleted && isWithin30Minutes(order.purchaseTime)" @click.stop="cancelOrder(order)"
+              size="small" class="cancel-btn">
+              取消订单</el-button>
           </div>
         </el-collapse-item>
       </el-collapse>
@@ -678,6 +711,15 @@ const logout = () => {
   align-items: center;
   padding: 12px;
   border-bottom: 1px solid #eee;
+  position: relative;
+
+  .cancel-btn {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
 
   .meal-image {
     width: 60sspx;

@@ -11,30 +11,13 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import type { BedMes } from './type';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useBedManagementStore } from '@/lib/store';
 import type { Bed } from '@/lib/type';
-import { xhrWithAdapter } from '@/lib/core';
-import { bedsAdapter } from './helper';
+import { post, xhrWithAdapter } from '@/lib/core';
+import { bedListCountAdapter, bedsAdapter } from './helper';
 const bdmStore = useBedManagementStore();
-const floorBedMessages: BedMes[] = [
-    {
-        bedType: "总量",
-        count: 50
-    },
-    {
-        bedType: "空闲",
-        count: 20,
-    },
-    {
-        bedType: "有人",
-        count: 20,
-    },
-    {
-        bedType: "外出",
-        count: 10
-    }
-]
+const floorBedMessages= reactive<BedMes[]>([])
 const bedTypeImgUrl = {
     总量: '/src/assets/all.png',
     空闲: '/src/assets/free.png',
@@ -68,6 +51,14 @@ onMounted(async () => {
         }, bedsAdapter)
         bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value, floorBed);
     }
+    if (bdmStore.getRoomListCount.length === 0) {
+        const res = await post<{[key: string]: number}>('/bed/listCounts', {})
+        const bedCounts=res.data.data
+        for (let key in bedCounts) {
+            bdmStore.setRoomList(bedCounts[key],Number(key));
+        }
+    }
+    bedListCountAdapter(bdmStore.getRoomListCount,floorBedMessages);
 })
 </script>
 
