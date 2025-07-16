@@ -129,14 +129,14 @@ onMounted(fetchOrders)
             <el-table-column align="center" prop="purchaseTime" label="购买时间" />
             <el-table-column align="center" label="状态" min-width="100">
               <template #default="{ row }">
-                <el-tag :type="row.deleted ? 'success' : 'warning'">
-                  {{ row.deleted ? '已完成' : '未完成' }}
+                <el-tag :type="row.isDeleted ? 'success' : 'warning'">
+                  {{ row.isDeleted ? '已完成' : '未完成' }}
                 </el-tag>
               </template>
             </el-table-column>
             <el-table-column label="操作">
               <template #default="{ row }">
-                <el-button v-if="!row.deleted" type="primary" size="small" @click="handleComplete(row.id)"
+                <el-button v-if="!row.isDeleted" type="primary" size="small" @click="handleComplete(row.id)"
                   :icon="Check">
                   标记完成
                 </el-button>
