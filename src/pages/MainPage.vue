@@ -46,6 +46,9 @@ const handleStateCancel = (stateName: string) => {
         frameController.curFrameIndex = i - 1;
         router.push(`/main${stateName_tag.value?.[frameController.frameStack[frameController.curFrameIndex]]}`);
     }
+    else{
+        frameController.curFrameIndex = i
+    }
 }
 
 const handleStatePlus = (frame: string) => {
