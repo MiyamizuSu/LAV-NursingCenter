@@ -284,7 +284,8 @@ function handleBedSelect(v: AcceptableValue) {
     bedExchangeRequest.value.bedNumber = v as string;
 }
 async function onSubmit() {
-    bedExchangeRequest.value.customerId = curCustomer.value?.Id as number
+    const exchangeFloor=Number(bedExchangeRequest.value.roomNumber.split('')[0])
+    bedExchangeRequest.value.customerId = curCustomer.value?.customerId as number
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
     toast.promise(promise, {
         loading: '提交中...',
@@ -292,7 +293,8 @@ async function onSubmit() {
         error: () => '发生了错误'
     })
     const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
-    console.log(res)
+    reloadFloorBed(exchangeFloor)
+    reload()
     resolve(undefined);
     diglogOpen.value = false;
 }
@@ -300,6 +302,12 @@ function handleCurRecordSelect(e: '正在使用' | '使用历史') {
     curRecordSelect.value = e
     const d=debounce(resetCustomers)
     d()
+}
+async function reloadFloorBed(exchangeFloor:number){
+    const floorBed = await xhrWithAdapter('/bed/listByFloor', {
+        floor: exchangeFloor,
+    }, bedsAdapter)
+    bdmStore.setFloorBedsWithNoneCache(exchangeFloor, floorBed);
 }
 async function handleBedUpdate() {
     bedUpdateRequest.id = curCustomer.value?.Id as number

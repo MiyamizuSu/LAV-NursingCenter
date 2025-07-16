@@ -14,7 +14,7 @@ import type { BedMes } from './type';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useBedManagementStore } from '@/lib/store';
 import type { Bed } from '@/lib/type';
-import { post, xhrWithAdapter } from '@/lib/core';
+import { post, wbHandlerMap, xhrWithAdapter } from '@/lib/core';
 import { bedListCountAdapter, bedsAdapter } from './helper';
 const bdmStore = useBedManagementStore();
 const floorBedMessages= reactive<BedMes[]>([])
@@ -60,6 +60,7 @@ onMounted(async () => {
     }
     bedListCountAdapter(bdmStore.getRoomListCount,floorBedMessages);
 })
+
 </script>
 
 <template>
