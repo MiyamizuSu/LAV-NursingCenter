@@ -28,7 +28,6 @@ import GoOutApplication from '@/pages/cts/GoOutApplication.vue'
 import CheckOutApplication from '@/pages/cts/CheckOutApplication.vue'
 import MealReservation from '@/pages/MealReservation.vue'
 //@ts-ignore
-import StreamPage from '@/pages/StreamPage.vue'
 import type { User } from './type'
 import { use } from 'echarts'
 import { axiosInstance } from './core'
@@ -144,10 +143,6 @@ export const routes: RouteRecordRaw[] = [
         path: "/mealReservation",
         component: MealReservation
     },
-    {
-        path: "/stream",
-        component: StreamPage
-    }
 ]
 export const router = createRouter({
     // history:createMemoryHistory(),
