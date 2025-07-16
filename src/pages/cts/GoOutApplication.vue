@@ -407,7 +407,8 @@ const addOutingForm = reactive({ // 暂存审批信息
     reviewStatus: -1,
     rejectReason: '',
     reviewTime: '',
-    actualReturnDate: ''
+    actualReturnDate: '',
+    nurseId: -1
 })
 const selectedCustomer = ref(null)
 const onCustomerChange = (id: number) => {
@@ -452,7 +453,7 @@ const clearOutingForm = () => {
     addOutingForm.reviewTime = ''
 }
 const addOutingRegistration = async () => {
-    console.log('提交外出申请', addOutingForm)
+    addOutingForm.nurseId = ctsStore.getCurrentNurseId.value
     const res = await axios.post('/outingRegistration/add', addOutingForm)
     if (res.data.status === 200) {
         ElMessage.success('添加成功')

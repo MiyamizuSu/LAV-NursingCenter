@@ -458,7 +458,8 @@ const updateForm = async () => {
     await loadCustomers()
     clearForm()
   } else {
-    ElMessage.error('修改失败')
+    ElMessage.error(res.data.msg)
+    updateCustomerVisible.value = false
   }
 }
 

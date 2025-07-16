@@ -32,6 +32,8 @@ import Timeline from '@/components/ui/timeline/Timeline.vue';
 import AppleCardCarousel from '@/components/ui/apple-card-carousel/AppleCardCarousel.vue';
 import AppleCard from '@/components/ui/apple-card-carousel/AppleCard.vue';
 import AppleCarouselItem from '@/components/ui/apple-card-carousel/AppleCarouselItem.vue';
+import { motion } from 'motion-v'
+import DynamicButton from '@/components/custom/DynamicButton.vue';
 
 const showNavbar = ref(true)  // 顶部导航栏的可见性
 let lastScrollY = window.scrollY
@@ -46,6 +48,7 @@ const handleScroll = () => {
 }
 
 const login = () => {
+    console.log(1234)
     router.push('/login')
 }
 const isLogin = ref(false)
@@ -114,47 +117,47 @@ const checkinProcess = [
 ];
 // 入住流程介绍
 const checkinDescriptions = {
-    consult: "通过电话或官网咨询服务内容和费用，初步了解机构。",
-    visit: "安排线下实地参观，了解环境与设施。",
-    assessment: "进行长者身体与心理健康评估，量身制定照护方案。",
-    contract: "确认入住意向，签署相关入住协议。",
-    prepare: "家属协助准备生活用品及入住材料。",
-    movein: "长者正式入住，开展个性化照护服务。",
+    consult: "通过电话或官网咨询服务内容，了解机构整体情况。",
+    visit: "安排前往机构现场参观，熟悉环境和服务设施。",
+    assessment: "对长者身体心理健康评估，制定专属照护方案。",
+    contract: "明确服务内容与收费标准，正式签署入住协议。",
+    prepare: "家属协助准备个人物品，整理相关入住材料。",
+    movein: "长者正式入住机构生活，接受个性化照护服务。",
 };
 // 家属反馈
 const reviewData = [
     {
         category: "家属反馈",
         title: "护理人员非常专业，家人很放心。",
-        src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/feedback.jpg",
     },
     {
         category: "入住体验",
         title: "环境干净整洁，老人住得舒心。",
-        src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/room.jpg",
         // content: <DummyContent />,
     },
     {
         category: "服务评价",
         title: "膳食搭配合理，老人吃得健康。",
-        src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/food.jpg",
         // content: <DummyContent />,
     },
 
     {
         category: "康复训练",
         title: "康复活动丰富，身体状态明显改善。",
-        src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/recover.jpg",
     },
     {
         category: "交流互动",
         title: "老人交到了很多朋友，精神状态更好了。",
-        src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/communication.jpg",
     },
     {
         category: "医疗保障",
         title: "医疗服务响应及时，给我们一家人吃了定心丸。",
-        src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        src: "/src/assets/home/emt.jpg",
     },
 ];
 
@@ -277,23 +280,23 @@ onBeforeUnmount(() => {
                 <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <CardContainer>
                         <CardBody
-                            class="group/card relative size-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 sm:w-[50rem] h-[40rem] dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1]">
-                            <CardItem :translate-z="50" class="text-xl font-bold text-neutral-600 dark:text-white">
-                                Make things float in air
+                            class="group/card relative size-auto rounded-xl border border-black/[0.1] p-6 sm:w-[50rem] h-[40rem] dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] bg-img-1">
+                            <CardItem :translate-z="50"
+                                class="text-xl font-bold text-neutral-600 dark:text-white text-white">
+                                欢迎来到东软颐养中心
                             </CardItem>
                             <CardItem as="p" translate-z="60"
-                                class="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-300">
-                                Hover over this card to unleash the power of CSS perspective
+                                class="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-300 text-white">
+                                我们致力于为长者提供温馨、安全、智能的颐养服务，开启智慧养老新体验。
                             </CardItem>
                             <CardItem :translate-z="90" class="mt-4 w-full">
-                                <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                    height="1000" width="1000"
+                                <img src="/src/assets/home/floatCard.jpg" height="1000" width="1000"
                                     class="h-100 w-full rounded-xl object-cover group-hover/card:shadow-xl"
                                     alt="thumbnail" />
                             </CardItem>
                             <div class="mt-10 flex justify-center">
-                                <CardItem :translate-z="60" as="button" @click="login"
-                                    class="rounded-2xl bg-black px-8 py-4 text-lg font-bold text-white dark:bg-white dark:text-black">
+                                <CardItem :translate-z="60" as="button" @click.stop="login" class="rounded-2xl bg-[#769fcd] px-8 py-4 text-lg font-bold text-white dark:bg-white
+                                        dark:text-black">
                                     立即登入
                                 </CardItem>
                             </div>
@@ -303,146 +306,151 @@ onBeforeUnmount(() => {
             </div>
         </div>
 
-        <!-- 服务特色 -->
-        <div class="mt-10 relative bg-white dark:bg-black w-full">
-            <div class="max-w-6xl mx-auto px-4">
-                <h2 class="text-3xl font-semibold text-center mb-12 text-gray-800 dark:text-white">我们的服务</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div class="flex items-center justify-center">
-                        <FlipCard>
-                            <template #default>
-                                <img src="https://images.unsplash.com/photo-1525373698358-041e3a460346?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                                    alt="image" class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
-                                <div class="absolute bottom-4 left-4 text-xl font-bold text-white">医疗保障</div>
-                            </template>
-                            <template #back>
-                                <div class="flex min-h-full flex-col gap-2">
-                                    <h1 class="text-xl font-bold text-white">医疗保障</h1>
-                                    <p
-                                        class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
-                                        Inspira UI offers beautifully designed, reusable animation components and
-                                        includes
-                                        custom components developed by us and contributed by the community.
-                                    </p>
-                                </div>
-                            </template>
-                        </FlipCard>
+        <div class="bg-gray-100">
+            <!-- 服务特色 -->
+            <div class="relative dark:bg-black w-full">
+                <div class="max-w-6xl mx-auto px-4">
+                    <p>&nbsp</p>
+                    <div class="flex items-center justify-center mt-10">
+                        <h2 class="text-3xl font-semibold text-center mb-12 text-gray-800 dark:text-white ">我们的服务</h2>
                     </div>
-                    <div class="flex items-center justify-center">
-                        <FlipCard>
-                            <template #default>
-                                <img src="https://images.unsplash.com/photo-1525373698358-041e3a460346?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                                    alt="image" class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
-                                <div class="absolute bottom-4 left-4 text-xl font-bold text-white">营养配餐</div>
-                            </template>
-                            <template #back>
-                                <div class="flex min-h-full flex-col gap-2">
-                                    <h1 class="text-xl font-bold text-white">营养配餐</h1>
-                                    <p
-                                        class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
-                                        Inspira UI offers beautifully designed, reusable animation components and
-                                        includes
-                                        custom components developed by us and contributed by the community.
-                                    </p>
-                                </div>
-                            </template>
-                        </FlipCard>
-                    </div>
-                    <div class="flex items-center justify-center">
-                        <FlipCard>
-                            <template #default>
-                                <img src="https://images.unsplash.com/photo-1525373698358-041e3a460346?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                                    alt="image" class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
-                                <div class="absolute bottom-4 left-4 text-xl font-bold text-white">康复活动</div>
-                            </template>
-                            <template #back>
-                                <div class="flex min-h-full flex-col gap-2">
-                                    <h1 class="text-xl font-bold text-white">康复活动</h1>
-                                    <p
-                                        class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
-                                        Inspira UI offers beautifully designed, reusable animation components and
-                                        includes
-                                        custom components developed by us and contributed by the community.
-                                    </p>
-                                </div>
-                            </template>
-                        </FlipCard>
-                    </div>
-                    <div class="flex items-center justify-center">
-                        <FlipCard>
-                            <template #default>
-                                <img src="https://images.unsplash.com/photo-1525373698358-041e3a460346?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                                    alt="image" class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
-                                <div class="absolute bottom-4 left-4 text-xl font-bold text-white">康复活动</div>
-                            </template>
-                            <template #back>
-                                <div class="flex min-h-full flex-col gap-2">
-                                    <h1 class="text-xl font-bold text-white">康复活动</h1>
-                                    <p
-                                        class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
-                                        Inspira UI offers beautifully designed, reusable animation components and
-                                        includes
-                                        custom components developed by us and contributed by the community.
-                                    </p>
-                                </div>
-                            </template>
-                        </FlipCard>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div class="flex items-center justify-center">
+                            <FlipCard>
+                                <template #default>
+                                    <img src="/src/assets/home/medical.jpg" alt="image"
+                                        class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
+                                    <div class="absolute bottom-4 left-4 text-xl font-bold text-white">医疗保障</div>
+                                </template>
+                                <template #back>
+                                    <div class="flex min-h-full flex-col gap-2">
+                                        <h1 class="text-xl font-bold text-white">医疗保障</h1>
+                                        <p
+                                            class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
+                                            配备专业医疗团队，24小时健康守护，定期体检、慢病管理、用药指导，全方位保障长者身体健康。
+                                        </p>
+                                    </div>
+                                </template>
+                            </FlipCard>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <FlipCard>
+                                <template #default>
+                                    <img src="/src/assets/home/nutrition.jpg" alt="image"
+                                        class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
+                                    <div class="absolute bottom-4 left-4 text-xl font-bold text-white">营养配餐</div>
+                                </template>
+                                <template #back>
+                                    <div class="flex min-h-full flex-col gap-2">
+                                        <h1 class="text-xl font-bold text-white">营养配餐</h1>
+                                        <p
+                                            class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
+                                            营养师科学配餐，定制个性化膳食方案，确保每一餐兼顾健康与口味，让长者吃得放心、吃得舒心。
+                                        </p>
+                                    </div>
+                                </template>
+                            </FlipCard>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <FlipCard>
+                                <template #default>
+                                    <img src="/src/assets/home/rehabilitation.jpg" alt="image"
+                                        class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
+                                    <div class="absolute bottom-4 left-4 text-xl font-bold text-white">康复活动</div>
+                                </template>
+                                <template #back>
+                                    <div class="flex min-h-full flex-col gap-2">
+                                        <h1 class="text-xl font-bold text-white">康复活动</h1>
+                                        <p
+                                            class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
+                                            提供多样康复训练与文体活动，涵盖手工、书画、健身操等，丰富日常生活，促进身心健康。
+                                        </p>
+                                    </div>
+                                </template>
+                            </FlipCard>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <FlipCard>
+                                <template #default>
+                                    <img src="/src/assets/home/psychological.jpg" alt="image"
+                                        class="size-full rounded-2xl object-cover shadow-2xl shadow-black/40" />
+                                    <div class="absolute bottom-4 left-4 text-xl font-bold text-white">心理关怀</div>
+                                </template>
+                                <template #back>
+                                    <div class="flex min-h-full flex-col gap-2">
+                                        <h1 class="text-xl font-bold text-white">心理关怀</h1>
+                                        <p
+                                            class="mt-1 border-t border-t-gray-200 py-4 text-base font-medium leading-normal text-gray-100">
+                                            设有心理辅导、陪伴交流、亲情视频等关爱服务，关注长者心理健康，让每一位长者都感受到温暖与尊重。
+                                        </p>
+                                    </div>
+                                </template>
+                            </FlipCard>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 入住流程 -->
-        <div class="mt-10 py-20 bg-white dark:bg-black">
-            <div class="max-w-4xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-semibold mb-10 text-gray-800 dark:text-white">入住流程</h2>
-                <div class="h-fit w-full">
-                    <Timeline :items="checkinProcess">
-                        <template v-for="(item, index) in checkinProcess" :key="item.id + 'template'" #[item.id]>
-                            <div class="relative w-full pl-20 pr-4 md:pl-4">
-                                <h3
-                                    class="mb-4 block text-left text-2xl font-bold text-neutral-500 dark:text-neutral-500">
-                                    {{ `步骤 ${index + 1}` }}
-                                </h3>
-                            </div>
-                            <p class="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-                                {{ checkinDescriptions[item.id as keyof typeof checkinDescriptions] }}
-                            </p>
-                        </template>
-                    </Timeline>
-                </div>
-            </div>
-        </div>
+            <!-- 入住流程 -->
+            <div class="py-20 dark:bg-black">
+                <div class="max-w-4xl mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-semibold mb-10 text-gray-800 dark:text-white">入住流程</h2>
+                    <div class="h-fit w-full">
+                        <Timeline :items="checkinProcess">
+                            <template v-for="(item, index) in checkinProcess" :key="item.id + 'template'" #[item.id]>
+                                <div class="relative w-full pl-20 pr-4 md:pl-4 ">
+                                    <div class="flex">
+                                        <h3
+                                            class="mb-4 block text-left text-2xl font-bold text-neutral-500 dark:text-neutral-500">
+                                            {{ `步骤 ${index + 1}` }}
+                                        </h3>
+                                    </div>
 
-        <!-- 家属评价 -->
-        <div class="py-20 bg-white dark:bg-black">
-            <div class="w-full px-4">
-                <h2 class="text-3xl font-semibold text-center text-gray-800 dark:text-white mb-10">家属评价</h2>
-                <AppleCardCarousel>
-                    <AppleCarouselItem v-for="(card, index) in reviewData" :key="index" :index="index">
-                        <AppleCard :card="card" :index="index" :layout="true">
-                            <div :key="`dummy-content${index}`"
-                                class="mb-4 rounded-3xl bg-[#F5F5F7] p-8 md:p-14 dark:bg-neutral-800">
+                                </div>
                                 <p
-                                    class="mx-auto max-w-3xl font-sans text-base text-neutral-600 md:text-2xl dark:text-neutral-400">
-                                    <span class="font-bold text-neutral-700 dark:text-neutral-200">
-                                        The first rule of Apple club is that you boast about Apple club.
-                                    </span>
-                                    Keep a journal, quickly jot down a grocery list, and take amazing class notes. Want
-                                    to
-                                    convert those notes to text? No problem. Langotiya jeetu ka mara hua yaar is ready
-                                    to
-                                    capture every thought.
+                                    class="text-left mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+                                    {{ checkinDescriptions[item.id as keyof typeof checkinDescriptions] }}
                                 </p>
-                                <img src="https://assets.aceternity.com/macbook.png"
-                                    alt="Macbook mockup from Aceternity UI" height="500" width="500"
-                                    class="mx-auto size-full object-contain md:size-1/2" />
-                            </div>
-                        </AppleCard>
-                    </AppleCarouselItem>
-                </AppleCardCarousel>
+                            </template>
+                        </Timeline>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 家属评价 -->
+            <div class="py-20 dark:bg-black">
+                <div class="w-full px-4">
+                    <h2 class="text-3xl font-semibold text-center text-gray-800 dark:text-white mb-10">家属评价</h2>
+                    <AppleCardCarousel>
+                        <AppleCarouselItem v-for="(card, index) in reviewData" :key="index" :index="index">
+                            <AppleCard :card="card" :index="index" :layout="true">
+                                <div :key="`dummy-content${index}`"
+                                    class="mb-4 rounded-3xl bg-[#F5F5F7] p-8 md:p-14 dark:bg-neutral-800">
+                                    <p
+                                        class="mx-auto max-w-3xl font-sans text-base text-neutral-600 md:text-2xl dark:text-neutral-400">
+                                        <span class="font-bold text-neutral-700 dark:text-neutral-200">
+                                            The first rule of Apple club is that you boast about Apple club.
+                                        </span>
+                                        Keep a journal, quickly jot down a grocery list, and take amazing class notes.
+                                        Want
+                                        to
+                                        convert those notes to text? No problem. Langotiya jeetu ka mara hua yaar is
+                                        ready
+                                        to
+                                        capture every thought.
+                                    </p>
+                                    <img src="https://assets.aceternity.com/macbook.png"
+                                        alt="Macbook mockup from Aceternity UI" height="500" width="500"
+                                        class="mx-auto size-full object-contain md:size-1/2" />
+                                </div>
+                            </AppleCard>
+                        </AppleCarouselItem>
+                    </AppleCardCarousel>
+                </div>
             </div>
         </div>
+
+
         <!-- 页脚 -->
         <footer class="bg-gray-200 dark:bg-gray-800 py-6 mt-auto">
             <div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-600 dark:text-gray-400">
@@ -458,7 +466,14 @@ onBeforeUnmount(() => {
 }
 
 .bg-img {
-    background-image: url('/src/assets/bg_doge.png');
+    background-image: url('/src/assets/home/home.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.bg-img-1 {
+    background-image: url('/src/assets/home/fall.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
