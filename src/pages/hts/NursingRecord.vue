@@ -112,7 +112,7 @@ const handleBatchDelete = () => {
     type: 'warning'
   }).then(() => {
     const ids = selectedRecords.value.map(item => item.id)
-    axios.post('/nursingRecord/deleteBatch', { ids })
+    axios.post('/nursingRecord/deleteBatchByIds', { ids : ids })
       .then(res => {
         if (res.data.status === 200) {
           ElMessage.success(`已删除${ids.length}条记录`)
