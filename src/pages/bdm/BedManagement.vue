@@ -145,14 +145,14 @@ const columns: ColumnDef<BedUser>[] = [
                 return h('div', { class: 'flex-row flex ' }, [
                     h(Button, {
                         class: '',
-                        disabled:true,
-                        variant:'outline'
+                        disabled: true,
+                        variant: 'outline'
                     }, '床位调换'
                     ),
                     h(Button, {
                         class: '',
-                        disabled:true,
-                        variant:'outline',
+                        disabled: true,
+                        variant: 'outline',
                     },
                         '修改'
                     )
@@ -257,7 +257,8 @@ function handleBedSelect(v: AcceptableValue) {
     bedExchangeRequest.value.bedNumber = v as string;
 }
 async function onSubmit() {
-    bedExchangeRequest.value.customerId = curCustomer.value?.Id as number
+    const exchangeFloor=Number(bedExchangeRequest.value.roomNumber.split('')[0])
+    bedExchangeRequest.value.customerId = curCustomer.value?.customerId as number
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
     toast.promise(promise, {
         loading: '提交中...',
@@ -265,12 +266,19 @@ async function onSubmit() {
         error: () => '发生了错误'
     })
     const res = await axiosInstance.post("/bedUsageRecord/exchange", bedExchangeRequest.value)
-    console.log(res)
+    reloadFloorBed(exchangeFloor)
+    reload()
     resolve(undefined);
     diglogOpen.value = false;
 }
 function handleCurRecordSelect(e: '正在使用' | '使用历史') {
     curRecordSelect.value = e
+}
+async function reloadFloorBed(exchangeFloor:number){
+    const floorBed = await xhrWithAdapter('/bed/listByFloor', {
+        floor: exchangeFloor,
+    }, bedsAdapter)
+    bdmStore.setFloorBedsWithNoneCache(exchangeFloor, floorBed);
 }
 async function handleBedUpdate() {
     bedUpdateRequest.id = curCustomer.value?.Id as number
@@ -283,16 +291,16 @@ async function handleBedUpdate() {
     const res = await axiosInstance.post('/bedUsageRecord/update', bedUpdateRequest);
     resolve(undefined)
     changeDialogOpen.value = false;
+    reload()
+}
+async function reload() {
     const bedData: BedUser[][] = [[], []];
     responseAdaptor(bedData, await xhrBedMessage());
     bdmStore.setUsingBeds(bedData[1]);
     bdmStore.setUsedBeds(bedData[0]);
 }
 onMounted(async () => {
-    const bedData: BedUser[][] = [[], []];
-    responseAdaptor(bedData, await xhrBedMessage());
-    bdmStore.setUsingBeds(bedData[1]);
-    bdmStore.setUsedBeds(bedData[0]);
+    reload()
 })
 </script>
 

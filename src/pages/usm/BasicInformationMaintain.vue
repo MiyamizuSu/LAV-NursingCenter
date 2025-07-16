@@ -299,6 +299,7 @@ async function handleRemoveUser(userId: number) {
     else {
         resolve(undefined);
     }
+    await loadUsers()
 }
 async function handleUpdateSubmit(userValue: User) {
     const { promise, resolve, reject } = Promise.withResolvers<undefined>();
@@ -506,8 +507,8 @@ onMounted(async function () {
         <DialogRoot v-model:open="updateDialogOpen">
             <DialogPortal>
                 <DialogContent>
-                    <DialogTitle>
-                        修改用户信息
+                    <DialogTitle >
+                        {{ dialogUsingMode==='add'?'添加用户信息':'修改用户信息' }}
                     </DialogTitle>
                     <Form @submit="(values: any) => handleUpdateSubmit(values)" :initial-values="curUser"
                         :validation-schema="userMessageSchema">
@@ -606,18 +607,14 @@ onMounted(async function () {
                                             员工类型
                                         </FormLabel>
                                         <FormControl>
-                                            <RadioGroup :default-value="curUser.userType" v-bind="componentField">
-                                                <div class="flex flex-row gap-6">
-                                                    <div class="flex flex-row">
-                                                        <RadioGroupItem id="nurse" :value="1"></RadioGroupItem>
+                                            <div class="flex flex-row gap-6">
+                                                    <div class="flex flex-row" v-if="dialogUsingMode==='add' || curUser.userType===1">
                                                         <Label for="nurse">护工</Label>
                                                     </div>
-                                                    <div class="flex flex-row">
-                                                        <RadioGroupItem id="admin" :value="0"></RadioGroupItem>
+                                                    <div class="flex flex-row" v-else>
                                                         <Label for="admin">管理员</Label>
                                                     </div>
                                                 </div>
-                                            </RadioGroup>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

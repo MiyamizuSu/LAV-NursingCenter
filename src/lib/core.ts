@@ -108,10 +108,24 @@ export async function createWebSocket(userId: number) {
 export function useWebSocket() {
     return appWebSocket
 }
+export const wbHandlerMap: { [key: string]: () => void } = {}
+
 export function resetWebSocket(wb: WebSocket) {
-    appWebSocket = wb;
+    wb.onmessage = function (ev) {
+        const key = ev.data
+        const handler = wbHandlerMap[key]
+        if (typeof handler === 'function') {
+            console.log('收到消息：', key)
+            handler()
+        } else {
+            console.warn('未找到对应 handler:', key)
+        }
+    }
+
+    appWebSocket = wb
 }
-export async function post<T=any>(url:string,data:any,config?:AxiosRequestConfig<any>){
-    const res= await axiosInstance.post<AxiosData<T>>(url,data,config)
+
+export async function post<T = any>(url: string, data: any, config?: AxiosRequestConfig<any>) {
+    const res = await axiosInstance.post<AxiosData<T>>(url, data, config)
     return res
 }
