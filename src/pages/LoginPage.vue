@@ -9,21 +9,20 @@ import Card from '@/components/ui/card/Card.vue'
 import CardContent from '@/components/ui/card/CardContent.vue'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { motion } from 'motion-v'
+import { motion, useMotionValue } from 'motion-v'
 import { axiosInstance as axios, createWebSocket, resetWebSocket } from '@/lib/core'
 import { ElMessage } from 'element-plus'
 import DynamicButton from '@/components/custom/DynamicButton.vue'
 import { toast } from 'vue-sonner'
 import { onMounted, onUnmounted } from 'vue'
-import z from 'zod'
-const router = useRouter()
-
-const isCustomerLogin = ref(false)
-const anic=reactive({
-    x:0,
-    y:0
+import z, { set } from 'zod'
+const router = useRouter();
+const isCustomerLogin = ref(false);
+const anic = ref({
+    y: 0,
+    x: 0,
+    opacity: 1,
 })
-
 
 type UserMes = {
     account: string,
@@ -129,11 +128,12 @@ const customerLogin = () => {
         }
     })
 }
-function handleFromStateSelect(){
+function handleFromStateSelect() {
     isCustomerLogin.value = !(isCustomerLogin.value)
-    anic.y=-100;
-    anic.x=0
-    console.log(anic.y)
+    anic.value = { y: -50, opacity: 0, x: 0 }
+    setTimeout(() => {
+        anic.value = { y: 0, opacity: 1,x:0 }
+    }, 500)
 }
 </script>
 
@@ -153,21 +153,9 @@ function handleFromStateSelect(){
     </div>
     <div class="flex justify-center items-center h-screen w-screen bg-gradient-to-br dark:bg-slate-900 to-indigo-50">
         <motion.div :initial="{
-            x: -100,
-            y: -100
-        }" :animate="{
-            x: 0,
-            y: 0,
-        }" :transition="{
-            type: 'spring'
-        }" class="absolute  -translate-x-1/4 z-1 bg-white ">
-        </motion.div>
-        <motion.div :initial="{
             x: 100,
             y: 100
-        }" :animate="anic" :transition="{
-            type: 'spring'
-        }" class="w-full max-w-md px-4 mx-auto">
+        }" :animate=anic :transition="{ type: 'spring' }" class="w-full max-w-md px-4 mx-auto">
 
             <Card class="shadow-xl rounded-2xl overflow-hidden border-none dark:bg-slate-900 backdrop-blur-sm">
                 <CardContent class="p-8 space-y-6">

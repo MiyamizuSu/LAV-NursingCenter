@@ -11,30 +11,13 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import type { BedMes } from './type';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useBedManagementStore } from '@/lib/store';
 import type { Bed } from '@/lib/type';
-import { xhrWithAdapter } from '@/lib/core';
-import { bedsAdapter } from './helper';
+import { post, xhrWithAdapter } from '@/lib/core';
+import { bedListCountAdapter, bedsAdapter } from './helper';
 const bdmStore = useBedManagementStore();
-const floorBedMessages: BedMes[] = [
-    {
-        bedType: "总量",
-        count: 50
-    },
-    {
-        bedType: "空闲",
-        count: 20,
-    },
-    {
-        bedType: "有人",
-        count: 20,
-    },
-    {
-        bedType: "外出",
-        count: 10
-    }
-]
+const floorBedMessages= reactive<BedMes[]>([])
 const bedTypeImgUrl = {
     总量: '/src/assets/all.png',
     空闲: '/src/assets/free.png',
@@ -68,6 +51,14 @@ onMounted(async () => {
         }, bedsAdapter)
         bdmStore.setFloorBedsWithNoneCache(curSelectFloorVal.value, floorBed);
     }
+    if (bdmStore.getRoomListCount.length === 0) {
+        const res = await post<{[key: string]: number}>('/bed/listCounts', {})
+        const bedCounts=res.data.data
+        for (let key in bedCounts) {
+            bdmStore.setRoomList(bedCounts[key],Number(key));
+        }
+    }
+    bedListCountAdapter(bdmStore.getRoomListCount,floorBedMessages);
 })
 </script>
 
@@ -76,7 +67,7 @@ onMounted(async () => {
         <div id="header" class="flex space-x-4">
             <div class="flex items-center">
                 <Select @update:model-value="selectValChange" :default-value="curSelectFloorVal">
-                    <SelectTrigger>
+                    <SelectTrigger class="backdrop-blur-md">
                         <SelectValue placeholder="选择楼层"></SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -98,17 +89,17 @@ onMounted(async () => {
             </div>
         </div>
         <div class="flex h-full max-w-full ml-4 mr-4">
-            <div class="border border-gray-300 rounded flex w-full max-h-full flex-row gap-10 items-center">
+            <div class="border border-gray-300 rounded flex w-full max-h-full flex-row gap-10 items-center bg-white rounded-t-xl rounded-b-xl">
                 <div v-for="[rNumber, beds] in Array.from(useFloorBeds.entries())" :key="rNumber"
                     class="border border-gray-300 rounded flex-1 ">
-                    <div class="border border-gray-400 rounded border-b flex justify-center">
+                    <div class="border border-gray-400 rounded border-b flex justify-center bg-white">
                         <p>
                             {{ rNumber }}
                         </p>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2  shadow-md bg-white rounded-b-md">
                         <div v-for="bed in beds" :key="bed.bNumber" class="flex items-center flex-col p-2">
-                            <img :src="bedTypeImgUrl[bed.bStatus]" class="min-w-[30px] max-w-[50px]" />
+                            <img :src="bedTypeImgUrl[bed.bStatus]" class="min-w-[30px] max-w-[50px]"/>
                             <p>{{ bed.bNumber }}</p>
                         </div>
                     </div>

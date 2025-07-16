@@ -22,7 +22,7 @@ const initWebSocket = () => {
     } else if (sessionStorage.getItem('userType') == '1') {
         user = JSON.parse(localStorage.getItem('user1')!)
     }
-    let url = axios.defaults.baseURL?.replace("http://", "ws://").replace("https://", "wss://") + "/websocket/" + user.userId.toString()
+    let url = axios.defaults.baseURL?.replace("http://", "ws://").replace("https://", "wss://") + "/webSocket/" + user.userId.toString()
     websocket = new WebSocket(url)
     websocket.onopen = (ev) => {
         // console.log("WebSocket连接成功：", ev);
@@ -230,12 +230,14 @@ const loadData = () => {
                 <br>
 
                 <br>
-                <div
+                <!-- <div
                     style="background-color: #007bff; margin-top: 2vh; width: 100%; height: 3vh; align-content: center;">
                     <label style="font-size: 16px; font-weight: bold; color: white; font-size: 15px; ">护理级别列表</label>
+                </div> -->
+                <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                    护理级别列表
                 </div>
-
-                <el-table :data="tableData" :stripe="true" style="width: 100%;" :fit="true">
+                <el-table class="rounded-b-md shadow-md" :data="tableData" :stripe="true" style="width: 100%;" :fit="true">
                     <el-table-column type="index" label="序号" align="center" min-width="80">
                     </el-table-column>
                     <el-table-column property="name" label="级别名称" align="center">

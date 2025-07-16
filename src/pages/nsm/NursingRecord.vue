@@ -77,7 +77,7 @@ const start_deleteRecord = (record: NursingRecord) => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingRecord/delete", { id: record.id })
+        axios.post("/nursingRecord/delete", { id: record.id })
             .then(res => {
                 if (res.data.status == 200) {
                     loadData()
@@ -110,7 +110,7 @@ const start_deleteBatch = () => {
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-        axios.post("http://localhost:9000/nursingRecord/deleteBatch", multipleSelection.value)
+        axios.post("/nursingRecord/deleteBatch", multipleSelection.value)
             .then(res => {
                 if (res.data.status == 200) {
                     loadRecords()
@@ -133,7 +133,7 @@ const start_deleteBatch = () => {
 }
 
 const loadUsers = () => {
-    axios.post("http://localhost:9000/customer/page", customer_queryEntity.value)
+    axios.post("/customer/page", customer_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 nursingCustomers.value = res.data.data
@@ -152,7 +152,7 @@ const loadUsers = () => {
 
 const loadRecords = () => {
     record_queryEntity.value.customerId = selectedCustomer.value.customerId
-    axios.post("http://localhost:9000/nursingRecord/page", record_queryEntity.value)
+    axios.post("/nursingRecord/page", record_queryEntity.value)
         .then(res => {
             if (res.data.status == 200) {
                 currentRecords.value = res.data.data
@@ -187,12 +187,15 @@ const loadData = () => {
 
             <!-- 左右表格区域 -->
             <el-row style="width: 100%;">
-                <el-card style="width: 43%; height: 70vh; overflow-y: auto;">
-                    <div
+                <div style="width: 43%; height: 70vh; overflow-y: auto;">
+                    <!-- <div
                         style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; align-content: center;">
                         <label style="text-align: center; color: white; font-size: 15px; "> 客户信息</label>
+                    </div> -->
+                    <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                        客户信息
                     </div>
-                    <el-table :data="nursingCustomers" :border="true" :stripe="true" :fit="true">
+                    <el-table class="shadow-md rounded-b-md" :data="nursingCustomers" :border="true" :stripe="true" :fit="true">
                         <el-table-column type="index" label="序号" align="center">
                         </el-table-column>
                         <el-table-column property="name" label="姓名" align="center">
@@ -221,14 +224,17 @@ const loadData = () => {
                         @update:current-page="customer_handleCurrentChange"
                         layout="total, sizes, prev, pager, next, jumper" :total="customer_total"
                         style="margin-top: 10vh;" />
-                </el-card>
+                </div>
 
-                <el-card style="width: 55%; height: 70vh; margin-left: 2%; overflow-y: auto;">
-                    <div
+                <div style="width: 55%; height: 70vh; margin-left: 2%; overflow-y: auto;">
+                    <!-- <div
                         style="background-color: #007bff; font-size: 16px; font-weight: bold; width: 100%; height: 3vh; ">
                         <label style="color: white; font-size: 15px; "> 护理记录 - {{ selectedCustomer.name }}</label>
+                    </div> -->
+                    <div class="text-white px-4 py-2 font-semibold rounded-t-md" style="background-color: #007bff;">
+                        护理记录 - {{ selectedCustomer.name }}
                     </div>
-                    <el-table :data="currentRecords" :border="true" :stripe="true" :fit="true"
+                    <el-table class="shadow-md rounded-b-md" :data="currentRecords" :border="true" :stripe="true" :fit="true"
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" align="center"></el-table-column>
                         <el-table-column type="index" label="序号" align="center">
@@ -262,7 +268,7 @@ const loadData = () => {
                         @update:current-page="record_handleCurrentChange"
                         layout="total, sizes, prev, pager, next, jumper" :total="record_total"
                         style="margin-top: 10vh;" />
-                </el-card>
+                </div>
 
             </el-row>
 
@@ -272,119 +278,119 @@ const loadData = () => {
 
 <style scoped>
 .add-button {
-  background-color: #007bff;
-  font-size: 16px;
+    background-color: #007bff;
+    font-size: 16px;
 }
 
 .delete-button {
-  background-color: red;
-  color: white;
+    background-color: red;
+    color: white;
 }
 
 .container {
-  padding: 16px;
-  background: #f5f7fa;
-  min-height: calc(100vh - 60px);
+    padding: 16px;
+    background: #f5f7fa;
+    min-height: calc(100vh - 60px);
 }
 
 .query-bar {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .1);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .el-table {
-  :deep(.el-table__cell) {
-    min-width: 80px;
-    /* 设置最小列宽 */
-  }
+    :deep(.el-table__cell) {
+        min-width: 80px;
+        /* 设置最小列宽 */
+    }
 
-  :deep(.cell) {
-    white-space: nowrap;
-    /* 防止文字换行 */
-  }
+    :deep(.cell) {
+        white-space: nowrap;
+        /* 防止文字换行 */
+    }
 
-  :deep(th),
-  :deep(td) {
-    padding: 8px 12px !important;
-  }
+    :deep(th),
+    :deep(td) {
+        padding: 8px 12px !important;
+    }
 }
 
 .el-pagination {
-  margin: 16px 0;
+    margin: 16px 0;
 }
 
 :deep(.el-dialog) {
-  border-radius: 12px;
+    border-radius: 12px;
 
-  .el-form-item {
-    margin-bottom: 18px;
+    .el-form-item {
+        margin-bottom: 18px;
 
-    &__label {
-      font-weight: 500;
-      color: #606266;
+        &__label {
+            font-weight: 500;
+            color: #606266;
+        }
     }
-  }
 }
 
 .status-tag {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
 
-  &--active {
-    background: #e8f4ff;
-    color: #409eff;
-  }
+    &--active {
+        background: #e8f4ff;
+        color: #409eff;
+    }
 
-  &--inactive {
-    background: #fff0f0;
-    color: #f56c6c;
-  }
+    &--inactive {
+        background: #fff0f0;
+        color: #f56c6c;
+    }
 }
 
 .el-select {
-  width: 100%;
+    width: 100%;
 }
 
 .el-button {
-  transition: all 0.3s;
+    transition: all 0.3s;
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
-  }
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+    }
 }
 
 .flex-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
 }
 
 .button-group {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
 }
 
 .el-button {
-  transition: all 0.2s;
+    transition: all 0.2s;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 6px rgba(28, 126, 255, 0.2);
-  }
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(28, 126, 255, 0.2);
+    }
 
-  &--danger:hover {
-    box-shadow: 0 2px 6px rgba(245, 108, 108, 0.2);
-  }
+    &--danger:hover {
+        box-shadow: 0 2px 6px rgba(245, 108, 108, 0.2);
+    }
 }
 
 

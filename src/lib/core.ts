@@ -1,16 +1,16 @@
-import axios, { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
 import { router } from './router'
-import type { Adapter } from "./type";
+import type { Adapter, AxiosData } from "./type";
 
 let baseUrl: string;
-let domain:string
+let domain: string
 let appWebSocket: WebSocket = new WebSocket('');
 if (import.meta.env.VITE_DEV_ENV === 'sameSite') {
-    domain=import.meta.env.VITE_DEV_DOMAIN_SAMESITE
+    domain = import.meta.env.VITE_DEV_DOMAIN_SAMESITE
     baseUrl = import.meta.env.VITE_DEV_URL_SAMESITE
 }
 else {
-    domain=import.meta.env.VITE_DEV_DOMAIN_UNSAMESITE
+    domain = import.meta.env.VITE_DEV_DOMAIN_UNSAMESITE
     baseUrl = import.meta.env.VITE_DEV_URL_UNSAMESITE
 }
 
@@ -65,31 +65,44 @@ axiosInstance.interceptors.request.use(function (config) {
 },
     function (error) {
         return Promise.reject(error);
-});
+    });
 
 //响应拦截器
 axiosInstance.interceptors.response.use(function (response) {
     // 获取响应之前的动作
     // 当token失效时，会自动跳转至提示页面要求用户登录
-    if (response.data === 'invalid token') {
-        if (sessionStorage.getItem('userType') == '1') {
-            localStorage.removeItem('NurseUsing');
-            sessionStorage.removeItem('userType');
-        } else if (sessionStorage.getItem('userType') == '0') {
-            localStorage.removeItem('AdminUsing');
-            sessionStorage.removeItem('userType');
-        } else if (sessionStorage.getItem('customerActive') != null) {
-            localStorage.removeItem('customerUsing');
-            sessionStorage.removeItem('customerActive');
-        }
-        router.push('/errorPage');
-    }
+    // if (response.data === 'invalid token') {
+    //     if (sessionStorage.getItem('userType') == '1') {
+    //         localStorage.removeItem('NurseUsing');
+    //         sessionStorage.removeItem('userType');
+    //     } else if (sessionStorage.getItem('userType') == '0') {
+    //         localStorage.removeItem('AdminUsing');
+    //         sessionStorage.removeItem('userType');
+    //     } else if (sessionStorage.getItem('customerActive') != null) {
+    //         localStorage.removeItem('customerUsing');
+    //         sessionStorage.removeItem('customerActive');
+    //     }
+    //     router.push('/errorPage');
+    // }
     return response;
 },
     function (error) {
+        console.log("响应错误：", error)
+        if (error.response.status == 401) {
+            if (sessionStorage.getItem('userType') == '1') {
+                localStorage.removeItem('NurseUsing');
+                sessionStorage.removeItem('userType');
+            } else if (sessionStorage.getItem('userType') == '0') {
+                localStorage.removeItem('AdminUsing');
+                sessionStorage.removeItem('userType');
+            } else if (sessionStorage.getItem('customerActive') != null) {
+                localStorage.removeItem('customerUsing');
+                sessionStorage.removeItem('customerActive');
+            }
+            router.push('/errorPage');
+        }
         return Promise.reject(error);
-});
-
+    });
 export async function xhrWithAdapter<S extends object | object[], T extends object | object[]>(url: string, requestBody: object, adapter: Adapter<S, T>, axios: AxiosInstance = axiosInstance): Promise<T> {
     const response = (await axios.post<S>(url, requestBody)).data as { data: any };
     return adapter.adapt(response.data);
@@ -106,9 +119,13 @@ export async function createWebSocket(userId: number) {
     })
     return wbPromise
 }
-export function useWebSocket(){
+export function useWebSocket() {
     return appWebSocket
 }
-export function resetWebSocket(wb:WebSocket){
-    appWebSocket=wb;
+export function resetWebSocket(wb: WebSocket) {
+    appWebSocket = wb;
+}
+export async function post<T=any>(url:string,data:any,config?:AxiosRequestConfig<any>){
+    const res= await axiosInstance.post<AxiosData<T>>(url,data,config)
+    return res
 }

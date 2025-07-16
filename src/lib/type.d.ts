@@ -1,3 +1,5 @@
+import type { any } from "zod";
+
 type Key<T extends object>=keyof T
 type SetValue<T> = T extends Set<infer U> ? U : never;
 type Year = `${number}${number}${number}${number}`
@@ -98,4 +100,9 @@ export interface Adapter<S extends object | object[], T extends object | object[
 export type Room = {
     id: number
     roomNumber: string
+}
+export type AxiosData<T = any>={
+    status: number,
+    msg: string,
+    data:T
 }
